@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{CD8E9A85-48C6-4D08-8810-767A4324FFC1}</ProjectGuid>
+    <ProjectGuid>{1407514D-E3D2-4E71-B19E-7DE2153AD078}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>InitDirect3D</RootNamespace>
   </PropertyGroup>

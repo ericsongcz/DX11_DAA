@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InitDirect3D", "InitDirect3D\InitDirect3D.vcxproj", "{CD8E9A85-48C6-4D08-8810-767A4324FFC1}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InitDirect3D", "InitDirect3D\InitDirect3D.vcxproj", "{1407514D-E3D2-4E71-B19E-7DE2153AD078}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Win32 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{CD8E9A85-48C6-4D08-8810-767A4324FFC1}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CD8E9A85-48C6-4D08-8810-767A4324FFC1}.Debug|Win32.Build.0 = Debug|Win32
-		{CD8E9A85-48C6-4D08-8810-767A4324FFC1}.Release|Win32.ActiveCfg = Release|Win32
-		{CD8E9A85-48C6-4D08-8810-767A4324FFC1}.Release|Win32.Build.0 = Release|Win32
+		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Debug|Win32.Build.0 = Debug|Win32
+		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Release|Win32.ActiveCfg = Release|Win32
+		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
