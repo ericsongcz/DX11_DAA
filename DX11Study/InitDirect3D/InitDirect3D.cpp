@@ -282,7 +282,7 @@ bool InitD3D(HWND hWnd)
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3, 
 											   D3D11_SDK_VERSION, &swapChainDesc, &swapChain, &device, nullptr, &deviceContext);
 
-	if (FAILED(hr))
+	if (HR(hr))
 	{
 		MessageBox(hWnd, TEXT("D3D11CreateDeviceAndSwapChain failed!"), TEXT("Error"), MB_OK);
 		return false;
