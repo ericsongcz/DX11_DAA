@@ -30,12 +30,21 @@
     <ClInclude Include="InitDirect3D.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="D3DApp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="InitDirect3D.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DApp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
