@@ -15,11 +15,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	InitDirect3D app(800, 600, TEXT("D3DApp Demo"));
-	if (app.Init())
+	InitDirect3D* app = new InitDirect3D(800, 600, TEXT("D3DApp Demo"));
+	if (app->Init())
 	{
-		app.Run();
+		app->Run();
 	}
+
+	delete app;
 
 	return 0;
 }
@@ -63,4 +65,10 @@ void InitDirect3D::DrawScene()
 	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	mSwapChain->Present(0, 0);
+}
+
+void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
+{
+	int i = 100;
+	int j = i * 100;
 }

@@ -13,4 +13,5 @@ public:
 	void OnResize();
 	void UpdateScene(float dt);
 	void DrawScene();
+	void OnMouseDown(WPARAM btnState, int x, int y);
 };
