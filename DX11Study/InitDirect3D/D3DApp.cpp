@@ -1,8 +1,11 @@
 #include "stdafx.h"
 #include "D3DApp.h"
-#include <windows.h>
+#include <WindowsX.h>
 #include "Resource.h"
-#include "Utils.h"
+#include "D3DUtils.h"
+#include <cassert>
+#include <DxErr.h>
+#include <sstream>
 
 D3DApp* gD3DApp;
 
@@ -16,6 +19,11 @@ D3DApp::D3DApp(float width, float height, wstring title, bool fullScreen)
 	mScreenHeight(height),
 	mMainWinCaption(title),
 	mFullScreen(fullScreen),
+	mEnable4xMsaa(false),
+	m4xMsaaQuality(0),
+	mResizing(false),
+	mMaximized(false),
+	mMinimized(false),
 	mAppPaused(false),
 	mDevice(nullptr),
 	mDeviceContext(nullptr),
@@ -25,6 +33,7 @@ D3DApp::D3DApp(float width, float height, wstring title, bool fullScreen)
 	mDepthStencilView(nullptr)
 {
 	gD3DApp = this;
+	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 }
 
 D3DApp::~D3DApp()
@@ -196,6 +205,7 @@ void D3DApp::Run()
 
 	// 主消息循环: 
 	ZeroMemory(&msg, sizeof(MSG));
+	mTimer.Reset();
 
 	while (msg.message != WM_QUIT)
 	{
@@ -208,8 +218,11 @@ void D3DApp::Run()
 		// Otherwise, do animation/game stuff.
 		else
 		{
+			mTimer.Tick();
 			if (!mAppPaused)
 			{
+				CalculateFrameStats();
+				UpdateScene(mTimer.DeltaTime());
 				DrawScene();
 			}
 			else
@@ -220,50 +233,243 @@ void D3DApp::Run()
 	}
 }
 
-void D3DApp::DrawScene()
-{
-	float clearColor[] = { RGB256(100), RGB256(149), RGB256(237) };
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	mSwapChain->Present(0, 0);
-}
-
 LRESULT CALLBACK D3DApp::MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-
 	switch (message)
 	{
+		// WM_ACTIVATE is sent when the window is activated or deactivated.  
+		// We pause the game when the window is deactivated and unpause it 
+		// when it becomes active.  
 	case WM_ACTIVATE:
 		if (LOWORD(wParam) == WA_INACTIVE)
 		{
 			mAppPaused = true;
+			mTimer.Stop();
 		}
 		else
 		{
 			mAppPaused = false;
+			mTimer.Start();
 		}
-		break;
+		return 0;
 
-	case WM_COMMAND:
-		wmId = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// 分析菜单选择: 
+		// WM_SIZE is sent when the user resizes the window.  
+	case WM_SIZE:
+		// Save the new client area dimensions.
+		mScreenWidth = LOWORD(lParam);
+		mScreenHeight = HIWORD(lParam);
+		if (mDevice)
+		{
+			if (wParam == SIZE_MINIMIZED)
+			{
+				mAppPaused = true;
+				mMinimized = true;
+				mMaximized = false;
+			}
+			else if (wParam == SIZE_MAXIMIZED)
+			{
+				mAppPaused = false;
+				mMinimized = false;
+				mMaximized = true;
+				OnResize();
+			}
+			else if (wParam == SIZE_RESTORED)
+			{
 
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO:  在此添加任意绘图代码...
-		EndPaint(hWnd, &ps);
-		break;
+				// Restoring from minimized state?
+				if (mMinimized)
+				{
+					mAppPaused = false;
+					mMinimized = false;
+					OnResize();
+				}
+
+				// Restoring from maximized state?
+				else if (mMaximized)
+				{
+					mAppPaused = false;
+					mMaximized = false;
+					OnResize();
+				}
+				else if (mResizing)
+				{
+					// If user is dragging the resize bars, we do not resize 
+					// the buffers here because as the user continuously 
+					// drags the resize bars, a stream of WM_SIZE messages are
+					// sent to the window, and it would be pointless (and slow)
+					// to resize for each WM_SIZE message received from dragging
+					// the resize bars.  So instead, we reset after the user is 
+					// done resizing the window and releases the resize bars, which 
+					// sends a WM_EXITSIZEMOVE message.
+				}
+				else // API call such as SetWindowPos or mSwapChain->SetFullscreenState.
+				{
+					OnResize();
+				}
+			}
+		}
+		return 0;
+
+		// WM_EXITSIZEMOVE is sent when the user grabs the resize bars.
+	case WM_ENTERSIZEMOVE:
+		mAppPaused = true;
+		mResizing = true;
+		mTimer.Stop();
+		return 0;
+
+		// WM_EXITSIZEMOVE is sent when the user releases the resize bars.
+		// Here we reset everything based on the new window dimensions.
+	case WM_EXITSIZEMOVE:
+		mAppPaused = false;
+		mResizing = false;
+		mTimer.Start();
+		OnResize();
+		return 0;
+
+		// WM_DESTROY is sent when the window is being destroyed.
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		return 0;
+
+		// The WM_MENUCHAR message is sent when a menu is active and the user presses 
+		// a key that does not correspond to any mnemonic or accelerator key. 
+	case WM_MENUCHAR:
+		// Don't beep when we alt-enter.
+		return MAKELRESULT(0, MNC_CLOSE);
+
+		// Catch this message so to prevent the window from becoming too small.
+	case WM_GETMINMAXINFO:
+		((MINMAXINFO*)lParam)->ptMinTrackSize.x = 200;
+		((MINMAXINFO*)lParam)->ptMinTrackSize.y = 200;
+		return 0;
+
+	case WM_LBUTTONDOWN:
+	case WM_MBUTTONDOWN:
+	case WM_RBUTTONDOWN:
+		OnMouseDown(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_LBUTTONUP:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONUP:
+		OnMouseUp(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+	case WM_MOUSEMOVE:
+		OnMouseMove(wParam, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+		return 0;
+
+	case WM_KEYDOWN:
+		WORD keyCode = LOWORD(wParam);
+
+		switch (keyCode)
+		{
+		case VK_ESCAPE:
+			PostQuitMessage(0);
+			break;
+		default:
+			break;
+		}
 	}
-	return 0;
+
+	return DefWindowProc(hWnd, message, wParam, lParam);
+}
+
+void D3DApp::OnResize()
+{
+	assert(mDeviceContext);
+	assert(mDevice);
+	assert(mSwapChain);
+
+	// Release the old views, as they hold references to the buffers we
+	// will be destroying.  Also release the old depth/stencil buffer.
+
+	SafeRelease(mRenderTargetView);
+	SafeRelease(mDepthStencilView);
+	SafeRelease(mDepthStencilBuffer);
+
+
+	// Resize the swap chain and recreate the render target view.
+
+	HR(mSwapChain->ResizeBuffers(1, mScreenWidth, mScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+	ID3D11Texture2D* backBuffer;
+	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
+	HR(mDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
+	SafeRelease(backBuffer);
+
+	// Create the depth/stencil buffer and view.
+
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+
+	depthStencilDesc.Width = mScreenWidth;
+	depthStencilDesc.Height = mScreenHeight;
+	depthStencilDesc.MipLevels = 1;
+	depthStencilDesc.ArraySize = 1;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+
+	// Use 4X MSAA? --must match swap chain MSAA values.
+	if (mEnable4xMsaa)
+	{
+		depthStencilDesc.SampleDesc.Count = 4;
+		depthStencilDesc.SampleDesc.Quality = m4xMsaaQuality - 1;
+	}
+	// No MSAA
+	else
+	{
+		depthStencilDesc.SampleDesc.Count = 1;
+		depthStencilDesc.SampleDesc.Quality = 0;
+	}
+
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0;
+	depthStencilDesc.MiscFlags = 0;
+
+	HR(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
+	HR(mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
+
+
+	// Bind the render target view and depth/stencil view to the pipeline.
+
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+
+
+	// Set the viewport transform.
+
+	mScreenViewport.TopLeftX = 0;
+	mScreenViewport.TopLeftY = 0;
+	mScreenViewport.Width = static_cast<float>(mScreenWidth);
+	mScreenViewport.Height = static_cast<float>(mScreenHeight);
+	mScreenViewport.MinDepth = 0.0f;
+	mScreenViewport.MaxDepth = 1.0f;
+
+	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+}
+
+void D3DApp::CalculateFrameStats()
+{
+	// Code computes the average frames per second, and also the 
+	// average time it takes to render one frame.  These stats 
+	// are appended to the window caption bar.
+
+	static int frameCnt = 0;
+	static float timeElapsed = 0.0f;
+
+	frameCnt++;
+
+	// Compute averages over one second period.
+	if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
+	{
+		float fps = (float)frameCnt; // fps = frameCnt / 1
+		float mspf = 1000.0f / fps;
+
+		std::wostringstream outs;
+		outs.precision(6);
+		outs << mMainWinCaption << L"    "
+			<< L"FPS: " << fps << L"    "
+			<< L"Frame Time: " << mspf << L" (ms)";
+		SetWindowText(mMainHWnd, outs.str().c_str());
+
+		// Reset for next average.
+		frameCnt = 0;
+		timeElapsed += 1.0f;
+	}
 }

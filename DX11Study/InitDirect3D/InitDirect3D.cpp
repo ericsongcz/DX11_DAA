@@ -61,8 +61,8 @@ void InitDirect3D::DrawScene()
 {
 	float clearColor[] = { RGB256(100), RGB256(149), RGB256(237) };
 
-	md3dImmediateContext->ClearRenderTargetView(mRenderTargetView, clearColor);
-	md3dImmediateContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	mSwapChain->Present(0, 0);
 }
