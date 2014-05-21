@@ -42,7 +42,6 @@ bool D3DApp::Init()
 	if (!InitMainWindow())
 	{
 		MessageBox(nullptr, TEXT("InitMainWindow failed!"), TEXT("Error"), MB_OK);
-
 		return false;
 	}
 
@@ -197,6 +196,7 @@ void D3DApp::Run()
 
 	// 主消息循环: 
 	ZeroMemory(&msg, sizeof(MSG));
+
 	while (msg.message != WM_QUIT)
 	{
 		// If there are Window messages then process them.
