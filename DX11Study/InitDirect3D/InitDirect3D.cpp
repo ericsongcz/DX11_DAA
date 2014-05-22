@@ -44,6 +44,13 @@ bool InitDirect3D::Init()
 		return false;
 	}
 
+	mGeometry = new Geometry();
+
+	if (!mGeometry->Initialize(mDevice, mDeviceContext))
+	{
+		return false;
+	}
+
 	return true;
 }
 

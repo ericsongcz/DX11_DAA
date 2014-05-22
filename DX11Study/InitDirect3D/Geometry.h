@@ -1,5 +1,12 @@
 #include <d3dx11.h>
 #include <DirectXMath.h>
+using namespace DirectX;
+
+struct Vertex
+{
+	XMFLOAT3 position;
+	XMFLOAT4 color;
+};
 
 class Geometry
 {

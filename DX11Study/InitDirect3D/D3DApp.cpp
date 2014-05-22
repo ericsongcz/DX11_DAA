@@ -4,7 +4,6 @@
 #include "Resource.h"
 #include "D3DUtils.h"
 #include <cassert>
-#include <DxErr.h>
 #include <sstream>
 
 D3DApp* gD3DApp;
@@ -134,7 +133,7 @@ bool D3DApp::InitD3D(HWND hWnd)
 	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3,
 		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext);
 
-	if (FAILED(hr))
+	if (HR(hr))
 	{
 		MessageBox(hWnd, TEXT("D3D11CreateDeviceAndSwapChain failed!"), TEXT("Error"), MB_OK);
 		return false;
@@ -145,11 +144,7 @@ bool D3DApp::InitD3D(HWND hWnd)
 
 	hr = mDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView);
 
-	if (FAILED(hr))
-	{
-		MessageBox(hWnd, TEXT("CreateRenderTargetView failed!"), TEXT("Error"), MB_OK);
-		return false;
-	}
+	HR(hr);
 
 	backBuffer->Release();
 
@@ -170,19 +165,11 @@ bool D3DApp::InitD3D(HWND hWnd)
 
 	hr = mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
 
-	if (FAILED(hr))
-	{
-		MessageBox(hWnd, TEXT("CreateTexture2D failed!"), TEXT("Error"), MB_OK);
-		return false;
-	}
+	HR(hr);
 
 	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
 
-	if (FAILED(hr))
-	{
-		MessageBox(hWnd, TEXT("CreateDepthStencilView failed!"), TEXT("Error"), MB_OK);
-		return false;
-	}
+	HR(hr);
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 

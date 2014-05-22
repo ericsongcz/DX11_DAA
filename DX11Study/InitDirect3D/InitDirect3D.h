@@ -2,6 +2,7 @@
 
 #include "resource.h"
 #include "D3DApp.h"
+#include "Geometry.h"
 
 class InitDirect3D : public D3DApp
 {
@@ -14,4 +15,7 @@ public:
 	void UpdateScene(float dt);
 	void DrawScene();
 	void OnMouseDown(WPARAM btnState, int x, int y);
+
+private:
+	Geometry* mGeometry;
 };
