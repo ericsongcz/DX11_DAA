@@ -11,17 +11,12 @@ using namespace DirectX;
 #ifndef HR
 #define HR(x)\
 {\
-	HRESULT hr = (x); \
-	if (FAILED(hr))\
+	HRESULT hr = (x);\
+	if(FAILED(hr))\
 	{\
 		DXTrace(__FILE__, (DWORD)__LINE__, hr, L#x, true); \
-		return false;
 	}\
-	else\
-	{\
-		return true;\
-	}\
-	}
+}
 #endif
 
 #else

@@ -24,10 +24,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = vertices;
 
-	if (HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer)))
-	{
-		return false;
-	}
+	HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer));
 
 	UINT indices[] = { 0, 1, 2 };
 
@@ -41,10 +38,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	D3D11_SUBRESOURCE_DATA indexData;
 	indexData.pSysMem = indices;
 
-	if (HR(mDevice->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer)))
-	{
-		return false;
-	}
+	HR(mDevice->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer));
 
 	return true;
 }

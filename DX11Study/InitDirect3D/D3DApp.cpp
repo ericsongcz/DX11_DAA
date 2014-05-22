@@ -78,7 +78,7 @@ bool D3DApp::InitMainWindow()
 	RegisterClassEx(&wcex);
 
 	mMainHWnd = CreateWindow(L"D3DApp", mMainWinCaption.c_str(), WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, mScreenWidth, mScreenHeight, NULL, NULL, mHInstance, NULL);
+		CW_USEDEFAULT, 0, (int)mScreenWidth, (int)mScreenHeight, NULL, NULL, mHInstance, NULL);
 
 	if (!mMainHWnd)
 	{
@@ -130,21 +130,13 @@ bool D3DApp::InitD3D(HWND hWnd)
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 	swapChainDesc.Flags = 0;
 
-	HRESULT hr = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3,
-		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext);
-
-	if (HR(hr))
-	{
-		MessageBox(hWnd, TEXT("D3D11CreateDeviceAndSwapChain failed!"), TEXT("Error"), MB_OK);
-		return false;
-	}
+	HR(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3,
+		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 
 	ID3D11Texture2D* backBuffer = nullptr;
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
 
-	hr = mDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView);
-
-	HR(hr);
+	HR(mDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
 
 	backBuffer->Release();
 
@@ -163,13 +155,9 @@ bool D3DApp::InitD3D(HWND hWnd)
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
 
-	hr = mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer);
+	HR(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
 
-	HR(hr);
-
-	hr = mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView);
-
-	HR(hr);
+	HR(mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
@@ -376,7 +364,7 @@ void D3DApp::OnResize()
 
 	// Resize the swap chain and recreate the render target view.
 
-	HR(mSwapChain->ResizeBuffers(1, mScreenWidth, mScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
+	HR(mSwapChain->ResizeBuffers(1, (UINT)mScreenWidth, (UINT)mScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 	ID3D11Texture2D* backBuffer;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));
 	HR(mDevice->CreateRenderTargetView(backBuffer, 0, &mRenderTargetView));
@@ -386,8 +374,8 @@ void D3DApp::OnResize()
 
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 
-	depthStencilDesc.Width = mScreenWidth;
-	depthStencilDesc.Height = mScreenHeight;
+	depthStencilDesc.Width = (UINT)mScreenWidth;
+	depthStencilDesc.Height = (UINT)mScreenHeight;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
