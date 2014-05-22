@@ -149,6 +149,7 @@
     <ClInclude Include="D3DApp.h" />
     <ClInclude Include="D3DUtils.h" />
     <ClInclude Include="GameTimer.h" />
+    <ClInclude Include="Geomety.h" />
     <ClInclude Include="InitDirect3D.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -158,6 +159,7 @@
     <ClCompile Include="D3DApp.cpp" />
     <ClCompile Include="D3DUtils.cpp" />
     <ClCompile Include="GameTimer.cpp" />
+    <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="InitDirect3D.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
