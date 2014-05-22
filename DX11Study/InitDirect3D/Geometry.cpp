@@ -15,6 +15,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	};
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
+	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 	vertexBufferDesc.ByteWidth = sizeof (Vertex) * 3;
@@ -24,12 +25,15 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	D3D11_SUBRESOURCE_DATA vertexData;
 	vertexData.pSysMem = vertices;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
 
 	HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer));
 
 	UINT indices[] = { 0, 1, 2 };
 
 	D3D11_BUFFER_DESC indexBufferDesc;
+	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	indexBufferDesc.ByteWidth = sizeof (UINT) * 3;
@@ -39,8 +43,21 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	D3D11_SUBRESOURCE_DATA indexData;
 	indexData.pSysMem = indices;
+	vertexData.SysMemPitch = 0;
+	vertexData.SysMemSlicePitch = 0;
 
 	HR(mDevice->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer));
 
+	UINT strides = sizeof(Vertex);
+	UINT offset = 0;
+
+	mDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &strides, &offset);
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_D16_UNORM, offset);
+
 	return true;
+}
+
+void Geometry::renderBuffer()
+{
+	mDeviceContext->IASetInputLayout(mInputLayout);
 }

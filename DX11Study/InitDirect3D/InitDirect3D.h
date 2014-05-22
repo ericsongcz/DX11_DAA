@@ -3,6 +3,7 @@
 #include "resource.h"
 #include "D3DApp.h"
 #include "Geometry.h"
+#include "Shader.h"
 
 class InitDirect3D : public D3DApp
 {
@@ -18,4 +19,5 @@ public:
 
 private:
 	Geometry* mGeometry;
+	Shader* mShader;
 };

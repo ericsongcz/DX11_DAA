@@ -51,6 +51,8 @@ bool InitDirect3D::Init()
 		return false;
 	}
 
+
+
 	return true;
 }
 
