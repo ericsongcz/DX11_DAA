@@ -13,14 +13,14 @@ struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 color : COLOR;
-	//float2 texcoord : TEXCOORD0;
+	float2 texcoord : TEXCOORD0;
 };
 
-//Texture2D shaderTexture;
-//SamplerState samplerState;
+Texture2D shaderTexture;
+SamplerState samplerState;
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	//float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
-	return input.color;
+	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
+	return textureColor;
 }

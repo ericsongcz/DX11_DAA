@@ -9,9 +9,9 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	Vertex vertices[] = 
 	{
-		{ XMFLOAT3(-0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red) },
-		{ XMFLOAT3( 0.0f, 0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green) },
-		{ XMFLOAT3( 0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Blue) }
+		{ XMFLOAT3(-0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(0.0f, 0.0f)},
+		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green), XMFLOAT2(1.0f, 0.0f) },
+		{ XMFLOAT3(0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Blue), XMFLOAT2(1.0f, 1.0f) }
 	};
 
 	mVerticesCount = ARRAYSIZE(vertices);

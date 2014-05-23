@@ -104,7 +104,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../../DXSDK/Lib/x64;C:\Users\zizhangming\Desktop\VM\Engine\UnrealEngine4\DX11Study\DX11Study\InitDirect3D\libs</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../../DXSDK/Lib/x64;./Libs/x64/Debug/</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTexD.lib;dxerr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
