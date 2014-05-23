@@ -24,12 +24,15 @@ D3DApp::D3DApp(float width, float height, wstring title, bool fullScreen)
 	mMaximized(false),
 	mMinimized(false),
 	mAppPaused(false),
+	mFillMode(D3D11_FILL_SOLID),
 	mDevice(nullptr),
 	mDeviceContext(nullptr),
 	mSwapChain(nullptr),
 	mRenderTargetView(nullptr),
 	mDepthStencilBuffer(nullptr),
-	mDepthStencilView(nullptr)
+	mDepthStencilView(nullptr),
+	mSolidState(nullptr),
+	mWireframeState(nullptr)
 {
 	gD3DApp = this;
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
@@ -170,6 +173,22 @@ bool D3DApp::InitD3D(HWND hWnd)
 	viewport.TopLeftY = 0.0f;
 
 	mDeviceContext->RSSetViewports(1, &viewport);
+
+	D3D11_RASTERIZER_DESC rasterizerDesc;
+	ZeroMemory(&rasterizerDesc, sizeof (D3D11_RASTERIZER_DESC));
+	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.FrontCounterClockwise = false;
+
+	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mSolidState));
+
+	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	rasterizerDesc.DepthClipEnable = true;
+	rasterizerDesc.FrontCounterClockwise = false;
+	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mWireframeState));
+
 
 	return true;
 }
@@ -339,6 +358,19 @@ LRESULT CALLBACK D3DApp::MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 		{
 		case VK_ESCAPE:
 			PostQuitMessage(0);
+			break;
+
+		case VK_F:
+			if (mFillMode == D3D11_FILL_SOLID)
+			{
+				mFillMode = D3D11_FILL_WIREFRAME;
+				mDeviceContext->RSSetState(mWireframeState);
+			}
+			else
+			{
+				mFillMode = D3D11_FILL_SOLID;
+				mDeviceContext->RSSetState(mSolidState);
+			}
 			break;
 		default:
 			break;

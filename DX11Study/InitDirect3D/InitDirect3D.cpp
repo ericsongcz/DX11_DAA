@@ -67,7 +67,6 @@ void InitDirect3D::OnResize()
 
 void InitDirect3D::UpdateScene(float dt)
 {
-
 }
 
 void InitDirect3D::DrawScene()
@@ -79,13 +78,13 @@ void InitDirect3D::DrawScene()
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f,-10.0f));
+	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f,-2.0f));
 	XMVECTOR lookAt = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 0.0f));
 	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
 
 	XMMATRIX viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
 
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 0.001f, 1000.0f);
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 
 	mShader->render(worldMatrix, viewMatrix, projectionMatrix);
 

@@ -25,6 +25,15 @@ using namespace DirectX;
 #endif
 #endif 
 
+// 虚拟键值。
+const DWORD VK_A = 0x41;
+const DWORD VK_D = 0x44;
+const DWORD VK_E = 0x45;
+const DWORD VK_F = 0x46;
+const DWORD VK_Q = 0x51;
+const DWORD VK_S = 0x53;
+const DWORD VK_W = 0x57;
+
 //定义一些常用颜色
 namespace Colors
 {

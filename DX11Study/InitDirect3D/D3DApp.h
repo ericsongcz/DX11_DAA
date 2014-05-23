@@ -39,6 +39,7 @@ protected:
 	bool mResizing;
 	bool mMinimized;
 	bool mMaximized;
+	D3D11_FILL_MODE mFillMode;
 	UINT m4xMsaaQuality;
 	HWND mMainHWnd;
 	HINSTANCE mHInstance;
@@ -50,4 +51,6 @@ protected:
 	ID3D11Texture2D* mDepthStencilBuffer;
 	ID3D11DepthStencilView* mDepthStencilView;
 	D3D11_VIEWPORT mScreenViewport;
+	ID3D11RasterizerState* mSolidState;
+	ID3D11RasterizerState* mWireframeState;
 };
