@@ -15,6 +15,14 @@ struct MatrixBuffer
 	XMFLOAT4 color4;
 };
 
+struct TestBuffer
+{
+	float scaleFactor;
+	float scaleFactor1;
+	float scaleFactor2;
+	float scaleFactor3;
+};
+
 class Shader
 {
 public:
@@ -31,6 +39,7 @@ public:
 	void shutdown();
 private:
 	ID3D11Buffer* mMatrixBuffer;
+	ID3D11Buffer* mTestBuffer;
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "InitDirect3D.h"
 #include "D3DUtils.h"
+//#include <DirectXTex/DirectXTex.h>
 
 #define MAX_LOADSTRING 100
 

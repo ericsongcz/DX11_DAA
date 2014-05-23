@@ -11,6 +11,11 @@ cbuffer MatrixBuffer
 	float4 color4;
 };
 
+cbuffer Test
+{
+	float scaleFactor;
+};
+
 struct VertexInput
 {
 	float4 position : POSITION;
@@ -36,6 +41,9 @@ PixelInput main(VertexInput input)
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
+	output.position.x *= scaleFactor;
+	output.position.y *= scaleFactor;
+	output.position.z *= scaleFactor;
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;

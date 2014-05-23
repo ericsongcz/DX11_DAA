@@ -122,6 +122,17 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	// 创建const buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
+	D3D11_BUFFER_DESC testBufferDesc;
+	ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	testBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	testBufferDesc.ByteWidth = sizeof(TestBuffer);
+	testBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	testBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	testBufferDesc.MiscFlags = 0;
+	testBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&testBufferDesc, nullptr, &mTestBuffer));
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
@@ -160,7 +171,7 @@ bool Shader::render(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& pr
 bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* data;
+	MatrixBuffer* matrixData;
 	UINT bufferNumber;
 
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
@@ -172,26 +183,37 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	HR(mDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	// 得到const buffer指针。
-	data = (MatrixBuffer*)mappedResource.pData;
+	matrixData = (MatrixBuffer*)mappedResource.pData;
 
 	// 设置world，view和projection矩阵。
-	XMStoreFloat4x4(&data->worldMatrix, worldMatrixTemp);
-	XMStoreFloat4x4(&data->viewMatrix, viewMatrixTemp);
-	XMStoreFloat4x4(&data->projectionMatrix, projectionMatrixTemp);
+	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
+	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
+	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 	XMVECTOR color = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-	XMStoreFloat4(&data->color1, color);
-	XMStoreFloat4(&data->color2, color);
-	XMStoreFloat4(&data->color3, color);
-	XMStoreFloat4(&data->color4, color);
+	XMStoreFloat4(&matrixData->color1, color);
+	XMStoreFloat4(&matrixData->color2, color);
+	XMStoreFloat4(&matrixData->color3, color);
+	XMStoreFloat4(&matrixData->color4, color);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
+
+	TestBuffer* testData;
+
+	HR(mDeviceContext->Map(mTestBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+	testData = (TestBuffer*)mappedResource.pData;
+
+	testData->scaleFactor = 0.5f;
+
+	mDeviceContext->Unmap(mTestBuffer, 0);
 
 	// 设置常量缓冲位置。
 	bufferNumber = 0;
 
 	// 用更新后的值设置常量缓冲。
-	mDeviceContext->VSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
+	mDeviceContext->VSSetConstantBuffers(bufferNumber, 2, &mMatrixBuffer);
+	mDeviceContext->VSSetConstantBuffers(bufferNumber + 1, 2, &mTestBuffer);
 	mDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
 
 	return true;

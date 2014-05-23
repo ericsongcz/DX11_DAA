@@ -400,7 +400,6 @@ void D3DApp::OnResize()
 	SafeRelease(backBuffer);
 
 	// Create the depth/stencil buffer and view.
-
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 
 	depthStencilDesc.Width = (UINT)mScreenWidth;
@@ -432,12 +431,9 @@ void D3DApp::OnResize()
 
 
 	// Bind the render target view and depth/stencil view to the pipeline.
-
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
-
 	// Set the viewport transform.
-
 	mScreenViewport.TopLeftX = 0;
 	mScreenViewport.TopLeftY = 0;
 	mScreenViewport.Width = static_cast<float>(mScreenWidth);
