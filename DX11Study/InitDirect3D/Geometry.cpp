@@ -9,10 +9,12 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	Vertex vertices[] = 
 	{
-		{ XMFLOAT3(-1.0f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red) },
-		{ XMFLOAT3(1.0f, 1.0f, 0.0f), XMFLOAT4((const float*)&Colors::Green) },
-		{ XMFLOAT3(1.0f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Blue) }
+		{ XMFLOAT3(-0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red) },
+		{ XMFLOAT3( 0.5f, 0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green) },
+		{ XMFLOAT3( 0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Blue) }
 	};
+
+	mVerticesCount = ARRAYSIZE(vertices);
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -31,6 +33,8 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer));
 
 	UINT indices[] = { 0, 1, 2 };
+
+	mIndicesCount = ARRAYSIZE(indices);
 
 	D3D11_BUFFER_DESC indexBufferDesc;
 	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -52,12 +56,14 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	UINT offset = 0;
 
 	mDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &strides, &offset);
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_D16_UNORM, offset);
+	mDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 
 	return true;
 }
 
 void Geometry::renderBuffer()
 {
-	mDeviceContext->IASetInputLayout(mInputLayout);
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mDeviceContext->DrawIndexed(mIndicesCount, 0, 0);
 }

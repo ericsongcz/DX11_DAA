@@ -78,7 +78,7 @@ bool D3DApp::InitMainWindow()
 	RegisterClassEx(&wcex);
 
 	mMainHWnd = CreateWindow(L"D3DApp", mMainWinCaption.c_str(), WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, 0, (int)mScreenWidth, (int)mScreenHeight, NULL, NULL, mHInstance, NULL);
+		CW_USEDEFAULT, 0, (UINT)mScreenWidth, (UINT)mScreenHeight, NULL, NULL, mHInstance, NULL);
 
 	if (!mMainHWnd)
 	{
@@ -114,8 +114,8 @@ bool D3DApp::InitD3D(HWND hWnd)
 	DXGI_SWAP_CHAIN_DESC swapChainDesc;
 	ZeroMemory(&swapChainDesc, sizeof(DXGI_SWAP_CHAIN_DESC));
 
-	swapChainDesc.BufferDesc.Width = 800;
-	swapChainDesc.BufferDesc.Height = 600;
+	swapChainDesc.BufferDesc.Width = (UINT)mScreenWidth;
+	swapChainDesc.BufferDesc.Height = (UINT)mScreenHeight;
 	swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;
 	swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -143,8 +143,8 @@ bool D3DApp::InitD3D(HWND hWnd)
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_TEXTURE2D_DESC));
 
-	depthStencilDesc.Width = 800;
-	depthStencilDesc.Height = 600;
+	depthStencilDesc.Width = (UINT)mScreenWidth;
+	depthStencilDesc.Height = (UINT)mScreenHeight;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -162,8 +162,8 @@ bool D3DApp::InitD3D(HWND hWnd)
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
 	D3D11_VIEWPORT viewport;
-	viewport.Width = 800.0f;
-	viewport.Height = 600.0f;
+	viewport.Width = mScreenWidth;
+	viewport.Height = mScreenHeight;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0.0f;
@@ -356,14 +356,11 @@ void D3DApp::OnResize()
 
 	// Release the old views, as they hold references to the buffers we
 	// will be destroying.  Also release the old depth/stencil buffer.
-
 	SafeRelease(mRenderTargetView);
 	SafeRelease(mDepthStencilView);
 	SafeRelease(mDepthStencilBuffer);
 
-
 	// Resize the swap chain and recreate the render target view.
-
 	HR(mSwapChain->ResizeBuffers(1, (UINT)mScreenWidth, (UINT)mScreenHeight, DXGI_FORMAT_R8G8B8A8_UNORM, 0));
 	ID3D11Texture2D* backBuffer;
 	HR(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer)));

@@ -47,10 +47,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 		return false;
 	}
 
-	if (FAILED(mDevice->CreateVertexShader(vsShaderData, vsShaderSize, nullptr, &mVertexShader)))
-	{
-		return false;
-	}
+	HR(mDevice->CreateVertexShader(vsShaderData, vsShaderSize, nullptr, &mVertexShader));
 
 	// 读第二个文件之前先要close。
 	shaderFile.close();
@@ -71,10 +68,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 		return false;
 	}
 
-	if (FAILED(mDevice->CreatePixelShader(psShaderData, psShaderSize, nullptr, &mPixelShader)))
-	{
-		return false;
-	}
+	HR(mDevice->CreatePixelShader(psShaderData, psShaderSize, nullptr, &mPixelShader));
 
 	delete[] psShaderData;
 
@@ -111,10 +105,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	UINT numElements = sizeof(poloygonLayout) / sizeof(poloygonLayout[0]);
 
 	// 创建顶点输入布局。
-	if (FAILED(mDevice->CreateInputLayout(poloygonLayout, numElements, vsShaderData, vsShaderSize, &mInputLayout)))
-	{
-		return false;
-	}
+	HR(mDevice->CreateInputLayout(poloygonLayout, numElements, vsShaderData, vsShaderSize, &mInputLayout));
 
 	delete[] vsShaderData;
 	shaderFile.close();
@@ -129,10 +120,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	matrixBufferDesc.StructureByteStride = 0;
 
 	// 创建const buffer指针，以便访问shader常量。
-	if (FAILED(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer)))
-	{
-		return false;
-	}
+	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -152,12 +140,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	// 创建纹理采样状态。
-	HRESULT hr = mDevice->CreateSamplerState(&samplerDesc, &mSamplerState);
-
-	if (FAILED(hr))
-	{
-		return false;
-	}
+	HR(mDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
 	renderShader();
 
