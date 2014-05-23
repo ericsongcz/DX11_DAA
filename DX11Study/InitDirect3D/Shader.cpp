@@ -123,7 +123,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
 	D3D11_BUFFER_DESC testBufferDesc;
-	ZeroMemory(&matrixBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	ZeroMemory(&testBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	testBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
 	testBufferDesc.ByteWidth = sizeof(TestBuffer);
 	testBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -199,12 +199,15 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
 	TestBuffer* testData;
-
+	ZeroMemory(&mappedResource, sizeof D3D11_MAPPED_SUBRESOURCE);
 	HR(mDeviceContext->Map(mTestBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 	testData = (TestBuffer*)mappedResource.pData;
 
 	testData->scaleFactor = 0.5f;
+	testData->scaleFactor1 = 0.5f;
+	testData->scaleFactor2 = 0.5f;
+	testData->scaleFactor3 = 0.5f;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
@@ -212,9 +215,9 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	bufferNumber = 0;
 
 	// 用更新后的值设置常量缓冲。
-	mDeviceContext->VSSetConstantBuffers(bufferNumber, 2, &mMatrixBuffer);
-	mDeviceContext->VSSetConstantBuffers(bufferNumber + 1, 2, &mTestBuffer);
-	mDeviceContext->PSSetConstantBuffers(bufferNumber, 1, &mMatrixBuffer);
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mTestBuffer };
+	mDeviceContext->VSSetConstantBuffers(bufferNumber, 2, buffers);
+	mDeviceContext->PSSetConstantBuffers(bufferNumber, 2, &mMatrixBuffer);
 
 	return true;
 }

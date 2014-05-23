@@ -9,9 +9,10 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	Vertex vertices[] = 
 	{
-		{ XMFLOAT3(-0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(0.0f, 0.0f)},
-		{ XMFLOAT3(0.0f, 0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3(0.5f, 0.0f, 0.0f), XMFLOAT4((const float*)&Colors::Blue), XMFLOAT2(1.0f, 1.0f) }
+		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(0.0f, 1.0f)},
+		{ XMFLOAT3(-0.5f,  0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green), XMFLOAT2(0.0f, 0.0f) },
+		{ XMFLOAT3( 0.5f,  0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Blue), XMFLOAT2(1.0f, 0.0f) },
+		{ XMFLOAT3( 0.5f, -0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(1.0f, 1.0f)}
 	};
 
 	mVerticesCount = ARRAYSIZE(vertices);
@@ -20,7 +21,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	vertexBufferDesc.ByteWidth = sizeof (Vertex) * 3;
+	vertexBufferDesc.ByteWidth = sizeof (Vertex) * mVerticesCount;
 	vertexBufferDesc.CPUAccessFlags = 0;
 	vertexBufferDesc.MiscFlags = 0;
 	vertexBufferDesc.StructureByteStride = 0;
@@ -32,7 +33,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer));
 
-	UINT indices[] = { 0, 1, 2 };
+	UINT indices[] = { 0, 1, 2, 0, 2, 3 };
 
 	mIndicesCount = ARRAYSIZE(indices);
 
@@ -40,7 +41,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	indexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
 	indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	indexBufferDesc.ByteWidth = sizeof (UINT) * 3;
+	indexBufferDesc.ByteWidth = sizeof (UINT) * mIndicesCount;
 	indexBufferDesc.CPUAccessFlags = 0;
 	indexBufferDesc.MiscFlags = 0;
 	indexBufferDesc.StructureByteStride = 0;
