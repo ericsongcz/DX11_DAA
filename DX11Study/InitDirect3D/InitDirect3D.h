@@ -20,4 +20,5 @@ public:
 private:
 	Geometry* mGeometry;
 	Shader* mShader;
+	ID3D11ShaderResourceView* mShaderResourceView;
 };

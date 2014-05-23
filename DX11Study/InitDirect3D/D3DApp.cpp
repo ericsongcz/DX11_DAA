@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "D3DApp.h"
-#include <WindowsX.h>
 #include "Resource.h"
 #include "D3DUtils.h"
 #include <cassert>

@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "InitDirect3D.h"
 #include "D3DUtils.h"
-//#include <DirectXTex/DirectXTex.h>
+#include <DirectXTex/DirectXTex.h>
 
 #define MAX_LOADSTRING 100
 
@@ -57,6 +57,14 @@ bool InitDirect3D::Init()
 	{
 		return false;
 	}
+
+	TexMetadata metaData;
+	ScratchImage image;
+	HR(LoadFromDDSFile(TEXT("puss.dds"), DDS_FLAGS_NONE, &metaData, image));
+
+	HR(CreateShaderResourceView(mDevice, image.GetImages(), image.GetImageCount(), metaData, &mShaderResourceView));
+
+	mShader->setShaderResource(mShaderResourceView);
 
 	return true;
 }
