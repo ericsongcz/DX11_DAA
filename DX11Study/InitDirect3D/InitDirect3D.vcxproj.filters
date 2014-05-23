@@ -16,6 +16,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{30858572-4133-4231-bf85-f8f63ad33dca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{caaef5f9-a2ad-45fe-9bb0-2cf29b52a395}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -83,6 +86,9 @@
     </Image>
     <Image Include="InitDirect3D.ico">
       <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="..\x64\Debug\puss.dds">
+      <Filter>Resources</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>

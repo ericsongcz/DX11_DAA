@@ -6,6 +6,8 @@
 #include "D3DUtils.h"
 #include <DirectXTex/DirectXTex.h>
 
+using namespace DirectX;
+
 #define MAX_LOADSTRING 100
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
