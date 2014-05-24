@@ -123,7 +123,7 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 
 void FBXImporter::SaveData(const char* fileName)
 {
-	FbxVector4* vertex = mMesh->GetControlPoints();
+	FbxVector4* meshVertices = mMesh->GetControlPoints();
 	int verticesCount = mMesh->GetControlPointsCount();
 	int indicesCount = mMesh->GetPolygonVertexCount();
 
@@ -131,11 +131,11 @@ void FBXImporter::SaveData(const char* fileName)
 	float* pV = vertices;
 	for (int i = 0; i < verticesCount; i++)
 	{
-		*pV = static_cast<float>(vertex[i][0]);
+		*pV = static_cast<float>(meshVertices[i][0]);
 		pV++;
-		*pV = static_cast<float>(vertex[i][1]);
+		*pV = static_cast<float>(meshVertices[i][1]);
 		pV++;
-		*pV = static_cast<float>(vertex[i][2]);
+		*pV = static_cast<float>(meshVertices[i][2]);
 		pV++;
 	}
 
@@ -143,7 +143,7 @@ void FBXImporter::SaveData(const char* fileName)
 
 	// Write geometryInfo: vertex and index count.
 	int geometryInfo[2] = { 48, 49 };
-	out.write(reinterpret_cast<const char*>(geometryInfo), sizeof (char) * 4);
+	out.write(reinterpret_cast<const char*>(geometryInfo), sizeof (int) * 2);
 
 	out.close();
 
@@ -154,4 +154,26 @@ void FBXImporter::SaveData(const char* fileName)
 	printf("buffer:%s", buffer);
 
 	in.close();
+
+	short* indices = nullptr;
+	int* meshIndices = mMesh->GetPolygonVertices();
+
+	// Convert to 16bit index if possible to save memory.
+	if (verticesCount < 65535)
+	{
+		indices = new short[indicesCount];
+		short* currentIndices = indices;
+
+		for (int i = 0; i < indicesCount; i++)
+		{
+			*currentIndices = meshIndices[i];
+		}
+	}
+	else
+	{
+
+	}
+
+	delete[] vertices;
+	delete[] indices;
 }
