@@ -2,6 +2,9 @@
 #include "Geometry.h"
 #include "D3DUtils.h"
 #include <ctime>
+#include <iostream>
+
+using namespace std;
 
 void Geometry::FillMeshData(MeshInfo* meshInfo)
 {
@@ -15,6 +18,8 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 	{
 		mVertices[i].position = XMFLOAT3(meshInfo->vertices[i], meshInfo->vertices[i + 1], meshInfo->vertices[i + 2]);
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
+
+		Log("(%f, %f, %f)\n", meshInfo->vertices[i], meshInfo->vertices[i + 1], meshInfo->vertices[i + 2]);
 	}
 
 	mIndices = meshInfo->indices;

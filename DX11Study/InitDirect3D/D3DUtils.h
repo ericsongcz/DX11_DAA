@@ -74,3 +74,5 @@ void SafeDelete(T type)
 		delete type;
 	}
 }
+
+void Log(const char* foramt, ...);

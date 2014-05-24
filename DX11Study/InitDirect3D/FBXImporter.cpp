@@ -3,6 +3,7 @@
 #include "FBXImporter.h"
 #include <iostream>
 #include <fstream>
+#include "D3DUtils.h"
 
 using namespace std;
 
@@ -155,14 +156,14 @@ void FBXImporter::SaveData(const char* fileName)
 
 	in.close();
 
-	short* indices = nullptr;
+	int* indices = nullptr;
 	int* meshIndices = mMesh->GetPolygonVertices();
 
 	// Convert to 16bit index if possible to save memory.
 	if (verticesCount < 65535)
 	{
-		indices = new short[indicesCount];
-		short* currentIndices = indices;
+		indices = new int[indicesCount];
+		int* currentIndices = indices;
 
 		for (int i = 0; i < indicesCount; i++)
 		{
@@ -205,11 +206,11 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	if (verticesCount < 65535)
 	{
 		indices = new UINT[indicesCount];
-		UINT* currentIndices = indices;
 
 		for (int i = 0; i < indicesCount; i++)
 		{
-			*currentIndices = meshIndices[i];
+			indices[i] = meshIndices[i];
+			Log("index:%d", indices[i]);
 		}
 	}
 	else
@@ -217,13 +218,16 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	}
 
-	meshInfo->vertices = vertices;
+	meshInfo->vertices = new float[verticesCount];
+	meshInfo->indices = new UINT[indicesCount];
+	
+	memcpy_s(meshInfo->vertices, sizeof(float) * verticesCount, vertices, sizeof(float) * verticesCount);
 	meshInfo->verticesCount = verticesCount;
-	meshInfo->indices = indices;
+	memcpy_s(meshInfo->indices, sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
 	meshInfo->indicesCount = indicesCount;
-
-	return meshInfo;
 
 	delete[] vertices;
 	delete[] indices;
+
+	return meshInfo;
 }
