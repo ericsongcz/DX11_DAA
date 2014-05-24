@@ -5,6 +5,7 @@
 #include "InitDirect3D.h"
 #include "D3DUtils.h"
 #include <DirectXTex/DirectXTex.h>
+#include "FBXImporter.h"
 
 using namespace DirectX;
 
@@ -15,6 +16,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_ LPTSTR    lpCmdLine,
                      _In_ int       nCmdShow)
 {
+	AllocConsole();
+	FILE* file;
+	freopen_s(&file, "CONOUT$", "w+t", stdout);
+	freopen_s(&file, "CONIN$", "r+t", stdin);
+
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
@@ -25,6 +31,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	delete app;
+
+	FreeConsole();
 
 	return 0;
 }
@@ -47,7 +55,13 @@ bool InitDirect3D::Init()
 		return false;
 	}
 
+	FBXImporter* fbxImporter = new FBXImporter();
+	fbxImporter->Init();
+	fbxImporter->LoadScene("Cube.fbx");
+	fbxImporter->WalkHierarchy();
+
 	mGeometry = new Geometry();
+	mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
 
 	if (!mGeometry->Initialize(mDevice, mDeviceContext))
 	{

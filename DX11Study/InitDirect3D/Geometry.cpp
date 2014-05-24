@@ -1,21 +1,29 @@
 #include "stdafx.h"
 #include "Geometry.h"
 #include "D3DUtils.h"
+#include <ctime>
+
+void Geometry::FillMeshData(MeshInfo* meshInfo)
+{
+	mVertices = new Vertex[meshInfo->verticesCount];
+	mVerticesCount = meshInfo->verticesCount;
+	mIndicesCount = meshInfo->indicesCount;
+
+	srand((int)time(nullptr));
+
+	for (int i = 0; i < mVerticesCount; i++)
+	{
+		mVertices[i].position = XMFLOAT3(meshInfo->vertices[i], meshInfo->vertices[i + 1], meshInfo->vertices[i + 2]);
+		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
+	}
+
+	mIndices = meshInfo->indices;
+}
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 {
 	mDevice = device;
 	mDeviceContext = deviceContext;
-
-	Vertex vertices[] = 
-	{
-		{ XMFLOAT3(-0.5f, -0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(0.0f, 1.0f)},
-		{ XMFLOAT3(-0.5f,  0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Green), XMFLOAT2(0.0f, 0.0f) },
-		{ XMFLOAT3( 0.5f,  0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Blue), XMFLOAT2(1.0f, 0.0f) },
-		{ XMFLOAT3( 0.5f, -0.5f, 0.0f), XMFLOAT4((const float*)&Colors::Red), XMFLOAT2(1.0f, 1.0f)}
-	};
-
-	mVerticesCount = ARRAYSIZE(vertices);
 
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -27,15 +35,11 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	vertexBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = vertices;
+	vertexData.pSysMem = mVertices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
 	HR(mDevice->CreateBuffer(&vertexBufferDesc, &vertexData, &mVertexBuffer));
-
-	UINT indices[] = { 0, 1, 2, 0, 2, 3 };
-
-	mIndicesCount = ARRAYSIZE(indices);
 
 	D3D11_BUFFER_DESC indexBufferDesc;
 	ZeroMemory(&indexBufferDesc, sizeof(D3D11_BUFFER_DESC));
@@ -47,7 +51,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	indexBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = indices;
+	indexData.pSysMem = mIndices;
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 

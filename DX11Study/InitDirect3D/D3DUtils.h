@@ -5,6 +5,8 @@
 #include <DirectXMath.h>
 #include <DxErr.h>
 
+#define RAND_ONE_FLOAT() rand() / (float)(RAND_MAX+1)
+
 using namespace DirectX;
 
 #if defined(DEBUG) | defined(_DEBUG)
