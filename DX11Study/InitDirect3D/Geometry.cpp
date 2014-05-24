@@ -6,6 +6,10 @@
 
 using namespace std;
 
+Geometry::Geometry()
+{
+}
+
 void Geometry::FillMeshData(MeshInfo* meshInfo)
 {
 	mVertices = new Vertex[meshInfo->verticesCount];

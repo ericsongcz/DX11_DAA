@@ -22,6 +22,9 @@ struct MeshInfo
 class Geometry
 {
 public:
+	Geometry();
+	~Geometry();
+
 	void FillMeshData(MeshInfo* meshInfo);
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void renderBuffer();

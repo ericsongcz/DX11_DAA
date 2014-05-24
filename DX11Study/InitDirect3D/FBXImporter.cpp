@@ -186,8 +186,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	FbxVector4* meshVertices = mMesh->GetControlPoints();
 	int verticesCount = mMesh->GetControlPointsCount();
 	int indicesCount = mMesh->GetPolygonVertexCount();
+	int verticesComponentCount = verticesCount * 3;
+	int verticesByteWidth = sizeof(float) * verticesCount * 3;
 
-	float* vertices = new float[verticesCount * 3];
+	float* vertices = new float[verticesComponentCount];
 	float* pV = vertices;
 	for (int i = 0; i < verticesCount; i++)
 	{
@@ -210,7 +212,6 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		for (int i = 0; i < indicesCount; i++)
 		{
 			indices[i] = meshIndices[i];
-			Log("index:%d", indices[i]);
 		}
 	}
 	else
@@ -218,10 +219,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	}
 
-	meshInfo->vertices = new float[verticesCount];
+	meshInfo->vertices = new float[verticesCount * 3];
 	meshInfo->indices = new UINT[indicesCount];
 	
-	memcpy_s(meshInfo->vertices, sizeof(float) * verticesCount, vertices, sizeof(float) * verticesCount);
+	memcpy_s(meshInfo->vertices, verticesByteWidth, vertices, verticesByteWidth);
 	meshInfo->verticesCount = verticesCount;
 	memcpy_s(meshInfo->indices, sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
 	meshInfo->indicesCount = indicesCount;
