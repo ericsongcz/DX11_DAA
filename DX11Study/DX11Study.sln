@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "InitDirect3D", "InitDirect3D\InitDirect3D.vcxproj", "{1407514D-E3D2-4E71-B19E-7DE2153AD078}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FBXTest", "FBXTest\FBXTest.vcxproj", "{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,14 @@ Global
 		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Release|Win32.Build.0 = Release|Win32
 		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Release|x64.ActiveCfg = Release|x64
 		{1407514D-E3D2-4E71-B19E-7DE2153AD078}.Release|x64.Build.0 = Release|x64
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Debug|Win32.Build.0 = Debug|Win32
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Debug|x64.ActiveCfg = Debug|x64
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Debug|x64.Build.0 = Debug|x64
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Release|Win32.ActiveCfg = Release|Win32
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Release|Win32.Build.0 = Release|Win32
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Release|x64.ActiveCfg = Release|x64
+		{5A200DF5-9D8D-45C0-AEC5-12FBFCB6D24B}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
