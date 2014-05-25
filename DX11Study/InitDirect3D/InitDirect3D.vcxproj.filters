@@ -19,6 +19,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{30858572-4133-4231-bf85-f8f63ad33dca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{6e1847e3-e88f-46ef-a6db-4a982d4f7882}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -110,5 +113,10 @@
     <FxCompile Include="VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Develop Notes.docx">
+      <Filter>Docs</Filter>
+    </None>
   </ItemGroup>
 </Project>
