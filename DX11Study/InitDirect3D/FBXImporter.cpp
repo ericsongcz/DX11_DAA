@@ -189,18 +189,17 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	int verticesComponentCount = verticesCount * 3;
 	int verticesByteWidth = sizeof(float) * verticesCount * 3;
 
+	// Extract vertices from FBX.
 	float* vertices = new float[verticesComponentCount];
 	float* pV = vertices;
 	for (int i = 0; i < verticesCount; i++)
 	{
-		*pV = static_cast<float>(meshVertices[i][0]);
-		pV++;
-		*pV = static_cast<float>(meshVertices[i][1]);
-		pV++;
-		*pV = static_cast<float>(meshVertices[i][2]);
-		pV++;
+		pV[i * 3] = static_cast<float>(meshVertices[i][0]);
+		pV[i * 3 + 1] = static_cast<float>(meshVertices[i][1]);
+		pV[i * 3 + 2] = static_cast<float>(meshVertices[i][2]);
 	}
 
+	// Extract indices form FBX.
 	UINT* indices = nullptr;
 	int* meshIndices = mMesh->GetPolygonVertices();
 
@@ -218,15 +217,6 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	{
 
 	}
-
-	meshInfo->vertices = new float[verticesCount * 3];
-	meshInfo->indices.resize(indicesCount);
-	meshInfo->normals = new float[verticesCount * 3];
-	
-	memcpy_s(meshInfo->vertices, verticesByteWidth, vertices, verticesByteWidth);
-	meshInfo->verticesCount = verticesCount;
-	memcpy_s(&meshInfo->indices[0], sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
-	meshInfo->indicesCount = indicesCount;
 
 	float* normals = new float[indicesCount * 3];
 
@@ -248,7 +238,19 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		}
 	}
 
-	for (int i = 0; i < triangleCount; i++)
+	meshInfo->vertices.resize(verticesCount * 3);
+	meshInfo->indices.resize(indicesCount);
+	meshInfo->normals.resize(indicesCount * 3);
+	
+	memcpy_s(&meshInfo->vertices[0], verticesByteWidth, vertices, verticesByteWidth);
+	meshInfo->verticesCount = verticesCount;
+
+	memcpy_s(&meshInfo->indices[0], sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
+	meshInfo->indicesCount = indicesCount;
+
+	memcpy_s(&meshInfo->normals[0], sizeof(float) * indicesCount * 3, normals, sizeof(float) * indicesCount * 3);
+
+	for (int i = 0; i < indicesCount; i++)
 	{
 		DisplayVector(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]);
 	}
@@ -275,24 +277,19 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, float* nor
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(contorlPointIndex);
-			*normals = static_cast<float>(fbxNormal[0]);
-			normals++;
-			*normals = static_cast<float>(fbxNormal[1]);
-			normals++;
-			*normals = static_cast<float>(fbxNormal[2]);
-			normals++;
+			normals[normalIndex * 3] = static_cast<float>(fbxNormal[0]);
+			normals[normalIndex * 3 + 1] = static_cast<float>(fbxNormal[1]);
+			normals[normalIndex * 3 + 2] = static_cast<float>(fbxNormal[2]);
 		}
 			break;
 
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = normal->GetIndexArray().GetAt(contorlPointIndex);
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[0]);
-			normals++;
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[1]);
-			normals++;
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[2]);
-			normals++;
+			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(id);
+			normals[normalIndex * 3] = static_cast<float>(fbxNormal[0]);
+			normals[normalIndex * 3 + 1] = static_cast<float>(fbxNormal[1]);
+			normals[normalIndex * 3 + 2] = static_cast<float>(fbxNormal[2]);
 		}
 		default:
 			break;
@@ -315,12 +312,10 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, float* nor
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = normal->GetIndexArray().GetAt(normalIndex);
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[0]);
-			normals++;
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[1]);
-			normals++;
-			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[2]);
-			normals++;
+			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(id);
+			normals[normalIndex * 3] = static_cast<float>(fbxNormal[0]);
+			normals[normalIndex * 3 + 1] = static_cast<float>(fbxNormal[1]);
+			normals[normalIndex * 3 + 2] = static_cast<float>(fbxNormal[2]);
 		}
 		default:
 			break;

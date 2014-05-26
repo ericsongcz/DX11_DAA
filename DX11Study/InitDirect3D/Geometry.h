@@ -16,8 +16,8 @@ struct Vertex
 
 struct MeshInfo
 {
-	float* vertices;
-	float* normals;
+	vector<float> vertices;
+	vector<float> normals;
 	vector<UINT> indices;
 	UINT verticesCount;
 	UINT indicesCount;
