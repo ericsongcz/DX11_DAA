@@ -17,8 +17,12 @@ public:
 	void SaveData(const char* fileName);
 	MeshInfo* GetMeshInfo();
 	void ReadNormals(int contorlPointIndex, int normalIndex, float* normals); 
+	void SplitVertexByNormal();
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
 	FbxMesh* mMesh;
+	MeshInfo* mMeshInfo;
+	int mVerticesCount;
+	int mIndicesCount;
 };

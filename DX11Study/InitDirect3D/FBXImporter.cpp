@@ -125,12 +125,12 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 void FBXImporter::SaveData(const char* fileName)
 {
 	FbxVector4* meshVertices = mMesh->GetControlPoints();
-	int verticesCount = mMesh->GetControlPointsCount();
+	mVerticesCount = mMesh->GetControlPointsCount();
 	int indicesCount = mMesh->GetPolygonVertexCount();
 
-	float* vertices = new float[verticesCount * 3];
+	float* vertices = new float[mVerticesCount * 3];
 	float* pV = vertices;
-	for (int i = 0; i < verticesCount; i++)
+	for (int i = 0; i < mVerticesCount; i++)
 	{
 		*pV = static_cast<float>(meshVertices[i][0]);
 		pV++;
@@ -160,7 +160,7 @@ void FBXImporter::SaveData(const char* fileName)
 	int* meshIndices = mMesh->GetPolygonVertices();
 
 	// Convert to 16bit index if possible to save memory.
-	if (verticesCount < 65535)
+	if (mVerticesCount < 65535)
 	{
 		indices = new int[indicesCount];
 		int* currentIndices = indices;
@@ -181,18 +181,18 @@ void FBXImporter::SaveData(const char* fileName)
 
 MeshInfo* FBXImporter::GetMeshInfo()
 {
-	MeshInfo* meshInfo = new MeshInfo();
+	mMeshInfo = new MeshInfo();
 
 	FbxVector4* meshVertices = mMesh->GetControlPoints();
-	int verticesCount = mMesh->GetControlPointsCount();
-	int indicesCount = mMesh->GetPolygonVertexCount();
-	int verticesComponentCount = verticesCount * 3;
-	int verticesByteWidth = sizeof(float) * verticesCount * 3;
+	mVerticesCount = mMesh->GetControlPointsCount();
+	mIndicesCount = mMesh->GetPolygonVertexCount();
+	int verticesComponentCount = mVerticesCount * 3;
+	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
 
 	// Extract vertices from FBX.
 	float* vertices = new float[verticesComponentCount];
 	float* pV = vertices;
-	for (int i = 0; i < verticesCount; i++)
+	for (int i = 0; i < mVerticesCount; i++)
 	{
 		pV[i * 3] = static_cast<float>(meshVertices[i][0]);
 		pV[i * 3 + 1] = static_cast<float>(meshVertices[i][1]);
@@ -204,11 +204,11 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	int* meshIndices = mMesh->GetPolygonVertices();
 
 	// Convert to 16bit index if possible to save memory.
-	if (verticesCount < 65535)
+	if (mVerticesCount < 65535)
 	{
-		indices = new UINT[indicesCount];
+		indices = new UINT[mIndicesCount];
 
-		for (int i = 0; i < indicesCount; i++)
+		for (int i = 0; i < mIndicesCount; i++)
 		{
 			indices[i] = meshIndices[i];
 		}
@@ -218,7 +218,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	}
 
-	float* normals = new float[indicesCount * 3];
+	float* normals = new float[mIndicesCount * 3];
 
 	int triangleCount = mMesh->GetPolygonCount();
 	int controlPointIndex = 0;
@@ -238,27 +238,29 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		}
 	}
 
-	meshInfo->vertices.resize(verticesCount * 3);
-	meshInfo->indices.resize(indicesCount);
-	meshInfo->normals.resize(indicesCount * 3);
+	mMeshInfo->vertices.resize(mVerticesCount * 3);
+	mMeshInfo->indices.resize(mIndicesCount);
+	mMeshInfo->normals.resize(mIndicesCount * 3);
 	
-	memcpy_s(&meshInfo->vertices[0], verticesByteWidth, vertices, verticesByteWidth);
-	meshInfo->verticesCount = verticesCount;
+	memcpy_s(&mMeshInfo->vertices[0], verticesByteWidth, vertices, verticesByteWidth);
+	mMeshInfo->verticesCount = mVerticesCount;
 
-	memcpy_s(&meshInfo->indices[0], sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
-	meshInfo->indicesCount = indicesCount;
+	memcpy_s(&mMeshInfo->indices[0], sizeof(UINT) * mIndicesCount, indices, sizeof(UINT) * mIndicesCount);
+	mMeshInfo->indicesCount = mIndicesCount;
 
-	memcpy_s(&meshInfo->normals[0], sizeof(float) * indicesCount * 3, normals, sizeof(float) * indicesCount * 3);
+	memcpy_s(&mMeshInfo->normals[0], sizeof(float) * mIndicesCount * 3, normals, sizeof(float) * mIndicesCount * 3);
 
-	for (int i = 0; i < indicesCount; i++)
+	for (int i = 0; i < mIndicesCount; i++)
 	{
 		DisplayVector(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]);
 	}
 
+	SplitVertexByNormal();
+
 	delete[] vertices;
 	delete[] indices;
 
-	return meshInfo;
+	return mMeshInfo;
 }
 
 void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, float* normals)
@@ -324,5 +326,36 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, float* nor
 
 	default:
 		break;
+	}
+}
+
+void FBXImporter::SplitVertexByNormal()
+{
+	int verticesCount = mVerticesCount;
+
+	vector<float> normals;
+	normals.resize(verticesCount * 3, 0.0f);
+
+	vector<UINT> indicesBuffer = mMeshInfo->indices;
+
+	for (int i = 0; i < mIndicesCount; i++)
+	{
+		if ((normals[indicesBuffer[i] * 3] == 0.0f) && (normals[indicesBuffer[i] * 3 + 1] == 0.0f) && (normals[indicesBuffer[i] * 3 + 2] == 0.0f))
+		{
+			normals[indicesBuffer[i] * 3] = mMeshInfo->normals[i * 3];
+			normals[indicesBuffer[i] * 3 + 1] = mMeshInfo->normals[i * 3 + 1];
+			normals[indicesBuffer[i] * 3 + 2] = mMeshInfo->normals[i * 3 + 2];
+		}
+		else if ((normals[indicesBuffer[i] * 3] != mMeshInfo->normals[i * 3]) &&
+				(normals[indicesBuffer[i] * 3 + 1] != mMeshInfo->normals[i * 3 + 1]) &&
+				(normals[indicesBuffer[i] * 3 + 2] != mMeshInfo->normals[i * 3 + 2]))
+		{
+			mMeshInfo->vertices.resize(verticesCount + 1);
+			mMeshInfo->vertices[verticesCount * 3] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3];
+			mMeshInfo->vertices[verticesCount * 3 + 1] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3 + 1];
+			mMeshInfo->vertices[verticesCount * 3 + 2] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3 + 2];
+			mMeshInfo->indices[i] = verticesCount;
+			verticesCount++;
+		}
 	}
 }
