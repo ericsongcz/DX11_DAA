@@ -76,3 +76,4 @@ void SafeDelete(T type)
 }
 
 void Log(const char* foramt, ...);
+void DisplayVector(float x, float y, float z);

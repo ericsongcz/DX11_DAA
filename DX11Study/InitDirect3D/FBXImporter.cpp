@@ -220,15 +220,114 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	}
 
 	meshInfo->vertices = new float[verticesCount * 3];
-	meshInfo->indices = new UINT[indicesCount];
+	meshInfo->indices.resize(indicesCount);
+	meshInfo->normals = new float[verticesCount * 3];
 	
 	memcpy_s(meshInfo->vertices, verticesByteWidth, vertices, verticesByteWidth);
 	meshInfo->verticesCount = verticesCount;
-	memcpy_s(meshInfo->indices, sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
+	memcpy_s(&meshInfo->indices[0], sizeof(UINT) * indicesCount, indices, sizeof(UINT) * indicesCount);
 	meshInfo->indicesCount = indicesCount;
+
+	float* normals = new float[indicesCount * 3];
+
+	int triangleCount = mMesh->GetPolygonCount();
+	int controlPointIndex = 0;
+	int normalIndex = 0;
+
+	for (int i = 0; i < triangleCount; i++)
+	{
+		int polygonSize = mMesh->GetPolygonSize(i);
+
+		for (int j = 0; j < polygonSize; j++)
+		{
+			controlPointIndex = mMesh->GetPolygonVertex(i, j);
+
+			ReadNormals(controlPointIndex, normalIndex, normals);
+
+			normalIndex++;
+		}
+	}
+
+	for (int i = 0; i < triangleCount; i++)
+	{
+		DisplayVector(normals[i * 3], normals[i * 3 + 1], normals[i * 3 + 2]);
+	}
 
 	delete[] vertices;
 	delete[] indices;
 
 	return meshInfo;
+}
+
+void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, float* normals)
+{
+	if (mMesh->GetElementNormalCount() < 1)
+	{
+		return;
+	}
+
+	FbxGeometryElementNormal* normal = mMesh->GetElementNormal(0);
+	switch (normal->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+		switch (normal->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(contorlPointIndex);
+			*normals = static_cast<float>(fbxNormal[0]);
+			normals++;
+			*normals = static_cast<float>(fbxNormal[1]);
+			normals++;
+			*normals = static_cast<float>(fbxNormal[2]);
+			normals++;
+		}
+			break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = normal->GetIndexArray().GetAt(contorlPointIndex);
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[0]);
+			normals++;
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[1]);
+			normals++;
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[2]);
+			normals++;
+		}
+		default:
+			break;
+		}
+
+		break;
+
+	case FbxGeometryElement::eByPolygonVertex:
+		switch (normal->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(normalIndex);
+			normals[normalIndex * 3] = static_cast<float>(fbxNormal[0]);
+			normals[normalIndex * 3 + 1] = static_cast<float>(fbxNormal[1]);
+			normals[normalIndex * 3 + 2] = static_cast<float>(fbxNormal[2]);
+		}
+			break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = normal->GetIndexArray().GetAt(normalIndex);
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[0]);
+			normals++;
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[1]);
+			normals++;
+			*normals = static_cast<float>(normal->GetDirectArray().GetAt(id)[2]);
+			normals++;
+		}
+		default:
+			break;
+		}
+		break;
+
+	default:
+		break;
+	}
 }

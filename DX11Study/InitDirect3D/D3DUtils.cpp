@@ -15,3 +15,8 @@ void Log(const char* foramt, ...)
 	vprintf(foramt, args);  //必须用vprintf等带V的  
 	va_end(args);			//结束可变参数的获取  
 }
+
+void DisplayVector(float x, float y, float z)
+{
+	Log("(%f, %f, %f)\n", x, y, z);
+}

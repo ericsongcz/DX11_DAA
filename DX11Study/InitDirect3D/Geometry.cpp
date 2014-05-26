@@ -13,6 +13,7 @@ Geometry::Geometry()
 void Geometry::FillMeshData(MeshInfo* meshInfo)
 {
 	mVertices = new Vertex[meshInfo->verticesCount];
+	mIndices = new UINT[meshInfo->indicesCount];
 	mVerticesCount = meshInfo->verticesCount;
 	mIndicesCount = meshInfo->indicesCount;
 
@@ -26,7 +27,7 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 		Log("(%f, %f, %f)\n", meshInfo->vertices[i], meshInfo->vertices[i + 1], meshInfo->vertices[i + 2]);
 	}
 
-	mIndices = meshInfo->indices;
+	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)

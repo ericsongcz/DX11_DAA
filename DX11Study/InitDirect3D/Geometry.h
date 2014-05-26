@@ -2,7 +2,10 @@
 
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include <vector>
+
 using namespace DirectX;
+using std::vector;
 
 struct Vertex
 {
@@ -14,7 +17,8 @@ struct Vertex
 struct MeshInfo
 {
 	float* vertices;
-	UINT* indices;
+	float* normals;
+	vector<UINT> indices;
 	UINT verticesCount;
 	UINT indicesCount;
 };

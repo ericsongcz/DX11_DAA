@@ -16,6 +16,7 @@ public:
 	void ProcessMesh(FbxNodeAttribute* nodeAttribute);
 	void SaveData(const char* fileName);
 	MeshInfo* GetMeshInfo();
+	void ReadNormals(int contorlPointIndex, int normalIndex, float* normals); 
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;

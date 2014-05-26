@@ -2,28 +2,32 @@
 //
 
 #include "stdafx.h"
-#include "FBXImporter.h"
-#include <ctime>
 #include <iostream>
+#include <vector>
+#include <windows.h>
 
 using namespace std;
 
+void ReadIndices(int* indices, int index)
+{
+	indices[index * 3] = index;
+	indices[index * 3 + 1] = index + 1;
+	indices[index * 3 + 2] = index + 2;
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	FBXImporter* importer = new FBXImporter();
-	importer->Init();
-	importer->LoadScene("Cube.fbx");
-	importer->WalkHierarchy();
-	importer->SaveData("Cube.bin");
+	int* indices = new int[9];
 
-	srand((int)time(nullptr));
-
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 3; i++)
 	{
-		cout << rand() / (float)(RAND_MAX + 1) << endl;
+		ReadIndices(indices, i);
 	}
 
-	cout << RAND_MAX / (float)(RAND_MAX + 1) << endl;
+	for (int i = 0; i < 9; i++)
+	{
+		cout << indices[i] << endl;
+	}
 
 	return 0;
 }
