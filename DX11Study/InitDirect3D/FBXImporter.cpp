@@ -239,22 +239,21 @@ MeshInfo* FBXImporter::GetMeshInfo()
 			normalIndex++;
 		}
 	}
-	
+
 	mMeshInfo->vertices = verticesPositions;
 	mMeshInfo->indices = indices;
+	mMeshInfo->normals = mNormals;
 
-	mMeshInfo->normals.resize(mVerticesCount);
+	//for (int i = 0; i < mIndicesCount; i++)
+	//{
+	//	mMeshInfo->vertices[i] = verticesPositions[mMeshInfo->indices[i]];
+	//}
 
 	//ComputeNormals();
 	SplitVertexByNormal();
 
-	mMeshInfo->verticesCount = mVerticesCount;
+	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
-
-	for (int i = 0; i < mIndicesCount; i++)
-	{
-		DisplayVector(mNormals[i].x, mNormals[i].y, mNormals[i].z);
-	}
 
 	return mMeshInfo;
 }
@@ -348,6 +347,8 @@ void FBXImporter::SplitVertexByNormal()
 			verticesCount++;
 		}
 	}
+
+	int i = 0;
 }
 
 void FBXImporter::ComputeNormals()

@@ -82,4 +82,5 @@ void Geometry::renderBuffer()
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	mDeviceContext->DrawIndexed(mIndicesCount, 0, 0);
+	//mDeviceContext->Draw(mVerticesCount, 0);
 }

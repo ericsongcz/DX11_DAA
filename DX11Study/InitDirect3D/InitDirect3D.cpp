@@ -103,7 +103,7 @@ void InitDirect3D::DrawScene()
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 10.0f,-10.0f));
+	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(10.0f, 10.0f,-10.0f));
 	XMVECTOR lookAt = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 0.0f));
 	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
 
