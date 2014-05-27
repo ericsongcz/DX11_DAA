@@ -16,8 +16,9 @@ public:
 	void ProcessMesh(FbxNodeAttribute* nodeAttribute);
 	void SaveData(const char* fileName);
 	MeshInfo* GetMeshInfo();
-	void ReadNormals(int contorlPointIndex, int normalIndex, float* normals); 
+	void ReadNormals(int contorlPointIndex, int normalIndex, vector<XMFLOAT3>& normals); 
 	void SplitVertexByNormal();
+	void ComputeNormals();
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
@@ -25,4 +26,5 @@ private:
 	MeshInfo* mMeshInfo;
 	int mVerticesCount;
 	int mIndicesCount;
+	int mTrianglesCount;
 };

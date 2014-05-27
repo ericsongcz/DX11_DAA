@@ -11,13 +11,14 @@ struct Vertex
 {
 	XMFLOAT3 position;
 	XMFLOAT4 color;
+	XMFLOAT3 normal;
 	XMFLOAT2 texcoord;
 };
 
 struct MeshInfo
 {
-	vector<float> vertices;
-	vector<float> normals;
+	vector<XMFLOAT3> vertices;
+	vector<XMFLOAT3> normals;
 	vector<UINT> indices;
 	UINT verticesCount;
 	UINT indicesCount;

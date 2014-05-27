@@ -20,6 +20,7 @@ struct VertexInput
 {
 	float4 position : POSITION;
 	float4 color : COLOR;
+	float4 normal : NORMAL;
 	float2 texcoord : TEXCOORD0;
 };
 
@@ -27,6 +28,7 @@ struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 color : COLOR;
+	float4 normal : NORMAL;
 	float2 texcoord : TEXCOORD0;
 };
 
@@ -47,6 +49,7 @@ PixelInput main(VertexInput input)
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;
+	output.normal = input.normal;
 	output.texcoord = input.texcoord;
 
 	return output;

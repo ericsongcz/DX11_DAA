@@ -21,10 +21,10 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 
 	for (int i = 0; i < mVerticesCount; i++)
 	{
-		mVertices[i].position = XMFLOAT3(meshInfo->vertices[i * 3], meshInfo->vertices[i * 3 + 1], meshInfo->vertices[i * 3 + 2]);
+		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
 
-		Log("(%f, %f, %f)\n", meshInfo->vertices[i], meshInfo->vertices[i + 1], meshInfo->vertices[i + 2]);
+		Log("(%f, %f, %f)\n", meshInfo->vertices[i].x, meshInfo->vertices[i].y, meshInfo->vertices[i].z);
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);

@@ -13,6 +13,7 @@ struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 color : COLOR;
+	float4 normal : NORMAL;
 	float2 texcoord : TEXCOORD0;
 };
 
