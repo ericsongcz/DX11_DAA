@@ -59,3 +59,13 @@ void XMFLOAT3Normalize(XMFLOAT3& out, XMFLOAT3& in)
 
 	XMStoreFloat3(&out, result);
 }
+
+bool XMFLOAT3Equal(const XMFLOAT3& lhs, const XMFLOAT3& rhs)
+{
+	if ((lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.z == rhs.z))
+	{
+		return true;
+	}
+
+	return false;
+}

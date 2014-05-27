@@ -220,8 +220,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	}
 
-	vector<XMFLOAT3> normals;
-	normals.resize(mIndicesCount);
+	mNormals.resize(mIndicesCount);
 
 	int triangleCount = mMesh->GetPolygonCount();
 	int controlPointIndex = 0;
@@ -235,7 +234,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		{
 			controlPointIndex = mMesh->GetPolygonVertex(i, j);
 
-			ReadNormals(controlPointIndex, normalIndex, normals);
+			ReadNormals(controlPointIndex, normalIndex, mNormals);
 
 			normalIndex++;
 		}
@@ -246,14 +245,15 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	mMeshInfo->normals.resize(mVerticesCount);
 
-	ComputeNormals();
+	//ComputeNormals();
+	SplitVertexByNormal();
 
 	mMeshInfo->verticesCount = mVerticesCount;
 	mMeshInfo->indicesCount = mIndicesCount;
 
 	for (int i = 0; i < mIndicesCount; i++)
 	{
-		DisplayVector(normals[i].x, normals[i].y, normals[i].z);
+		DisplayVector(mNormals[i].x, mNormals[i].y, mNormals[i].z);
 	}
 
 	return mMeshInfo;
@@ -327,32 +327,27 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 
 void FBXImporter::SplitVertexByNormal()
 {
-// 	int verticesCount = mVerticesCount;
-// 
-// 	vector<XMFLOAT3> normals;
-// 	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
-// 
-// 	vector<UINT> indicesBuffer = mMeshInfo->indices;
-// 
-// 	for (int i = 0; i < mIndicesCount; i++)
-// 	{
-// 		if (normals[indicesBuffer[i]] == XMFLOAT3(0.0f, 0.0f, 0.0f))
-// 		{
-// 
-// 			normals[indicesBuffer[i]] = mMeshInfo->normals[i];
-// 		}
-// 		else if ((normals[indicesBuffer[i] * 3] != mMeshInfo->normals[i * 3]) &&
-// 				(normals[indicesBuffer[i] * 3 + 1] != mMeshInfo->normals[i * 3 + 1]) &&
-// 				(normals[indicesBuffer[i] * 3 + 2] != mMeshInfo->normals[i * 3 + 2]))
-// 		{
-// 			mMeshInfo->vertices.resize(verticesCount + 1);
-// 			mMeshInfo->vertices[verticesCount * 3] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3];
-// 			mMeshInfo->vertices[verticesCount * 3 + 1] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3 + 1];
-// 			mMeshInfo->vertices[verticesCount * 3 + 2] = mMeshInfo->vertices[mMeshInfo->indices[i] * 3 + 2];
-// 			mMeshInfo->indices[i] = verticesCount;
-// 			verticesCount++;
-// 		}
-// 	}
+	int verticesCount = mVerticesCount;
+
+	vector<XMFLOAT3> normals;
+	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	vector<UINT> indicesBuffer = mMeshInfo->indices;
+
+	for (int i = 0; i < mIndicesCount; i++)
+	{
+		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
+		{
+			normals[indicesBuffer[i]] = mNormals[i];
+		}
+		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]))
+		{
+			mMeshInfo->vertices.resize(verticesCount + 1);
+			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[mMeshInfo->indices[i]];
+			mMeshInfo->indices[i] = verticesCount;
+			verticesCount++;
+		}
+	}
 }
 
 void FBXImporter::ComputeNormals()

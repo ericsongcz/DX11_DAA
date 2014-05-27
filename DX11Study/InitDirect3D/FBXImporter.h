@@ -27,4 +27,5 @@ private:
 	int mVerticesCount;
 	int mIndicesCount;
 	int mTrianglesCount;
+	vector<XMFLOAT3> mNormals;
 };
