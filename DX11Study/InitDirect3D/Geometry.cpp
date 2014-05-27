@@ -23,6 +23,7 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 	{
 		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
+		mVertices[i].normal = meshInfo->normals[i];
 
 		Log("(%f, %f, %f)\n", meshInfo->vertices[i].x, meshInfo->vertices[i].y, meshInfo->vertices[i].z);
 	}

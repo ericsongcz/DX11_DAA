@@ -5,10 +5,10 @@ cbuffer MatrixBuffer
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
-	float4 color1;
-	float4 color2;
-	float4 color3;
-	float4 color4;
+	float4 lightPosition;
+	float4 diffuseColor;
+	float4 cameraPosition;
+	float4 specularColor;
 };
 
 cbuffer Test
@@ -27,6 +27,7 @@ struct VertexInput
 struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
+	float4 worldPosition : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
 	float2 texcoord : TEXCOORD0;
@@ -40,9 +41,13 @@ PixelInput main(VertexInput input)
 	input.position.w = 1.0f;
 
 	// 乘以3个矩阵，得到clip空间的坐标。
+	output.worldPosition = mul(input.position, worldMatrix);
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
+
+	output.normal = mul(input.normal, worldMatrix);
+
 	output.position.x *= scaleFactor;
 	output.position.y *= scaleFactor;
 	output.position.z *= scaleFactor;

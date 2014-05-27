@@ -198,11 +198,11 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
-	XMVECTOR color = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
-	XMStoreFloat4(&matrixData->color1, color);
-	XMStoreFloat4(&matrixData->color2, color);
-	XMStoreFloat4(&matrixData->color3, color);
-	XMStoreFloat4(&matrixData->color4, color);
+
+	matrixData->lightPosition = XMFLOAT4(0.0f, 10.0f, -10.0f, 1.0f);
+	matrixData->diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	matrixData->cameraPositon = XMFLOAT4(0.0f, 10.0f, -10.0f, 1.0f);
+	matrixData->specularColor = XMFLOAT4(Colors::White);
 
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);

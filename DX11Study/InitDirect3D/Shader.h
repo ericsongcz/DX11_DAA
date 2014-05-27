@@ -9,10 +9,10 @@ struct MatrixBuffer
 	XMFLOAT4X4 worldMatrix;
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;
-	XMFLOAT4 color1;
-	XMFLOAT4 color2;
-	XMFLOAT4 color3;
-	XMFLOAT4 color4;
+	XMFLOAT4 lightPosition;
+	XMFLOAT4 diffuseColor;
+	XMFLOAT4 cameraPositon;
+	XMFLOAT4 specularColor;
 };
 
 struct TestBuffer
