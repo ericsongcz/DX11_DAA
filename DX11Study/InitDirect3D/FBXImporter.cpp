@@ -188,6 +188,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mIndicesCount = mMesh->GetPolygonVertexCount();
 	mTrianglesCount = mMesh->GetPolygonCount();
 
+	FbxMatrix gloableTransform = mMesh->GetNode()->EvaluateGlobalTransform();
+
+	FbxMatrixToXMMATRIX(mMeshInfo->worldTransform, gloableTransform);
+
 	int verticesComponentCount = mVerticesCount * 3;
 	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
 
@@ -244,9 +248,9 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->indices = indices;
 	mMeshInfo->normals.resize(mVerticesCount);
 
-	ComputeNormals();
-	//SplitVertexByNormal();
-	//mMeshInfo->normals = mNormals;
+	//ComputeNormals();
+	SplitVertexByNormal();
+	mMeshInfo->normals = mNormals;
 
 	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
@@ -341,10 +345,11 @@ void FBXImporter::SplitVertexByNormal()
 			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[mMeshInfo->indices[i]];
 			mMeshInfo->indices[i] = verticesCount;
 			verticesCount++;
+			normals.push_back(mNormals[i]);
 		}
 	}
 
-	int i = 0;
+	mNormals = normals;
 }
 
 void FBXImporter::ComputeNormals()
@@ -378,4 +383,12 @@ void FBXImporter::ComputeNormals()
 	{
 		XMFLOAT3Normalize(mMeshInfo->normals[i], mMeshInfo->normals[i]);
 	}
+}
+
+void FBXImporter::FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in)
+{
+	out = XMMatrixSet(in.Get(0, 0), in.Get(0, 1), in.Get(0, 2), in.Get(0, 3),
+					  in.Get(1, 0), in.Get(1, 1), in.Get(1, 2), in.Get(1, 3),
+					  in.Get(2, 0), in.Get(2, 1), in.Get(2, 2), in.Get(2, 3),
+					  in.Get(3, 0), in.Get(3, 1), in.Get(3, 2), in.Get(3, 3));
 }

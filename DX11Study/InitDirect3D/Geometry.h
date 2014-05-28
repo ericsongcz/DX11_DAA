@@ -22,6 +22,7 @@ struct MeshInfo
 	vector<UINT> indices;
 	UINT verticesCount;
 	UINT indicesCount;
+	XMMATRIX worldTransform;
 };
 
 class Geometry

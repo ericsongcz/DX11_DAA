@@ -21,6 +21,10 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 
 	for (int i = 0; i < mVerticesCount; i++)
 	{
+		XMVECTOR tempPosition = XMLoadFloat3(&meshInfo->vertices[i]);
+		tempPosition = XMVector3Transform(tempPosition, meshInfo->worldTransform);
+		XMStoreFloat3(&meshInfo->vertices[i], tempPosition);
+
 		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
 		mVertices[i].normal = meshInfo->normals[i];

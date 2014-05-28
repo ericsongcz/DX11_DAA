@@ -48,9 +48,9 @@ PixelInput main(VertexInput input)
 
 	output.normal = mul(input.normal, worldMatrix);
 
-	output.position.x *= scaleFactor;
-	output.position.y *= scaleFactor;
-	output.position.z *= scaleFactor;
+	//output.position.x *= scaleFactor;
+	//output.position.y *= scaleFactor;
+	//output.position.z *= scaleFactor;
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;

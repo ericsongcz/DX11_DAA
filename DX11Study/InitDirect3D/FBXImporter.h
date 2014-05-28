@@ -19,6 +19,7 @@ public:
 	void ReadNormals(int contorlPointIndex, int normalIndex, vector<XMFLOAT3>& normals); 
 	void SplitVertexByNormal();
 	void ComputeNormals();
+	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
