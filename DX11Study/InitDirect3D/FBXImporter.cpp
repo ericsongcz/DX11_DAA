@@ -242,15 +242,11 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	mMeshInfo->vertices = verticesPositions;
 	mMeshInfo->indices = indices;
-	mMeshInfo->normals = mNormals;
+	mMeshInfo->normals.resize(mVerticesCount);
 
-	//for (int i = 0; i < mIndicesCount; i++)
-	//{
-	//	mMeshInfo->vertices[i] = verticesPositions[mMeshInfo->indices[i]];
-	//}
-
-	//ComputeNormals();
-	SplitVertexByNormal();
+	ComputeNormals();
+	//SplitVertexByNormal();
+	//mMeshInfo->normals = mNormals;
 
 	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
