@@ -3,6 +3,7 @@
 #include "D3DUtils.h"
 #include <ctime>
 #include <iostream>
+#include "SharedParameters.h"
 
 using namespace std;
 
@@ -21,9 +22,9 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 
 	for (int i = 0; i < mVerticesCount; i++)
 	{
-		XMVECTOR tempPosition = XMLoadFloat3(&meshInfo->vertices[i]);
-		tempPosition = XMVector3Transform(tempPosition, meshInfo->worldTransform);
-		XMStoreFloat3(&meshInfo->vertices[i], tempPosition);
+// 		XMVECTOR tempPosition = XMLoadFloat3(&meshInfo->vertices[i]);
+// 		tempPosition = XMVector3Transform(tempPosition, SharedParameters::globalTransform);
+// 		XMStoreFloat3(&meshInfo->vertices[i], tempPosition);
 
 		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);

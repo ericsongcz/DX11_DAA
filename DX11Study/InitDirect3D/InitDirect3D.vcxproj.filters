@@ -60,6 +60,9 @@
     <ClInclude Include="Log.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SharedParameters.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -87,6 +90,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Log.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedParameters.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

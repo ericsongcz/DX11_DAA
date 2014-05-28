@@ -182,6 +182,8 @@ bool D3DApp::InitD3D(HWND hWnd)
 
 	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mSolidState));
 
+	mDeviceContext->RSSetState(mSolidState);
+
 	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rasterizerDesc.CullMode = D3D11_CULL_BACK;
 	rasterizerDesc.DepthClipEnable = true;

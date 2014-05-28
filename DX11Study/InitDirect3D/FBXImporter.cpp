@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "D3DUtils.h"
+#include "SharedParameters.h"
 
 using namespace std;
 
@@ -190,7 +191,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	FbxMatrix gloableTransform = mMesh->GetNode()->EvaluateGlobalTransform();
 
-	FbxMatrixToXMMATRIX(mMeshInfo->worldTransform, gloableTransform);
+	FbxMatrixToXMMATRIX(SharedParameters::globalTransform, gloableTransform);
 
 	int verticesComponentCount = mVerticesCount * 3;
 	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
