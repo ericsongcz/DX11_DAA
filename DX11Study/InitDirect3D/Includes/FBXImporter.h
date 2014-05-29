@@ -19,6 +19,7 @@ public:
 	void ReadNormals(int contorlPointIndex, int normalIndex, vector<XMFLOAT3>& normals); 
 	void ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVIndex, int index, int uvLayer, vector<XMFLOAT2>& uvs);
 	void SplitVertexByNormal();
+	void SplitVertexByUV();
 	void ComputeNormals();
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* materialIndices);
@@ -34,4 +35,5 @@ private:
 	int mIndicesCount;
 	int mTrianglesCount;
 	vector<XMFLOAT3> mNormals;
+	vector<XMFLOAT2> mUVs;
 };

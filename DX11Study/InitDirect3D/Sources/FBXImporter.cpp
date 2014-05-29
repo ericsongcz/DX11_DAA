@@ -229,6 +229,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	}
 
 	mNormals.resize(mIndicesCount);
+	mUVs.resize(mIndicesCount);
 
 	int triangleCount = mMesh->GetPolygonCount();
 	int controlPointIndex = 0;
@@ -245,7 +246,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 			ReadNormals(controlPointIndex, normalIndex, mNormals);
 
-			ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, uvs);
+			ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, mUVs);
 
 			normalIndex++;
 		}
@@ -257,8 +258,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->normals.resize(mVerticesCount);
 
 	//ComputeNormals();
+	//SplitVertexByUV();
 	SplitVertexByNormal();
 	mMeshInfo->normals = mNormals;
+	mMeshInfo->uvs = mUVs;
 
 	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
@@ -385,7 +388,7 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVInd
 
 void FBXImporter::SplitVertexByNormal()
 {
-	int verticesCount = mVerticesCount;
+	int verticesCount = mMeshInfo->vertices.size();
 
 	vector<XMFLOAT3> normals;
 	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
@@ -414,6 +417,33 @@ void FBXImporter::SplitVertexByNormal()
 	{
 		XMFLOAT3Negative(mNormals[i], mNormals[i]);
 	}
+}
+
+void FBXImporter::SplitVertexByUV()
+{
+	int verticesCount = mVerticesCount;
+	vector<XMFLOAT2> uvs;
+	uvs.resize(verticesCount, XMFLOAT2(0.0f, 0.0f));
+
+	vector<UINT> indicesBuffer = mMeshInfo->indices;
+
+	for (int i = 0; i < mIndicesCount; i++)
+	{
+		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(0.0f, 0.0f)))
+		{
+			uvs[indicesBuffer[i]] = mUVs[i];
+		}
+		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
+		{
+			mMeshInfo->vertices.resize(verticesCount + 1);
+			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[mMeshInfo->indices[i]];
+			mMeshInfo->indices[i] = verticesCount;
+			verticesCount++;
+			uvs.push_back(mUVs[i]);
+		}
+	}
+
+	mUVs = uvs;
 }
 
 void FBXImporter::ComputeNormals()

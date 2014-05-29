@@ -76,3 +76,13 @@ bool XMFLOAT3Equal(const XMFLOAT3& lhs, const XMFLOAT3& rhs)
 
 	return false;
 }
+
+bool XMFLOAT2Equal(const XMFLOAT2& lhs, const XMFLOAT2& rhs)
+{
+	if ((lhs.x == rhs.x) && (lhs.y == rhs.y))
+	{
+		return true;
+	}
+
+	return false;
+}

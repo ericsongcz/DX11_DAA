@@ -84,3 +84,4 @@ void XMFLOAT3Sub(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Cross(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Normalize(XMFLOAT3& out, XMFLOAT3& in);
 bool XMFLOAT3Equal(const XMFLOAT3& lhs, const XMFLOAT3& rhs);
+bool XMFLOAT2Equal(const XMFLOAT2& lhs, const XMFLOAT2& rhs);
