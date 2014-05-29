@@ -18,8 +18,58 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Includes\D3DUtils.h" />
+    <ClInclude Include="Includes\FBXImporter.h" />
+    <ClInclude Include="Includes\GameTimer.h" />
+    <ClInclude Include="Includes\Geometry.h" />
+    <ClInclude Include="Includes\InitDirect3D.h" />
+    <ClInclude Include="Includes\Log.h" />
+    <ClInclude Include="Includes\Shader.h" />
+    <ClInclude Include="Includes\SharedParameters.h" />
+    <ClInclude Include="Includes\stdafx.h" />
+    <ClInclude Include="Resource.h" />
+    <ClInclude Include="Sources\D3DApp.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Sources\D3DApp.cpp" />
+    <ClCompile Include="Sources\D3DUtils.cpp" />
+    <ClCompile Include="Sources\FBXImporter.cpp" />
+    <ClCompile Include="Sources\GameTimer.cpp" />
+    <ClCompile Include="Sources\Geometry.cpp" />
+    <ClCompile Include="Sources\InitDirect3D.cpp" />
+    <ClCompile Include="Sources\Log.cpp" />
+    <ClCompile Include="Sources\Shader.cpp" />
+    <ClCompile Include="Sources\SharedParameters.cpp" />
+    <ClCompile Include="Sources\stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Shaders\PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="Shaders\VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Docs\Develop Notes.docx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="InitDirect3D.ico" />
+    <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="InitDirect3D.rc" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{1407514D-E3D2-4E71-B19E-7DE2153AD078}</ProjectGuid>
+    <ProjectGuid>{E4A8DACE-0716-4C2F-886A-60A781A2FE12}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>InitDirect3D</RootNamespace>
   </PropertyGroup>
@@ -80,12 +130,12 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\Development\Microsoft DirectX SDK (June 2010)\Include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -94,25 +144,27 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>$(FBX_SDK)\include;../../../DXSDK/Include;$(ProjectDir)/Includes</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Includes;$(FBX_SDK)/Include;../../../DXSDK/Include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../../../DXSDK/Lib/x64;./Libs/x64/Debug/;$(FBX_SDK)\lib\vs2013\x64\debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;dxgi.lib;DirectXTexD.lib;dxerr.lib;libfbxsdk-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>./Libs/x64/Debug;../../../DXSDK/Lib/x64;$(FBX_SDK)/Lib/vs2013/x64/debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>d3d11.lib;DirectXTexD.lib;libfbxsdk-mt.lib;dxerr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -129,7 +181,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -143,60 +196,6 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="Sources\ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Sources\D3DApp.h" />
-    <ClInclude Include="Includes\D3DUtils.h" />
-    <ClInclude Include="Includes\FBXImporter.h" />
-    <ClInclude Include="Includes\GameTimer.h" />
-    <ClInclude Include="Includes\Geometry.h" />
-    <ClInclude Include="Includes\InitDirect3D.h" />
-    <ClInclude Include="Includes\Log.h" />
-    <ClInclude Include="Includes\Resource.h" />
-    <ClInclude Include="Includes\Shader.h" />
-    <ClInclude Include="Includes\SharedParameters.h" />
-    <ClInclude Include="Includes\stdafx.h" />
-    <ClInclude Include="Includes\targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Sources\D3DApp.cpp" />
-    <ClCompile Include="Sources\D3DUtils.cpp" />
-    <ClCompile Include="Sources\FBXImporter.cpp" />
-    <ClCompile Include="Sources\GameTimer.cpp" />
-    <ClCompile Include="Sources\Geometry.cpp" />
-    <ClCompile Include="Sources\InitDirect3D.cpp" />
-    <ClCompile Include="Sources\Shader.cpp" />
-    <ClCompile Include="Sources\Log.cpp" />
-    <ClCompile Include="Sources\SharedParameters.cpp" />
-    <ClCompile Include="Sources\stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Sources\InitDirect3D.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="Sources\InitDirect3D.ico" />
-    <Image Include="Sources\small.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="Shaders\PixelShader.hlsl">
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
-    </FxCompile>
-    <FxCompile Include="Shaders\VertexShader.hlsl">
-      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
-      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
-    </FxCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Docs\Develop Notes.docx" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource.h"
+#include "../resource.h"
 #include "D3DApp.h"
 #include "Geometry.h"
 #include "Shader.h"

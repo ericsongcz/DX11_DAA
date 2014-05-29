@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "D3DApp.h"
-#include "Resource.h"
+#include "../Resource.h"
 #include "D3DUtils.h"
 #include <cassert>
 #include <sstream>
