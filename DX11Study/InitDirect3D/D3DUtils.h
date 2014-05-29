@@ -78,6 +78,7 @@ void SafeDelete(T type)
 void Log(const char* foramt, ...);
 void DisplayVector(float x, float y, float z);
 
+void XMFLOAT3Negative(XMFLOAT3& out, XMFLOAT3& in);
 void XMFLOAT3Add(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Sub(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Cross(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);

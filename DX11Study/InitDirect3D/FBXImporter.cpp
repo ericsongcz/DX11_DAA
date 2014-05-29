@@ -104,13 +104,17 @@ void FBXImporter::WalkHierarchy(FbxNode* fbxNode, int depth)
 void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 {
 	mMesh = (FbxMesh*)nodeAttribute;
-
+	
 	if (!mMesh->IsTriangleMesh())
 	{
 		FbxGeometryConverter converter(mSDKManager);
 
 		// #1
+		// For FBX SDK 2015.1
 		nodeAttribute = converter.Triangulate(nodeAttribute, true, false);
+		// For FBX SDK 2013.3
+		//converter.TriangulateInPlace(nodeAttribute->GetNode());
+
 		mMesh = (FbxMesh*)nodeAttribute;
 	}
 
@@ -351,6 +355,11 @@ void FBXImporter::SplitVertexByNormal()
 	}
 
 	mNormals = normals;
+
+	for (int i = 0; i < mNormals.size(); i++)
+	{
+		XMFLOAT3Negative(mNormals[i], mNormals[i]);
+	}
 }
 
 void FBXImporter::ComputeNormals()

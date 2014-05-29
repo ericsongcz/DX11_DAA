@@ -57,7 +57,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("bunny.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();
@@ -102,13 +102,13 @@ void InitDirect3D::DrawScene()
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f,-10.0f));
+	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f,10.0f));
 	XMVECTOR lookAt = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 0.0f));
 	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
 
-	XMMATRIX viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
+	XMMATRIX viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
 
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
+	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovRH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 
 	mShader->render(worldMatrix, viewMatrix, projectionMatrix);
 

@@ -177,6 +177,7 @@ bool D3DApp::InitD3D(HWND hWnd)
 	ZeroMemory(&rasterizerDesc, sizeof (D3D11_RASTERIZER_DESC));
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
 	rasterizerDesc.DepthClipEnable = true;
 	rasterizerDesc.FrontCounterClockwise = false;
 
@@ -189,7 +190,6 @@ bool D3DApp::InitD3D(HWND hWnd)
 	rasterizerDesc.DepthClipEnable = true;
 	rasterizerDesc.FrontCounterClockwise = false;
 	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mWireframeState));
-
 
 	return true;
 }
