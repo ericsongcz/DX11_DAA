@@ -20,6 +20,9 @@ public:
 	void SplitVertexByNormal();
 	void ComputeNormals();
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
+	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* materialIndices);
+	void LoadMaterials(FbxMesh* mesh);
+	void LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial);
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;

@@ -118,13 +118,12 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 		mMesh = (FbxMesh*)nodeAttribute;
 	}
 
-	cout << "TriangleCount:" << mMesh->GetPolygonCount()
-		 << " VertexCount:" << mMesh->GetControlPointsCount()
-		 << " IndexCount:" << mMesh->GetPolygonVertexCount()
-		 << " Layer:" << mMesh->GetLayerCount()
-		 << " DeformerCount:" << mMesh->GetDeformerCount()
-		 << " MaterialCount:" << nodeAttribute->GetNode()->GetMaterialCount()
-		 << endl;
+	cout << "TriangleCount:" << mMesh->GetPolygonCount() << endl;
+	cout << "VertexCount:" << mMesh->GetControlPointsCount() << endl;
+	cout << "IndexCount:" << mMesh->GetPolygonVertexCount() << endl;
+	cout << "Layer:" << mMesh->GetLayerCount() << endl;
+	cout << "DeformerCount:" << mMesh->GetDeformerCount() << endl;
+	cout << "MaterialCount:" << nodeAttribute->GetNode()->GetMaterialCount() << endl;
 }
 
 void FBXImporter::SaveData(const char* fileName)
@@ -259,6 +258,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
+
+	int* triangleMaterialIndices = new int[mTrianglesCount];
+	ConnectMaterialsToMesh(mMesh, mTrianglesCount, triangleMaterialIndices);
+	LoadMaterials(mMesh);
 
 	return mMeshInfo;
 }
@@ -401,4 +404,116 @@ void FBXImporter::FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in)
 					  in.Get(1, 0), in.Get(1, 1), in.Get(1, 2), in.Get(1, 3),
 					  in.Get(2, 0), in.Get(2, 1), in.Get(2, 2), in.Get(2, 3),
 					  in.Get(3, 0), in.Get(3, 1), in.Get(3, 2), in.Get(3, 3));
+}
+
+void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* triangleMaterialIndices)
+{
+	// Get the material index list of current mesh.
+	FbxLayerElementArrayTemplate<int>* materialIndices;
+	FbxGeometryElement::EMappingMode materialMappingMode = FbxGeometryElement::eNone;
+
+	if (mesh->GetElementMaterial() != nullptr)
+	{
+		materialIndices = &mesh->GetElementMaterial()->GetIndexArray();
+		materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
+
+		switch (materialMappingMode)
+		{
+		case FbxLayerElement::eByPolygon:
+			if (materialIndices->GetCount() == triangleCount)
+			{
+				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
+				{
+					int materialIndex = materialIndices->GetAt(triangleIndex);
+					triangleMaterialIndices[triangleIndex] = materialIndex;
+				}
+			}
+
+			break;
+
+		case FbxLayerElement::eAllSame:
+		{
+			int materialIndex = materialIndices->GetAt(0);
+
+			for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
+			{
+				triangleMaterialIndices[triangleIndex] = materialIndex;
+			}
+		}
+
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void FBXImporter::LoadMaterials(FbxMesh* mesh)
+{
+	int materialCount = 0;
+	FbxNode* node = nullptr;
+
+	if ((mesh != nullptr) && (mesh->GetNode() != nullptr))
+	{
+		node = mesh->GetNode();
+		materialCount = node->GetMaterialCount();
+	}
+
+	if (materialCount > 0)
+	{
+		for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
+		{
+			FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(materialIndex);
+			LoadMaterialAttributes(surfaceMaterial);
+		}
+	}
+}
+
+void FBXImporter::LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial)
+{
+	// Get the name of material.
+	const char* materialName = surfaceMaterial->GetName();
+
+	Log("Material name:%s", materialName);
+
+	// Phong material
+	if (surfaceMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
+	{
+		// Ambient color.
+		FbxDouble3 ambient = ((FbxSurfacePhong*)surfaceMaterial)->Ambient;
+
+		// Diffuse color.
+		FbxDouble3 diffuse = ((FbxSurfacePhong*)surfaceMaterial)->Diffuse;
+
+		// Specular color.
+		FbxDouble3 specular = ((FbxSurfacePhong*)surfaceMaterial)->Specular;
+
+		// Emissive color.
+		FbxDouble3 emissive = ((FbxSurfacePhong*)surfaceMaterial)->Emissive;
+
+		// Opacity.
+		FbxDouble opacity = ((FbxSurfacePhong*)surfaceMaterial)->TransparencyFactor;
+
+		// Shininess.
+		FbxDouble shininess = ((FbxSurfacePhong*)surfaceMaterial)->Shininess;
+
+		// Reflectivety.
+		FbxDouble reflectiveity = ((FbxSurfacePhong*)surfaceMaterial)->ReflectionFactor;
+	}
+
+	// Lambert material.
+	if (surfaceMaterial->GetClassId().Is(FbxSurfaceLambert::ClassId))
+	{
+		// Ambient color.
+		FbxDouble3 ambient = ((FbxSurfaceLambert*)surfaceMaterial)->Ambient;
+
+		// Diffuse color.
+		FbxDouble3 diffuse = ((FbxSurfaceLambert*)surfaceMaterial)->Diffuse;
+
+		// Emissive color.
+		FbxDouble3 emissive = ((FbxSurfaceLambert*)surfaceMaterial)->Emissive;
+
+		// Opacity.
+		FbxDouble opacity = ((FbxSurfaceLambert*)surfaceMaterial)->TransparencyFactor;
+	}
 }

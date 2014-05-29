@@ -16,7 +16,6 @@ public:
 	void UpdateScene(float dt);
 	void DrawScene();
 	void OnMouseDown(WPARAM btnState, int x, int y);
-
 private:
 	Geometry* mGeometry;
 	Shader* mShader;
