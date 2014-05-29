@@ -19,7 +19,12 @@ struct PixelInput
 };
 
 Texture2D shaderTexture;
-SamplerState samplerState;
+SamplerState samplerState
+{
+	Filter = MIN_MAG_MIP_LINEAR;
+	AddressU = Wrap;
+	AddressV = Wrap;
+};
 
 float4 main(PixelInput input) : SV_TARGET
 {
@@ -38,7 +43,9 @@ float4 main(PixelInput input) : SV_TARGET
 	// All color components are summed in the pixel shader.
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
-	float4 color = specular + diffuse + ambientLightColor;
+	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
+
+	float4 color = (specular + diffuse + ambientLightColor) * textureColor;
 
 	return color;
 }

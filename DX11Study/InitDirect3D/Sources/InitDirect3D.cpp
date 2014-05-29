@@ -6,6 +6,7 @@
 #include "D3DUtils.h"
 #include <DirectXTex/DirectXTex.h>
 #include "FBXImporter.h"
+#include "SharedParameters.h"
 
 using namespace DirectX;
 
@@ -57,8 +58,14 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("teapotTextured.fbx");
 	fbxImporter->WalkHierarchy();
+
+	mShader = new Shader();
+	if (!mShader->initialize(mDevice, mDeviceContext, TEXT("VertexShader.cso"), TEXT("PixelShader.cso")))
+	{
+		return false;
+	}
 
 	mGeometry = new Geometry();
 	mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
@@ -67,20 +74,6 @@ bool InitDirect3D::Init()
 	{
 		return false;
 	}
-
-	mShader = new Shader();
-	if (!mShader->initialize(mDevice, mDeviceContext, TEXT("VertexShader.cso"), TEXT("PixelShader.cso")))
-	{
-		return false;
-	}
-
-	TexMetadata metaData;
-	ScratchImage image;
-	HR(LoadFromDDSFile(TEXT("puss.dds"), DDS_FLAGS_NONE, &metaData, image));
-
-	HR(CreateShaderResourceView(mDevice, image.GetImages(), image.GetImageCount(), metaData, &mShaderResourceView));
-
-	mShader->setShaderResource(mShaderResourceView);
 
 	return true;
 }

@@ -3,9 +3,11 @@
 #include <d3d11.h>
 #include <DirectXMath.h>
 #include <vector>
+#include <string>
 
 using namespace DirectX;
 using std::vector;
+using std::string;
 
 struct Vertex
 {
@@ -20,8 +22,11 @@ struct MeshInfo
 	vector<XMFLOAT3> vertices;
 	vector<XMFLOAT3> normals;
 	vector<UINT> indices;
+	vector<XMFLOAT2> uvs;
 	UINT verticesCount;
-	UINT indicesCount;
+	UINT indicesCount;	
+	string textureFileName;
+	string textureFilePath;
 };
 
 class Geometry

@@ -4,6 +4,7 @@
 #include "D3DUtils.h"
 #include <cassert>
 #include <sstream>
+#include "SharedParameters.h"
 
 D3DApp* gD3DApp;
 
@@ -134,6 +135,8 @@ bool D3DApp::InitD3D(HWND hWnd)
 
 	HR(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3,
 		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
+
+	SharedParameters::device = mDevice;
 
 	ID3D11Texture2D* backBuffer = nullptr;
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));

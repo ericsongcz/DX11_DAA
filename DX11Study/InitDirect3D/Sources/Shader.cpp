@@ -2,6 +2,7 @@
 #include "Shader.h"
 #include "D3DUtils.h"
 #include <fstream>
+#include "SharedParameters.h"
 
 Shader::Shader()
 : mMatrixBuffer(nullptr),
@@ -12,7 +13,7 @@ Shader::Shader()
   mDeviceContext(nullptr),
   mShaderResourceView(nullptr)
 {
-
+	SharedParameters::shader = this;
 }
 
 Shader::~Shader()

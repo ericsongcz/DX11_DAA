@@ -233,6 +233,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	int triangleCount = mMesh->GetPolygonCount();
 	int controlPointIndex = 0;
 	int normalIndex = 0;
+	vector<XMFLOAT2> uvs(mIndicesCount);
 
 	for (int i = 0; i < triangleCount; i++)
 	{
@@ -244,12 +245,15 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 			ReadNormals(controlPointIndex, normalIndex, mNormals);
 
+			ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, uvs);
+
 			normalIndex++;
 		}
 	}
 
 	mMeshInfo->vertices = verticesPositions;
 	mMeshInfo->indices = indices;
+	mMeshInfo->uvs = uvs;
 	mMeshInfo->normals.resize(mVerticesCount);
 
 	//ComputeNormals();
@@ -260,6 +264,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->indicesCount = mIndicesCount;
 
 	int* triangleMaterialIndices = new int[mTrianglesCount];
+
 	ConnectMaterialsToMesh(mMesh, mTrianglesCount, triangleMaterialIndices);
 	LoadMaterials(mMesh);
 
@@ -328,6 +333,52 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 		break;
 
 	default:
+		break;
+	}
+}
+
+void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVIndex, int index, int uvLayer, vector<XMFLOAT2>& uvs)
+{
+	if (uvLayer >= 2 || mesh->GetElementUVCount() <= uvLayer)
+	{
+		return;
+	}
+
+	FbxGeometryElementUV* vertexUV = mesh->GetElementUV(0);
+
+	switch (vertexUV->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+		switch (vertexUV->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(controlPointIndex)[0]);
+			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(controlPointIndex)[1]);
+
+			break;
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = vertexUV->GetIndexArray().GetAt(controlPointIndex);
+			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(id)[0]);
+			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(id)[1]);
+		}
+
+		break;
+		default:
+			break;
+		}
+
+	case FbxGeometryElement::eByPolygonVertex:
+		switch (vertexUV->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		case FbxGeometryElement::eIndexToDirect:
+			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
+			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+			break;
+		default:
+			break;
+		}
 		break;
 	}
 }
@@ -414,6 +465,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 
 	if (mesh->GetElementMaterial() != nullptr)
 	{
+		// Get the material indices.
 		materialIndices = &mesh->GetElementMaterial()->GetIndexArray();
 		materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
 
@@ -451,6 +503,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 void FBXImporter::LoadMaterials(FbxMesh* mesh)
 {
 	int materialCount = 0;
+	int polygonCount = 0;
 	FbxNode* node = nullptr;
 
 	if ((mesh != nullptr) && (mesh->GetNode() != nullptr))
@@ -459,12 +512,50 @@ void FBXImporter::LoadMaterials(FbxMesh* mesh)
 		materialCount = node->GetMaterialCount();
 	}
 
-	if (materialCount > 0)
+	bool isAllSame = true;
+	for (int i = 0; i < mMesh->GetElementMaterialCount(); i++)
 	{
-		for (int materialIndex = 0; materialIndex < materialCount; materialIndex++)
+		FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(i);
+		if (materialElement->GetMappingMode() == FbxGeometryElement::eByPolygon)
 		{
-			FbxSurfaceMaterial* surfaceMaterial = node->GetMaterial(materialIndex);
-			LoadMaterialAttributes(surfaceMaterial);
+			isAllSame = false;
+			break;
+		}
+	}
+	//For eAllSame mapping type, just out the material and texture mapping info once
+	if (isAllSame)
+	{
+		for (int i = 0; i < mMesh->GetElementMaterialCount(); i++)
+		{
+			FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(i);
+			if (materialElement->GetMappingMode() == FbxGeometryElement::eAllSame)
+			{
+				FbxSurfaceMaterial* material = mMesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(0));
+				int materialId = materialElement->GetIndexArray().GetAt(0);
+				if (materialId >= 0)
+				{
+					LoadMaterialAttributes(material);
+				}
+			}
+		}
+	}
+	//For eByPolygon mapping type, just out the material and texture mapping info once
+	else
+	{
+		for (int i = 0; i < polygonCount; i++)
+		{
+			for (int j = 0; j < mMesh->GetElementMaterialCount(); j++)
+			{
+				FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(j);
+				FbxSurfaceMaterial* material = NULL;
+				int materialId = -1;
+				material = mMesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
+				materialId = materialElement->GetIndexArray().GetAt(i);
+
+				if (materialId >= 0)
+				{
+				}
+			}
 		}
 	}
 }
@@ -474,7 +565,7 @@ void FBXImporter::LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial)
 	// Get the name of material.
 	const char* materialName = surfaceMaterial->GetName();
 
-	Log("Material name:%s", materialName);
+	Log("Material name:%s\n", materialName);
 
 	// Phong material
 	if (surfaceMaterial->GetClassId().Is(FbxSurfacePhong::ClassId))
@@ -515,5 +606,59 @@ void FBXImporter::LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial)
 
 		// Opacity.
 		FbxDouble opacity = ((FbxSurfaceLambert*)surfaceMaterial)->TransparencyFactor;
+	}
+
+	LoadMaterialTexture(surfaceMaterial);
+}
+
+void FBXImporter::LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial)
+{
+	int textureLayerIndex;
+	FbxProperty property;
+	int textureId;
+
+	//for (textureLayerIndex = 0; textureLayerIndex < FbxLayerElement::sTypeTextureCount; textureLayerIndex++)
+	//{
+	//	property = surfaceMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[textureLayerIndex]);
+
+	//	if (property.IsValid())
+	//	{
+	//		int textureCount = property.GetSrcObjectCount<FbxTexture>();
+
+	//		for (int i = 0; i < textureCount; i++)
+	//		{
+	//			FbxTexture* texture = FbxCast<FbxTexture>(property.GetSrcObject<FbxTexture>(i));
+
+	//			if (texture != nullptr)
+	//			{
+	//				texture->
+	//				Log("Texture name:%s\n", texture->GetName());
+	//			}
+	//		}
+	//	}
+	//}
+
+	// #NoteReference to DisplayMesh.cxx in FBX SDK samples.Note#
+	property = surfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+
+	if (property.IsValid())
+	{
+		int textureCount = property.GetSrcObjectCount<FbxTexture>();
+
+		for (int i = 0; i < textureCount; i++)
+		{
+			FbxTexture* texture = FbxCast<FbxTexture>(property.GetSrcObject<FbxTexture>(i));
+
+			if (texture != nullptr)
+			{
+				Log("Texture name:%s\n", texture->GetName());
+
+				FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
+
+				Log("Texture file name:%s\n", fileTexture->GetFileName());
+
+				mMeshInfo->textureFilePath = fileTexture->GetFileName();
+			}
+		}
 	}
 }

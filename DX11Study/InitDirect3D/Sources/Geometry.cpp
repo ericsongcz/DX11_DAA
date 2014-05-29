@@ -4,7 +4,9 @@
 #include <ctime>
 #include <iostream>
 #include "SharedParameters.h"
+#include <DirectXTex/DirectXTex.h>
 
+using namespace DirectX;
 using namespace std;
 
 Geometry::Geometry()
@@ -29,9 +31,31 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), RAND_ONE_FLOAT(), 1.0f);
 		mVertices[i].normal = meshInfo->normals[i];
+		mVertices[i].texcoord = meshInfo->uvs[i];
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);
+
+	TexMetadata metaData;
+	ScratchImage image;
+
+	const char* filepath = meshInfo->textureFilePath.c_str();
+	size_t len = strlen(filepath) + 1;
+
+	size_t converted = 0;
+
+	wchar_t *WStr;
+
+	WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
+
+	mbstowcs_s(&converted, WStr, len, filepath, _TRUNCATE);
+
+	HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
+
+	ID3D11ShaderResourceView* shaderResourceView = nullptr;
+	HR(CreateShaderResourceView(SharedParameters::device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
+
+	SharedParameters::shader->setShaderResource(shaderResourceView);
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
