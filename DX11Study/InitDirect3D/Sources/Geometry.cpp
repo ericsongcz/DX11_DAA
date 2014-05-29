@@ -40,22 +40,26 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 	ScratchImage image;
 
 	const char* filepath = meshInfo->textureFilePath.c_str();
-	size_t len = strlen(filepath) + 1;
 
-	size_t converted = 0;
+	if (strlen(filepath) > 0)
+	{
+		size_t len = strlen(filepath) + 1;
 
-	wchar_t *WStr;
+		size_t converted = 0;
 
-	WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
+		wchar_t *WStr;
 
-	mbstowcs_s(&converted, WStr, len, filepath, _TRUNCATE);
+		WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
 
-	HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
+		mbstowcs_s(&converted, WStr, len, filepath, _TRUNCATE);
 
-	ID3D11ShaderResourceView* shaderResourceView = nullptr;
-	HR(CreateShaderResourceView(SharedParameters::device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
+		HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
 
-	SharedParameters::shader->setShaderResource(shaderResourceView);
+		ID3D11ShaderResourceView* shaderResourceView = nullptr;
+		HR(CreateShaderResourceView(SharedParameters::device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
+
+		SharedParameters::shader->setShaderResource(shaderResourceView);
+	}
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)

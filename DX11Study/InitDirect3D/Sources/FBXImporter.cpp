@@ -258,7 +258,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->normals.resize(mVerticesCount);
 
 	//ComputeNormals();
-	//SplitVertexByUV();
+	SplitVertexByUV();
 	SplitVertexByNormal();
 	mMeshInfo->normals = mNormals;
 	mMeshInfo->uvs = mUVs;
@@ -377,7 +377,7 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVInd
 		case FbxGeometryElement::eDirect:
 		case FbxGeometryElement::eIndexToDirect:
 			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
-			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+			uvs[index].y = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
 			break;
 		default:
 			break;
