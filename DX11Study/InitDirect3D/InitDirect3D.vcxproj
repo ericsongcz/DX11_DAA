@@ -144,33 +144,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
+    <Text Include="Sources\ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="D3DApp.h" />
-    <ClInclude Include="D3DUtils.h" />
-    <ClInclude Include="FBXImporter.h" />
-    <ClInclude Include="GameTimer.h" />
-    <ClInclude Include="Geometry.h" />
-    <ClInclude Include="InitDirect3D.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="Resource.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="SharedParameters.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
+    <ClInclude Include="Sources\D3DApp.h" />
+    <ClInclude Include="Includes\D3DUtils.h" />
+    <ClInclude Include="Includes\FBXImporter.h" />
+    <ClInclude Include="Includes\GameTimer.h" />
+    <ClInclude Include="Includes\Geometry.h" />
+    <ClInclude Include="Includes\InitDirect3D.h" />
+    <ClInclude Include="Includes\Log.h" />
+    <ClInclude Include="Includes\Resource.h" />
+    <ClInclude Include="Includes\Shader.h" />
+    <ClInclude Include="Includes\SharedParameters.h" />
+    <ClInclude Include="Includes\stdafx.h" />
+    <ClInclude Include="Includes\targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="D3DApp.cpp" />
-    <ClCompile Include="D3DUtils.cpp" />
-    <ClCompile Include="FBXImporter.cpp" />
-    <ClCompile Include="GameTimer.cpp" />
-    <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="InitDirect3D.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="Log.cpp" />
-    <ClCompile Include="SharedParameters.cpp" />
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Sources\D3DApp.cpp" />
+    <ClCompile Include="Sources\D3DUtils.cpp" />
+    <ClCompile Include="Sources\FBXImporter.cpp" />
+    <ClCompile Include="Sources\GameTimer.cpp" />
+    <ClCompile Include="Sources\Geometry.cpp" />
+    <ClCompile Include="Sources\InitDirect3D.cpp" />
+    <ClCompile Include="Sources\Shader.cpp" />
+    <ClCompile Include="Sources\Log.cpp" />
+    <ClCompile Include="Sources\SharedParameters.cpp" />
+    <ClCompile Include="Sources\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -178,25 +178,24 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="InitDirect3D.rc" />
+    <ResourceCompile Include="Sources\InitDirect3D.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="..\x64\Debug\puss.dds" />
-    <Image Include="InitDirect3D.ico" />
-    <Image Include="small.ico" />
+    <Image Include="Sources\InitDirect3D.ico" />
+    <Image Include="Sources\small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="PixelShader.hlsl">
+    <FxCompile Include="Shaders\PixelShader.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
-    <FxCompile Include="VertexShader.hlsl">
+    <FxCompile Include="Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Develop Notes.docx" />
+    <None Include="Docs\Develop Notes.docx" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
