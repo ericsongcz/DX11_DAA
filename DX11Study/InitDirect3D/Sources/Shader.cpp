@@ -205,6 +205,14 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, 10.0f, 1.0f);
 	matrixData->specularColor = XMFLOAT4(Colors::White);
 
+	XMVECTOR tempLightPosition = XMLoadFloat4(&matrixData->lightPosition);
+	tempLightPosition = XMVector4Transform(tempLightPosition, SharedParameters::globalTransform);
+	XMStoreFloat4(&matrixData->lightPosition, tempLightPosition);
+
+	XMVECTOR tempCameraPosition = XMLoadFloat4(&matrixData->cameraPositon);
+	tempCameraPosition = XMVector4Transform(tempCameraPosition, SharedParameters::globalTransform);
+	XMStoreFloat4(&matrixData->cameraPositon, tempCameraPosition);
+
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 

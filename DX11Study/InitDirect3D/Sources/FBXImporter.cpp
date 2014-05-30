@@ -258,8 +258,11 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->normals.resize(mVerticesCount);
 
 	//ComputeNormals();
-	SplitVertexByUV();
 	SplitVertexByNormal();
+
+	mVerticesCount = mMeshInfo->vertices.size();
+
+	SplitVertexByUV();
 	mMeshInfo->normals = mNormals;
 	mMeshInfo->uvs = mUVs;
 
@@ -340,7 +343,7 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 	}
 }
 
-void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVIndex, int index, int uvLayer, vector<XMFLOAT2>& uvs)
+void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int textureUVIndex, int uvLayer, vector<XMFLOAT2>& uvs)
 {
 	if (uvLayer >= 2 || mesh->GetElementUVCount() <= uvLayer)
 	{
@@ -393,19 +396,19 @@ void FBXImporter::SplitVertexByNormal()
 	vector<XMFLOAT3> normals;
 	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	vector<UINT> indicesBuffer = mMeshInfo->indices;
+	vector<UINT>& indicesBuffer = mMeshInfo->indices;
 
 	for (int i = 0; i < mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
-		{
+		{              
 			normals[indicesBuffer[i]] = mNormals[i];
 		}
 		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]))
 		{
 			mMeshInfo->vertices.resize(verticesCount + 1);
-			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[mMeshInfo->indices[i]];
-			mMeshInfo->indices[i] = verticesCount;
+			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
+			indicesBuffer[i] = verticesCount;
 			verticesCount++;
 			normals.push_back(mNormals[i]);
 		}
@@ -423,21 +426,22 @@ void FBXImporter::SplitVertexByUV()
 {
 	int verticesCount = mVerticesCount;
 	vector<XMFLOAT2> uvs;
-	uvs.resize(verticesCount, XMFLOAT2(0.0f, 0.0f));
+	uvs.resize(verticesCount, XMFLOAT2(-1.0f, -1.0f));
 
-	vector<UINT> indicesBuffer = mMeshInfo->indices;
+	vector<UINT>& indicesBuffer = mMeshInfo->indices;
 
 	for (int i = 0; i < mIndicesCount; i++)
 	{
-		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(0.0f, 0.0f)))
+		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
 		{
 			uvs[indicesBuffer[i]] = mUVs[i];
-		}
+		} 
 		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
 		{
 			mMeshInfo->vertices.resize(verticesCount + 1);
-			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[mMeshInfo->indices[i]];
-			mMeshInfo->indices[i] = verticesCount;
+			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
+			indicesBuffer[i] = verticesCount;
+			mNormals.resize(verticesCount + 1);
 			verticesCount++;
 			uvs.push_back(mUVs[i]);
 		}
