@@ -20,6 +20,7 @@ public:
 	void ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVIndex, int index, int uvLayer, vector<XMFLOAT2>& uvs);
 	void SplitVertexByNormal();
 	void SplitVertexByUV();
+	void SplitVertexByNormalAndUV();
 	void ComputeNormals();
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* materialIndices);

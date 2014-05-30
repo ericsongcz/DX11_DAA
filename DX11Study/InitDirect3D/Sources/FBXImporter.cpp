@@ -262,7 +262,9 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	mVerticesCount = mMeshInfo->vertices.size();
 
-	SplitVertexByUV();
+	//SplitVertexByUV();
+
+	//SplitVertexByNormalAndUV();
 	mMeshInfo->normals = mNormals;
 	mMeshInfo->uvs = mUVs;
 
@@ -442,12 +444,51 @@ void FBXImporter::SplitVertexByUV()
 			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
 			indicesBuffer[i] = verticesCount;
 			mNormals.resize(verticesCount + 1);
+			mNormals[verticesCount] = mNormals[indicesBuffer[i]];
 			verticesCount++;
 			uvs.push_back(mUVs[i]);
 		}
 	}
 
 	mUVs = uvs;
+}
+
+void FBXImporter::SplitVertexByNormalAndUV()
+{
+	int verticesCount = mMeshInfo->vertices.size();
+
+	vector<XMFLOAT3> normals;
+	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	vector<XMFLOAT2> uvs;
+	uvs.resize(verticesCount, XMFLOAT2(-1.0f, -1.0f));
+
+	vector<UINT>& indicesBuffer = mMeshInfo->indices;
+
+	for (int i = 0; i < mIndicesCount; i++)
+	{
+		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)) && XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
+		{
+			normals[indicesBuffer[i]] = mNormals[i];
+		}
+		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]) && !XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
+		{
+			mMeshInfo->vertices.resize(verticesCount + 1);
+			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
+			indicesBuffer[i] = verticesCount;
+			verticesCount++;
+			normals.push_back(mNormals[i]);
+			uvs.push_back(mUVs[i]);
+		}
+	}
+
+	mNormals = normals;
+	mUVs = uvs;
+
+	for (int i = 0; i < mNormals.size(); i++)
+	{
+		XMFLOAT3Negative(mNormals[i], mNormals[i]);
+	}
 }
 
 void FBXImporter::ComputeNormals()

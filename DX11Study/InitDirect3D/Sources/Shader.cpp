@@ -202,7 +202,7 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 
 	matrixData->lightPosition = XMFLOAT4(0.0f, 5.0f, 0.0f, 1.0f);
 	matrixData->diffuseColor = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, 10.0f, 1.0f);
+	matrixData->cameraPositon = XMFLOAT4(0.0f, 5.0f, 10.0f, 1.0f);
 	matrixData->specularColor = XMFLOAT4(Colors::White);
 
 	XMVECTOR tempLightPosition = XMLoadFloat4(&matrixData->lightPosition);
