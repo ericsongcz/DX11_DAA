@@ -262,7 +262,9 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	mVerticesCount = mMeshInfo->vertices.size();
 
-	//SplitVertexByUV();
+	mMeshInfo->normals = mNormals;
+
+	SplitVertexByUV();
 
 	//SplitVertexByNormalAndUV();
 	mMeshInfo->normals = mNormals;
@@ -440,11 +442,11 @@ void FBXImporter::SplitVertexByUV()
 		} 
 		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
 		{
+			mNormals.resize(verticesCount + 1);
+			mNormals[verticesCount] = mMeshInfo->normals[indicesBuffer[i]];
 			mMeshInfo->vertices.resize(verticesCount + 1);
 			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
 			indicesBuffer[i] = verticesCount;
-			mNormals.resize(verticesCount + 1);
-			mNormals[verticesCount] = mNormals[indicesBuffer[i]];
 			verticesCount++;
 			uvs.push_back(mUVs[i]);
 		}
