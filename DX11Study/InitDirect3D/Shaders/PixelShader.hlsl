@@ -26,6 +26,18 @@ SamplerState samplerState
 	AddressV = Wrap;
 };
 
+bool float4Equal(float4 lhs, float4 rhs)
+{
+	if ((lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.z == rhs.z) && (lhs.w == rhs.w))
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Cacluate per-pixel diffuse.
@@ -45,9 +57,18 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
 
-	//float4 color = (diffuse + ambientLightColor) * textureColor + specular;
-	float4 color = (diffuse + ambientLightColor) + specular;
+	float4 color = (diffuse + ambientLightColor) * textureColor + specular;
+	//float4 color = (diffuse + ambientLightColor) + specular;
 	//float4 color = textureColor;
+
+	if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
+	{
+		color = (diffuse + ambientLightColor) * textureColor + specular;
+	}
+	else
+	{
+		color = (diffuse + ambientLightColor) + specular;
+	}
 
 	return color;
 }

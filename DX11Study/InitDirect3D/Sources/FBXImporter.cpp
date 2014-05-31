@@ -199,7 +199,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	int verticesComponentCount = mVerticesCount * 3;
 	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
 
-	// Extract vertices from FBX.
+	// Extract vertices from FbxMesh.
 	vector<XMFLOAT3> verticesPositions;
 	verticesPositions.resize(mVerticesCount);
 
@@ -210,7 +210,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		verticesPositions[i].z = static_cast<float>(meshVertices[i][2]);
 	}
 
-	// Extract indices form FBX.
+	// Extract indices form FbxMesh.
 	int* meshIndices = mMesh->GetPolygonVertices();
 	vector<UINT> indices;
 	indices.resize(mIndicesCount);
@@ -236,6 +236,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	int normalIndex = 0;
 	vector<XMFLOAT2> uvs(mIndicesCount);
 
+	// Extract normals and uvs from FbxMesh.
 	for (int i = 0; i < triangleCount; i++)
 	{
 		int polygonSize = mMesh->GetPolygonSize(i);
@@ -255,20 +256,9 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->vertices = verticesPositions;
 	mMeshInfo->indices = indices;
 	mMeshInfo->uvs = uvs;
-	mMeshInfo->normals.resize(mVerticesCount);
 
-	//ComputeNormals();
 	SplitVertexByNormal();
-
-	mVerticesCount = mMeshInfo->vertices.size();
-
-	mMeshInfo->normals = mNormals;
-
 	SplitVertexByUV();
-
-	//SplitVertexByNormalAndUV();
-	mMeshInfo->normals = mNormals;
-	mMeshInfo->uvs = mUVs;
 
 	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
 	mMeshInfo->indicesCount = mIndicesCount;
@@ -401,7 +391,13 @@ void FBXImporter::SplitVertexByNormal()
 	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	vector<UINT>& indicesBuffer = mMeshInfo->indices;
+	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
 
+	// 遍历索引，根据法线来划分顶点，使得每个顶点包含唯一的法线(顶点会有冗余)。
+	// 基本思路就是先建一个和顶点数组相同尺寸的法线数组，然后按照索引顺序来填充这个数组。
+	// 在遍历的过程中，我们会遇到顶点位置相同，但是法线不同的情况，这个时候我们就
+	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
+	// 我们将这个新顶点对应的法线存入法线数组。
 	for (int i = 0; i < mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
@@ -410,10 +406,15 @@ void FBXImporter::SplitVertexByNormal()
 		}
 		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]))
 		{
-			mMeshInfo->vertices.resize(verticesCount + 1);
-			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
+			// 扩大顶点数组，将新的顶点追加到末尾。
+			verticesBuffer.resize(verticesCount + 1);
+			verticesBuffer[verticesCount] = verticesBuffer[indicesBuffer[i]];
+
+			// 然后更新这个顶点的索引。
 			indicesBuffer[i] = verticesCount;
 			verticesCount++;
+
+			// 保存法线。
 			normals.push_back(mNormals[i]);
 		}
 	}
@@ -424,6 +425,10 @@ void FBXImporter::SplitVertexByNormal()
 	{
 		XMFLOAT3Negative(mNormals[i], mNormals[i]);
 	}
+
+	mMeshInfo->normals = mNormals;
+
+	mVerticesCount = mMeshInfo->vertices.size();
 }
 
 void FBXImporter::SplitVertexByUV()
@@ -433,7 +438,12 @@ void FBXImporter::SplitVertexByUV()
 	uvs.resize(verticesCount, XMFLOAT2(-1.0f, -1.0f));
 
 	vector<UINT>& indicesBuffer = mMeshInfo->indices;
-
+	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
+	
+	// 在SplitVertexByNormal这一步后执行。
+	// 原因是UV可能会使顶点进一步冗余，而法线数量在上一步已经可以确定。
+	// 遍历索引，根据UV来划分顶点，使得每个顶点都包含唯一的UV(顶点数可能会进一步冗余)。
+	// 思路和根据法线划分顶点类似。
 	for (int i = 0; i < mIndicesCount; i++)
 	{
 		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
@@ -441,56 +451,29 @@ void FBXImporter::SplitVertexByUV()
 			uvs[indicesBuffer[i]] = mUVs[i];
 		} 
 		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
-		{
+		{			
+			// 扩大顶点数组，将新的顶点追加到末尾。
+			verticesBuffer.resize(verticesCount + 1);
+			verticesBuffer[verticesCount] = verticesBuffer[indicesBuffer[i]];
+
+			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
 			mNormals.resize(verticesCount + 1);
 			mNormals[verticesCount] = mMeshInfo->normals[indicesBuffer[i]];
-			mMeshInfo->vertices.resize(verticesCount + 1);
-			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
+
+			// 然后更新这个顶点的索引。
 			indicesBuffer[i] = verticesCount;
+
+			// 更新顶点数。
 			verticesCount++;
+
+			// 保存ＵＶ。
 			uvs.push_back(mUVs[i]);
 		}
 	}
 
 	mUVs = uvs;
-}
-
-void FBXImporter::SplitVertexByNormalAndUV()
-{
-	int verticesCount = mMeshInfo->vertices.size();
-
-	vector<XMFLOAT3> normals;
-	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
-
-	vector<XMFLOAT2> uvs;
-	uvs.resize(verticesCount, XMFLOAT2(-1.0f, -1.0f));
-
-	vector<UINT>& indicesBuffer = mMeshInfo->indices;
-
-	for (int i = 0; i < mIndicesCount; i++)
-	{
-		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)) && XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
-		{
-			normals[indicesBuffer[i]] = mNormals[i];
-		}
-		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]) && !XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
-		{
-			mMeshInfo->vertices.resize(verticesCount + 1);
-			mMeshInfo->vertices[verticesCount] = mMeshInfo->vertices[indicesBuffer[i]];
-			indicesBuffer[i] = verticesCount;
-			verticesCount++;
-			normals.push_back(mNormals[i]);
-			uvs.push_back(mUVs[i]);
-		}
-	}
-
-	mNormals = normals;
-	mUVs = uvs;
-
-	for (int i = 0; i < mNormals.size(); i++)
-	{
-		XMFLOAT3Negative(mNormals[i], mNormals[i]);
-	}
+	mMeshInfo->uvs = mUVs;
+	mMeshInfo->normals = mNormals;
 }
 
 void FBXImporter::ComputeNormals()

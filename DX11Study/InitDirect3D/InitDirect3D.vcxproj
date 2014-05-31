@@ -28,11 +28,13 @@
     <ClInclude Include="Includes\Shader.h" />
     <ClInclude Include="Includes\SharedParameters.h" />
     <ClInclude Include="Includes\stdafx.h" />
+    <ClInclude Include="IRenderable.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sources\D3DApp.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="IRenderable.cpp" />
     <ClCompile Include="Sources\D3DApp.cpp" />
     <ClCompile Include="Sources\D3DUtils.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />

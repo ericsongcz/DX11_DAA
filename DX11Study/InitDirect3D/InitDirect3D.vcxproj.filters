@@ -54,6 +54,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Resources</Filter>
     </ClInclude>
+    <ClInclude Include="IRenderable.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\D3DApp.cpp">
@@ -86,6 +87,7 @@
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="IRenderable.cpp" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PixelShader.hlsl">
