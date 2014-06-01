@@ -46,11 +46,11 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 diffuse = diffuseColor * diffuseIntensity;
 
 	// Calculate Phong components per-pixel.
-	//float3 reflectionVector = normalize(reflect(-directionToLight, input.normal.xyz));
+	float3 reflectionVector = normalize(reflect(-directionToLight, input.normal.xyz));
 
 	// Manually compute reflection vector.
 	// r = I - 2(N¡¤L)N.
-	float3 reflectionVector = normalize(-directionToLight - 2 * (dot(input.normal.xyz, -directionToLight) * input.normal.xyz));
+	//float3 reflectionVector = normalize(-directionToLight - 2 * (dot(input.normal.xyz, -directionToLight) * input.normal.xyz));
 
 	float3 directionToCamera = normalize(cameraPosition - input.worldPosition).xyz;
 

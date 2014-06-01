@@ -23,6 +23,7 @@
     <ClInclude Include="Includes\FBXImporter.h" />
     <ClInclude Include="Includes\GameTimer.h" />
     <ClInclude Include="Includes\Geometry.h" />
+    <ClInclude Include="Includes\GeometryGenerator.h" />
     <ClInclude Include="Includes\InitDirect3D.h" />
     <ClInclude Include="Includes\IRenderable.h" />
     <ClInclude Include="Includes\Log.h" />
@@ -39,6 +40,7 @@
     <ClCompile Include="Sources\FBXImporter.cpp" />
     <ClCompile Include="Sources\GameTimer.cpp" />
     <ClCompile Include="Sources\Geometry.cpp" />
+    <ClCompile Include="Sources\GeometryGenerator.cpp" />
     <ClCompile Include="Sources\InitDirect3D.cpp" />
     <ClCompile Include="Sources\IRenderable.cpp" />
     <ClCompile Include="Sources\Log.cpp" />

@@ -200,18 +200,18 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 
-	matrixData->lightPosition = XMFLOAT4(0.0f, 5.0f, 0.0f, 1.0f);
+	matrixData->lightPosition = XMFLOAT4(5.0, 5.0f, 0.0f, 1.0f);
 	matrixData->diffuseColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 	matrixData->cameraPositon = XMFLOAT4(0.0f, 5.0f, 10.0f, 1.0f);
 	matrixData->specularColor = XMFLOAT4(Colors::White);
 
-	XMVECTOR tempLightPosition = XMLoadFloat4(&matrixData->lightPosition);
-	tempLightPosition = XMVector4Transform(tempLightPosition, SharedParameters::globalTransform);
-	XMStoreFloat4(&matrixData->lightPosition, tempLightPosition);
-
-	XMVECTOR tempCameraPosition = XMLoadFloat4(&matrixData->cameraPositon);
-	tempCameraPosition = XMVector4Transform(tempCameraPosition, SharedParameters::globalTransform);
-	XMStoreFloat4(&matrixData->cameraPositon, tempCameraPosition);
+ 	XMVECTOR tempLightPosition = XMLoadFloat4(&matrixData->lightPosition);
+ 	tempLightPosition = XMVector4Transform(tempLightPosition, SharedParameters::globalTransform);
+ 	XMStoreFloat4(&matrixData->lightPosition, tempLightPosition);
+ 
+ 	XMVECTOR tempCameraPosition = XMLoadFloat4(&matrixData->cameraPositon);
+ 	tempCameraPosition = XMVector4Transform(tempCameraPosition, SharedParameters::globalTransform);
+ 	XMStoreFloat4(&matrixData->cameraPositon, tempCameraPosition);
 
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);

@@ -374,7 +374,11 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 		case FbxGeometryElement::eDirect:
 		case FbxGeometryElement::eIndexToDirect:
 			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
+#ifdef USE_RIGHT_HAND
 			uvs[index].y = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+#else
+			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+#endif
 			break;
 		default:
 			break;
@@ -421,10 +425,12 @@ void FBXImporter::SplitVertexByNormal()
 
 	mNormals = normals;
 
+#ifdef USE_RIGHT_HAND
 	for (int i = 0; i < mNormals.size(); i++)
 	{
 		XMFLOAT3Negative(mNormals[i], mNormals[i]);
 	}
+#endif
 
 	mMeshInfo->normals = mNormals;
 

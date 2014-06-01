@@ -180,7 +180,12 @@ bool D3DApp::InitD3D(HWND hWnd)
 	ZeroMemory(&rasterizerDesc, sizeof (D3D11_RASTERIZER_DESC));
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+#if USE_RIGHT_HAND
 	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+#else
+	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+#endif // USE_RIGHT_HAND
+
 	rasterizerDesc.DepthClipEnable = true;
 	rasterizerDesc.FrontCounterClockwise = false;
 

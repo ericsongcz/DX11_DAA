@@ -57,6 +57,9 @@
     <ClInclude Include="Sources\D3DApp.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="Includes\GeometryGenerator.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\D3DApp.cpp">
@@ -90,6 +93,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\IRenderable.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\GeometryGenerator.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

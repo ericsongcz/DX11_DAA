@@ -7,6 +7,8 @@
 
 #define RAND_ONE_FLOAT() rand() / (float)(RAND_MAX+1)
 
+#define  USE_RIGHT_HAND 0
+
 using namespace DirectX;
 
 #if defined(DEBUG) | defined(_DEBUG)
