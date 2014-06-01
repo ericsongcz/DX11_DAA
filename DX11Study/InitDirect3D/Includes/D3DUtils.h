@@ -47,6 +47,7 @@ namespace Colors
 	const XMVECTORF32 Yellow = { 1.0f, 1.0f, 0.0f, 1.0f };
 	const XMVECTORF32 Cyan = { 0.0f, 1.0f, 1.0f, 1.0f }; //À¶ÂÌÉ« 
 	const XMVECTORF32 Magenta = { 1.0f, 0.0f, 1.0f, 1.0f }; //ÑóºìÉ«
+	const XMVECTORF32 Grey = { 0.5f, 0.5f, 0.5f, 1.0f };
 
 	const XMVECTORF32 Beach_Sand = { 1.0f, 0.96f, 0.62f, 1.0f };
 	const XMVECTORF32 Light_Yellow_Green = { 0.48f, 0.77f, 0.46f, 1.0f };

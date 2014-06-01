@@ -40,34 +40,37 @@ bool float4Equal(float4 lhs, float4 rhs)
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	// Cacluate per-pixel diffuse.
+	// Calculate per-pixel diffuse.
 	float3 directionToLight = normalize(lightPosition - input.worldPosition).xyz;
 	float diffuseIntensity = saturate(dot(directionToLight, input.normal.xyz));
 	float4 diffuse = diffuseColor * diffuseIntensity;
 
-	// Caclulate Phong components per-pixel.
-	float3 reflectionVector = normalize(reflect(-directionToLight, input.normal.xyz));
+	// Calculate Phong components per-pixel.
+	//float3 reflectionVector = normalize(reflect(-directionToLight, input.normal.xyz));
+
+	// Manually compute reflection vector.
+	// r = I - 2(N¡¤L)N.
+	float3 reflectionVector = normalize(-directionToLight - 2 * (dot(input.normal.xyz, -directionToLight) * input.normal.xyz));
+
 	float3 directionToCamera = normalize(cameraPosition - input.worldPosition).xyz;
 
-	// Caclulate specular component.
-	float4 specular = specularColor * pow(saturate(dot(reflectionVector, directionToCamera)), 20);
+	// Calculate specular component.
+	// specular = pow(max(v¡¤r, 0), p)
+	float4 specular = specularColor * pow(saturate(dot(reflectionVector, directionToCamera)), 50);
 
 	// All color components are summed in the pixel shader.
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
 	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
-
-	float4 color = (diffuse + ambientLightColor) * textureColor + specular;
-	//float4 color = (diffuse + ambientLightColor) + specular;
-	//float4 color = textureColor;
+	float4 color;
 
 	if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
 	{
-		color = (diffuse + ambientLightColor) * textureColor + specular;
+		color = (diffuse + ambientLightColor) * textureColor + specular * 0.5f;
 	}
 	else
 	{
-		color = (diffuse + ambientLightColor) + specular;
+		color = diffuse * 0.8f + ambientLightColor * 0.3f + specular * 0.5f;
 	}
 
 	return color;
