@@ -27,6 +27,7 @@
     <ClInclude Include="Includes\InitDirect3D.h" />
     <ClInclude Include="Includes\IRenderable.h" />
     <ClInclude Include="Includes\Log.h" />
+    <ClInclude Include="Includes\MathHelper.h" />
     <ClInclude Include="Includes\Shader.h" />
     <ClInclude Include="Includes\SharedParameters.h" />
     <ClInclude Include="Includes\stdafx.h" />
@@ -44,6 +45,7 @@
     <ClCompile Include="Sources\InitDirect3D.cpp" />
     <ClCompile Include="Sources\IRenderable.cpp" />
     <ClCompile Include="Sources\Log.cpp" />
+    <ClCompile Include="Sources\MathHelper.cpp" />
     <ClCompile Include="Sources\Shader.cpp" />
     <ClCompile Include="Sources\SharedParameters.cpp" />
     <ClCompile Include="Sources\stdafx.cpp" />

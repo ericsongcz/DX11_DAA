@@ -5,6 +5,7 @@
 #include <iostream>
 #include "SharedParameters.h"
 #include <DirectXTex/DirectXTex.h>
+#include "GeometryGenerator.h"
 
 using namespace DirectX;
 using namespace std;
@@ -35,6 +36,13 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);
+
+	GeometryGenerator geometryGenerator;
+	GeometryGenerator::MeshData meshData;
+	geometryGenerator.CreateBox(2, 2, 2, meshData);
+
+	mVerticesCount = meshData.Vertices.size();
+	mIndicesCount = meshData.Indices.size();
 
 	TexMetadata metaData;
 	ScratchImage image;

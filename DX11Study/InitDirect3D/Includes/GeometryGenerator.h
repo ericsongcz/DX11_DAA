@@ -15,7 +15,10 @@
 #ifndef GEOMETRYGENERATOR_H
 #define GEOMETRYGENERATOR_H
 
-#include "d3dUtil.h"
+#include "D3DUtils.h"
+#include <vector>
+
+using std::vector;
 
 class GeometryGenerator
 {
