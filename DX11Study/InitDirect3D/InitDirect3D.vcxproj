@@ -24,23 +24,23 @@
     <ClInclude Include="Includes\GameTimer.h" />
     <ClInclude Include="Includes\Geometry.h" />
     <ClInclude Include="Includes\InitDirect3D.h" />
+    <ClInclude Include="Includes\IRenderable.h" />
     <ClInclude Include="Includes\Log.h" />
     <ClInclude Include="Includes\Shader.h" />
     <ClInclude Include="Includes\SharedParameters.h" />
     <ClInclude Include="Includes\stdafx.h" />
-    <ClInclude Include="IRenderable.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Sources\D3DApp.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="IRenderable.cpp" />
     <ClCompile Include="Sources\D3DApp.cpp" />
     <ClCompile Include="Sources\D3DUtils.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />
     <ClCompile Include="Sources\GameTimer.cpp" />
     <ClCompile Include="Sources\Geometry.cpp" />
     <ClCompile Include="Sources\InitDirect3D.cpp" />
+    <ClCompile Include="Sources\IRenderable.cpp" />
     <ClCompile Include="Sources\Log.cpp" />
     <ClCompile Include="Sources\Shader.cpp" />
     <ClCompile Include="Sources\SharedParameters.cpp" />

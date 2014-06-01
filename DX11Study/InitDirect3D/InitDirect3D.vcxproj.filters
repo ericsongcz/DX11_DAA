@@ -45,16 +45,18 @@
     <ClInclude Include="Includes\stdafx.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\D3DApp.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
     <ClInclude Include="Resource.h">
       <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Resources</Filter>
     </ClInclude>
-    <ClInclude Include="IRenderable.h" />
+    <ClInclude Include="Includes\IRenderable.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Sources\D3DApp.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\D3DApp.cpp">
@@ -87,7 +89,9 @@
     <ClCompile Include="Sources\stdafx.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
-    <ClCompile Include="IRenderable.cpp" />
+    <ClCompile Include="Sources\IRenderable.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PixelShader.hlsl">
