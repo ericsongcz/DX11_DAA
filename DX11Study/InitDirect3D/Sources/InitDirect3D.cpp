@@ -159,12 +159,12 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 	case VK_LEFT:
 	case VK_A:
-		mCamera->strafe(1000.0f * time);
+		mCamera->strafe(-1000.0f * time);
 		break;
 
 	case VK_RIGHT:
 	case VK_D:
-		mCamera->strafe(-1000.0f * time);
+		mCamera->strafe(1000.0f * time);
 		break;
 
 	case VK_Q:
