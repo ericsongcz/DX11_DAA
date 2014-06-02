@@ -22,6 +22,7 @@ void FBXImporter::Init()
 	FbxIOSettings* ios = FbxIOSettings::Create(mSDKManager, IOSROOT);
 	mSDKManager->SetIOSettings(ios);
 	mScene = FbxScene::Create(mSDKManager, "scene");
+	FbxAxisSystem::DirectX.ConvertScene(mScene);
 }
 
 void FBXImporter::LoadScene(const char* fileName)
@@ -194,7 +195,25 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 	FbxMatrix gloableTransform = mMesh->GetNode()->EvaluateGlobalTransform();
 
-	FbxMatrixToXMMATRIX(SharedParameters::globalTransform, gloableTransform);
+	FbxAMatrix matrixGeo;
+	matrixGeo.SetIdentity();
+
+	const FbxVector4 lT = mMesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot);
+	const FbxVector4 lR = mMesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot);
+	const FbxVector4 lS = mMesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot);
+
+	matrixGeo.SetT(lT);
+	matrixGeo.SetR(lR);
+	matrixGeo.SetS(lS);
+
+	FbxAMatrix matrixL2W;
+	matrixL2W.SetIdentity();
+
+	matrixL2W = mMesh->GetNode()->EvaluateGlobalTransform();
+
+	matrixL2W *= matrixGeo;
+
+	FbxMatrixToXMMATRIX(SharedParameters::globalTransform, matrixL2W);
 
 	int verticesComponentCount = mVerticesCount * 3;
 	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
@@ -260,7 +279,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	SplitVertexByNormal();
 	SplitVertexByUV();
 
-	mMeshInfo->verticesCount = mMeshInfo->vertices.size();
+	mMeshInfo->verticesCount = mVerticesCount;
 	mMeshInfo->indicesCount = mIndicesCount;
 
 	int* triangleMaterialIndices = new int[mTrianglesCount];
@@ -374,7 +393,7 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 		case FbxGeometryElement::eDirect:
 		case FbxGeometryElement::eIndexToDirect:
 			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
-#ifdef USE_RIGHT_HAND
+#if USE_RIGHT_HAND
 			uvs[index].y = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
 #else
 			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
@@ -425,12 +444,19 @@ void FBXImporter::SplitVertexByNormal()
 
 	mNormals = normals;
 
-#ifdef USE_RIGHT_HAND
+#if USE_RIGHT_HAND
 	for (int i = 0; i < mNormals.size(); i++)
 	{
-		XMFLOAT3Negative(mNormals[i], mNormals[i]);
+		//XMFLOAT3Negative(mNormals[i], mNormals[i]);
+		//mNormals[i].z = -mNormals[i].z;
 	}
 #endif
+
+	for (int i = 0; i < mNormals.size(); i++)
+	{
+		//XMFLOAT3Negative(mNormals[i], mNormals[i]);
+		//mNormals[i].z = -mNormals[i].z;
+	}
 
 	mMeshInfo->normals = mNormals;
 
@@ -439,9 +465,8 @@ void FBXImporter::SplitVertexByNormal()
 
 void FBXImporter::SplitVertexByUV()
 {
-	int verticesCount = mVerticesCount;
 	vector<XMFLOAT2> uvs;
-	uvs.resize(verticesCount, XMFLOAT2(-1.0f, -1.0f));
+	uvs.resize(mVerticesCount, XMFLOAT2(-1.0f, -1.0f));
 
 	vector<UINT>& indicesBuffer = mMeshInfo->indices;
 	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
@@ -459,18 +484,18 @@ void FBXImporter::SplitVertexByUV()
 		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
 		{			
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(verticesCount + 1);
-			verticesBuffer[verticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(mVerticesCount + 1);
+			verticesBuffer[mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
-			mNormals.resize(verticesCount + 1);
-			mNormals[verticesCount] = mMeshInfo->normals[indicesBuffer[i]];
+			mNormals.resize(mVerticesCount + 1);
+			mNormals[mVerticesCount] = mMeshInfo->normals[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = verticesCount;
+			indicesBuffer[i] = mVerticesCount;
 
 			// 更新顶点数。
-			verticesCount++;
+			mVerticesCount++;
 
 			// 保存ＵＶ。
 			uvs.push_back(mUVs[i]);

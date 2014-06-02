@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("teapotTextured.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -96,10 +96,12 @@ void InitDirect3D::DrawScene()
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 	worldMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+	
+	worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::globalTransform);
 #if USE_RIGHT_HAND
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 5.0f, 10.0f));
+	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 10.0f));
 #else
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 5.0f, -10.0f));
+	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, -10.0f));
 #endif
 	XMVECTOR lookAt = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 0.0f));
 	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));

@@ -40,7 +40,11 @@ PixelInput main(VertexInput input)
 	// 顶点坐标扩展成四个分量，并设置为1，以便矩阵运算。
 	input.position.w = 1.0f;
 
+	// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
+	input.normal.w = 0.0f;
+
 	// 乘以3个矩阵，得到clip空间的坐标。
+	// 保存worldPosition以便光照计算。
 	output.worldPosition = mul(input.position, worldMatrix);
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
@@ -48,14 +52,13 @@ PixelInput main(VertexInput input)
 
 	output.normal = mul(input.normal, worldMatrix);
 
+	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
+	output.color = input.color;
+	output.texcoord = input.texcoord;
+
 	//output.position.x *= scaleFactor;
 	//output.position.y *= scaleFactor;
 	//output.position.z *= scaleFactor;
-
-	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
-	output.color = input.color;
-	output.normal = input.normal;
-	output.texcoord = input.texcoord;
 
 	return output;
 }

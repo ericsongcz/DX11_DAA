@@ -25,9 +25,13 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 
 	for (int i = 0; i < mVerticesCount; i++)
 	{
-		XMVECTOR tempPosition = XMLoadFloat3(&meshInfo->vertices[i]);
-		tempPosition = XMVector3Transform(tempPosition, SharedParameters::globalTransform);
-		XMStoreFloat3(&meshInfo->vertices[i], tempPosition);
+		//XMVECTOR tempPosition = XMLoadFloat3(&meshInfo->vertices[i]);
+		//tempPosition = XMVector3Transform(tempPosition, SharedParameters::globalTransform);
+		//XMStoreFloat3(&meshInfo->vertices[i], tempPosition);
+
+		//XMVECTOR tempNormal = XMLoadFloat3(&meshInfo->normals[i]);
+		//tempNormal = XMVector3Transform(tempNormal, SharedParameters::globalTransform);
+		//XMStoreFloat3(&meshInfo->normals[i], tempNormal);
 
 		mVertices[i].position = meshInfo->vertices[i];
 		mVertices[i].color = XMFLOAT4(Colors::White);
@@ -37,12 +41,25 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);
 
-	GeometryGenerator geometryGenerator;
-	GeometryGenerator::MeshData meshData;
-	geometryGenerator.CreateBox(2, 2, 2, meshData);
+	//GeometryGenerator geometryGenerator;
+	//GeometryGenerator::MeshData meshData;
+	////geometryGenerator.CreateSphere(2, 32, 32, meshData);
+	//geometryGenerator.CreateBox(4, 4, 4, meshData);
 
-	mVerticesCount = meshData.Vertices.size();
-	mIndicesCount = meshData.Indices.size();
+	//mVerticesCount = meshData.Vertices.size();
+	//mIndicesCount = meshData.Indices.size();
+
+	//mVertices = new Vertex[mVerticesCount];
+	//mIndices = new UINT[mIndicesCount];
+
+	//for (int i = 0; i < mVerticesCount; i++)
+	//{
+	//	mVertices[i].position = meshData.Vertices[i].Position;
+	//	mVertices[i].normal = meshData.Vertices[i].Normal;
+	//	mVertices[i].texcoord = meshData.Vertices[i].TexC;
+	//}
+
+	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshData.Indices[0]), sizeof(UINT) * mIndicesCount);
 
 	TexMetadata metaData;
 	ScratchImage image;

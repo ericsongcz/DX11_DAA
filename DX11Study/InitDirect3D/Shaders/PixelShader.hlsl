@@ -41,12 +41,13 @@ bool float4Equal(float4 lhs, float4 rhs)
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
+	float3 normal = normalize(input.normal.xyz);
 	float3 directionToLight = normalize(lightPosition - input.worldPosition).xyz;
-	float diffuseIntensity = saturate(dot(directionToLight, input.normal.xyz));
+	float diffuseIntensity = saturate(dot(directionToLight, normal));
 	float4 diffuse = diffuseColor * diffuseIntensity;
 
 	// Calculate Phong components per-pixel.
-	float3 reflectionVector = normalize(reflect(-directionToLight, input.normal.xyz));
+	float3 reflectionVector = normalize(reflect(-directionToLight, normal));
 
 	// Manually compute reflection vector.
 	// r = I - 2(N¡¤L)N.
@@ -66,11 +67,11 @@ float4 main(PixelInput input) : SV_TARGET
 
 	if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
 	{
-		color = (diffuse + ambientLightColor) * textureColor + specular * 0.5f;
+		color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
 	}
 	else
 	{
-		color = diffuse * 0.8f + ambientLightColor * 0.3f + specular * 0.5f;
+		color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
 	}
 
 	return color;
