@@ -10,8 +10,7 @@ Camera::Camera()
 #else
 	mPosition = XMFLOAT3(0.0f, 0.0f, -10.0f);
 #endif
-
-	mLookAt = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mLookAt = XMFLOAT3(0.0f, 0.0f, 1.0f);
 	mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
@@ -44,12 +43,7 @@ XMMATRIX Camera::getOrthogonalWorldMatrix() const
 XMMATRIX Camera::getViewMatrix() const
 {
 	XMVECTOR eye = XMLoadFloat3(&mPosition);
-
-	XMFLOAT3 temp;
-	XMFLOAT3Sub(temp, mLookAt, mPosition);
-
-	XMVECTOR lookAt = XMLoadFloat3(&temp);
-
+	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR right = XMLoadFloat3(&mRight);
 
@@ -63,11 +57,15 @@ XMMATRIX Camera::getViewMatrix() const
 	right = XMVector3Cross(up, lookAt);
 	right = XMVector3Normalize(right);
 
+
 	// 理解有误，XMMatrixLookAtLH是生成朝向始终为观察点的视图矩阵。
+	XMMATRIX viewMatrix;
+	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
+
 	// 所以我们手动创建一个视图矩阵，让相机可以实现平移。
-	XMVECTOR row1 = XMVectorSet(mRight.x, mUp.x, mLookAt.x, 0.0f);
-	XMVECTOR row2 = XMVectorSet(mRight.y, mUp.y, mLookAt.y, 0.0f);
-	XMVECTOR row3 = XMVectorSet(mRight.z, mUp.z, mLookAt.z, 0.0f);
+	XMVECTOR row1 = XMVectorSet(XMVectorGetX(right), XMVectorGetX(up), XMVectorGetX(lookAt), 0.0f);
+	XMVECTOR row2 = XMVectorSet(XMVectorGetY(right), XMVectorGetY(up), XMVectorGetY(lookAt), 0.0f);
+	XMVECTOR row3 = XMVectorSet(XMVectorGetZ(right), XMVectorGetZ(up), XMVectorGetZ(lookAt), 0.0f);
 
 	// 将eye转换到view space。
 	float x = -XMVectorGetX(XMVector3Dot(right, eye));
@@ -76,10 +74,13 @@ XMMATRIX Camera::getViewMatrix() const
 
 	XMVECTOR row4 = XMVectorSet(x, y, z, 1.0f);
 
-	XMMATRIX viewMatrix;
 	viewMatrix = XMMATRIX(row1, row2, row3, row4);
 
+#if USE_RIGHT_HAND
+	viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
+#else
 	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
+#endif
 
 	return viewMatrix;
 }
@@ -89,7 +90,11 @@ XMMATRIX Camera::getProjectionMatrix() const
 	float fov = XM_PI / 4;
 
 	// 创建透视投影矩阵。
+#if USE_RIGHT_HAND
+	return XMMatrixPerspectiveFovRH(fov, mAspectRatio, 1.0f, 1000.0f);
+#else
 	return XMMatrixPerspectiveFovLH(fov, mAspectRatio, 1.0f, 1000.0f);
+#endif
 }
 
 XMMATRIX Camera::getOrthogonalMatrix() const
