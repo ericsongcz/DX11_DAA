@@ -7,7 +7,7 @@
 
 #define RAND_ONE_FLOAT() rand() / (float)(RAND_MAX+1)
 
-#define  USE_RIGHT_HAND 0
+#define  USE_RIGHT_HAND 1
 
 using namespace DirectX;
 
@@ -82,8 +82,8 @@ void Log(const char* foramt, ...);
 void DisplayVector(float x, float y, float z);
 
 void XMFLOAT3Negative(XMFLOAT3& out, XMFLOAT3& in);
-void XMFLOAT3Add(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
-void XMFLOAT3Sub(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
+void XMFLOAT3Add(XMFLOAT3& out, const XMFLOAT3& lhs, const XMFLOAT3& rhs);
+void XMFLOAT3Sub(XMFLOAT3& out, const XMFLOAT3& lhs, const XMFLOAT3& rhs);
 void XMFLOAT3Cross(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Normalize(XMFLOAT3& out, XMFLOAT3& in);
 bool XMFLOAT3Equal(const XMFLOAT3& lhs, const XMFLOAT3& rhs);

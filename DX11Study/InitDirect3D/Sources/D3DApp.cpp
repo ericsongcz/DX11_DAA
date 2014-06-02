@@ -363,27 +363,9 @@ LRESULT CALLBACK D3DApp::MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 	case WM_KEYDOWN:
 		WORD keyCode = LOWORD(wParam);
 
-		switch (keyCode)
-		{
-		case VK_ESCAPE:
-			PostQuitMessage(0);
-			break;
+		OnKeyDown(keyCode);
 
-		case VK_F:
-			if (mFillMode == D3D11_FILL_SOLID)
-			{
-				mFillMode = D3D11_FILL_WIREFRAME;
-				mDeviceContext->RSSetState(mWireframeState);
-			}
-			else
-			{
-				mFillMode = D3D11_FILL_SOLID;
-				mDeviceContext->RSSetState(mSolidState);
-			}
-			break;
-		default:
-			break;
-		}
+		break;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);

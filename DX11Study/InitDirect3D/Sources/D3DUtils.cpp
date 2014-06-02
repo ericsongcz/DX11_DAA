@@ -28,7 +28,7 @@ void XMFLOAT3Negative(XMFLOAT3& out, XMFLOAT3& in)
 	out.z = -in.z;
 }
 
-void XMFLOAT3Add(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs)
+void XMFLOAT3Add(XMFLOAT3& out, const XMFLOAT3& lhs, const XMFLOAT3& rhs)
 {
 	XMVECTOR temp1 = XMLoadFloat3(&lhs);
 	XMVECTOR temp2 = XMLoadFloat3(&rhs);
@@ -38,7 +38,7 @@ void XMFLOAT3Add(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs)
 	XMStoreFloat3(&out, result);
 }
 
-void XMFLOAT3Sub(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs)
+void XMFLOAT3Sub(XMFLOAT3& out, const XMFLOAT3& lhs, const XMFLOAT3& rhs)
 {
 	XMVECTOR temp1 = XMLoadFloat3(&lhs);
 	XMVECTOR temp2 = XMLoadFloat3(&rhs);

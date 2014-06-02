@@ -26,6 +26,8 @@ public:
 	virtual void OnMouseUp(WPARAM btnState, int x, int y)  { }
 	virtual void OnMouseMove(WPARAM btnState, int x, int y){ }
 
+	virtual void OnKeyDown(DWORD keyCode) {};
+
 	void CalculateFrameStats();
 
 	LRESULT CALLBACK MainWinProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

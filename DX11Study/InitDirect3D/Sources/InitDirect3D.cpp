@@ -136,3 +136,56 @@ void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
 	int i = 100;
 	int j = i * 100;
 }
+
+void InitDirect3D::OnKeyDown(DWORD keyCode)
+{
+	float time = mTimer.DeltaTime();
+
+	switch (keyCode)
+	{
+	case VK_ESCAPE:
+		DestroyWindow(mMainHWnd);
+		break;
+
+	case VK_UP:
+	case VK_W:
+		mCamera->fly(0.1f * time);
+		break;;
+
+	case VK_DOWN:
+	case VK_S:
+		mCamera->fly(-0.1f * time);
+		break;
+
+	case VK_LEFT:
+	case VK_A:
+		mCamera->strafe(0.1f * time);
+		break;
+
+	case VK_RIGHT:
+	case VK_D:
+		mCamera->strafe(-0.1f * time);
+		break;
+
+	case VK_Q:
+		mCamera->walk(0.1f * time);
+		break;
+
+	case VK_E:
+		mCamera->walk(-0.1f * time);
+		break;
+
+	case VK_F:
+		if (mFillMode == D3D11_FILL_SOLID)
+		{
+			mFillMode = D3D11_FILL_WIREFRAME;
+			mDeviceContext->RSSetState(mWireframeState);
+		}
+		else
+		{
+			mFillMode = D3D11_FILL_SOLID;
+			mDeviceContext->RSSetState(mSolidState);
+		}
+		break;
+	}
+}

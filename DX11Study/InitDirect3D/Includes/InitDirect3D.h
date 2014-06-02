@@ -17,6 +17,7 @@ public:
 	void UpdateScene(float dt);
 	void DrawScene();
 	void OnMouseDown(WPARAM btnState, int x, int y);
+	void OnKeyDown(DWORD keyCode);
 private:
 	Geometry* mGeometry;
 	Shader* mShader;
