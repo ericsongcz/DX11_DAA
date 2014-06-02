@@ -54,13 +54,16 @@
     <ClInclude Include="Includes\IRenderable.h">
       <Filter>Includes</Filter>
     </ClInclude>
-    <ClInclude Include="Sources\D3DApp.h">
-      <Filter>Includes</Filter>
-    </ClInclude>
     <ClInclude Include="Includes\GeometryGenerator.h">
       <Filter>Includes</Filter>
     </ClInclude>
     <ClInclude Include="Includes\MathHelper.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Camera.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\D3DApp.h">
       <Filter>Includes</Filter>
     </ClInclude>
   </ItemGroup>
@@ -102,6 +105,9 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\MathHelper.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Camera.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

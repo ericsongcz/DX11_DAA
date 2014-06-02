@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Includes\Camera.h" />
+    <ClInclude Include="Includes\D3DApp.h" />
     <ClInclude Include="Includes\D3DUtils.h" />
     <ClInclude Include="Includes\FBXImporter.h" />
     <ClInclude Include="Includes\GameTimer.h" />
@@ -32,10 +34,10 @@
     <ClInclude Include="Includes\SharedParameters.h" />
     <ClInclude Include="Includes\stdafx.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="Sources\D3DApp.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Sources\Camera.cpp" />
     <ClCompile Include="Sources\D3DApp.cpp" />
     <ClCompile Include="Sources\D3DUtils.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />

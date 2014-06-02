@@ -4,6 +4,7 @@
 #include "D3DApp.h"
 #include "Geometry.h"
 #include "Shader.h"
+#include "Camera.h"
 
 class InitDirect3D : public D3DApp
 {
@@ -19,5 +20,6 @@ public:
 private:
 	Geometry* mGeometry;
 	Shader* mShader;
+	Camera* mCamera;
 	ID3D11ShaderResourceView* mShaderResourceView;
 };

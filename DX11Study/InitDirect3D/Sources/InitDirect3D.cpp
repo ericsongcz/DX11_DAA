@@ -75,12 +75,20 @@ bool InitDirect3D::Init()
 		return false;
 	}
 
+	mCamera = new Camera();
+	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+
 	return true;
 }
 
 void InitDirect3D::OnResize()
 {
 	D3DApp::OnResize();
+
+	if (mCamera != nullptr)
+	{
+		mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+	}
 }
 
 void InitDirect3D::UpdateScene(float dt)
@@ -116,7 +124,7 @@ void InitDirect3D::DrawScene()
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
 
-	mShader->render(worldMatrix, viewMatrix, projectionMatrix);
+	mShader->render(worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 
 	mGeometry->renderBuffer();
 
