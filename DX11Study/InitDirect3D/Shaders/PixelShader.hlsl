@@ -57,7 +57,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	// Calculate specular component.
 	// specular = pow(max(v¡¤r, 0), p)
-	float4 specular = specularColor * pow(saturate(dot(reflectionVector, directionToCamera)), 50);
+	float4 specular = specularColor * pow(saturate(dot(reflectionVector, directionToCamera)), 50.0f);
 
 	// All color components are summed in the pixel shader.
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -67,11 +67,11 @@ float4 main(PixelInput input) : SV_TARGET
 
 	//if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
 	//{
-		color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
+	//	color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
 	//}
 	//else
 	//{
-		//color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
+		color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
 	//}
 
 	return color;

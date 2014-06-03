@@ -444,14 +444,6 @@ void FBXImporter::SplitVertexByNormal()
 
 	mNormals = normals;
 
-#if USE_RIGHT_HAND
-	for (int i = 0; i < mNormals.size(); i++)
-	{
-		//XMFLOAT3Negative(mNormals[i], mNormals[i]);
-		//mNormals[i].z = -mNormals[i].z;
-	}
-#endif
-
 	mMeshInfo->normals = mNormals;
 
 	mVerticesCount = mMeshInfo->vertices.size();

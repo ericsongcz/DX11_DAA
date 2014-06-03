@@ -206,7 +206,7 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
 #endif
 
-	matrixData->diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	matrixData->diffuseColor = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
 #if USE_RIGHT_HAND
 	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, 10.0f, 1.0f);
 #else
