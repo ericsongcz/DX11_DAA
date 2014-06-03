@@ -65,14 +65,14 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
 	float4 color;
 
-	if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
-	{
+	//if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
+	//{
 		color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
-	}
-	else
-	{
-		color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
-	}
+	//}
+	//else
+	//{
+		//color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
+	//}
 
 	return color;
 }

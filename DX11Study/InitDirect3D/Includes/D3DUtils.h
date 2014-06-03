@@ -7,7 +7,7 @@
 
 #define RAND_ONE_FLOAT() rand() / (float)(RAND_MAX+1)
 
-#define  USE_RIGHT_HAND 0
+#define  USE_RIGHT_HAND 1
 
 using namespace DirectX;
 

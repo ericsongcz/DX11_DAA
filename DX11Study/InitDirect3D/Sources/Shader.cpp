@@ -200,7 +200,12 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 
-	matrixData->lightPosition = XMFLOAT4(5.0, 5.0f, 5.0f, 1.0f);
+#if USE_RIGHT_HAND
+	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+#else
+	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
+#endif
+
 	matrixData->diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 #if USE_RIGHT_HAND
 	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, 10.0f, 1.0f);
@@ -231,7 +236,7 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* buffers[] = { mMatrixBuffer, mTestBuffer };
 	mDeviceContext->VSSetConstantBuffers(bufferNumber, 2, buffers);
-	mDeviceContext->PSSetConstantBuffers(bufferNumber, 2, &mMatrixBuffer);
+	mDeviceContext->PSSetConstantBuffers(bufferNumber, 2, buffers);
 
 	return true;
 }

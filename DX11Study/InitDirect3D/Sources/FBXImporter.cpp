@@ -392,12 +392,12 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 		{
 		case FbxGeometryElement::eDirect:
 		case FbxGeometryElement::eIndexToDirect:
-			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
 #if USE_RIGHT_HAND
-			uvs[index].y = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
 #else
-			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
+			uvs[index].x = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[0]);
 #endif
+			uvs[index].y = 1.0f - static_cast<float>(vertexUV->GetDirectArray().GetAt(textureUVIndex)[1]);
 			break;
 		default:
 			break;

@@ -77,7 +77,7 @@ XMMATRIX Camera::getViewMatrix() const
 	viewMatrix = XMMATRIX(row1, row2, row3, row4);
 
 #if USE_RIGHT_HAND
-	viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
+	//viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
 #else
 	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
 #endif
