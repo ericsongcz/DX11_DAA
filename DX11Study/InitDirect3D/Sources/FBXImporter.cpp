@@ -5,11 +5,11 @@
 #include <fstream>
 #include "D3DUtils.h"
 #include "SharedParameters.h"
+#include <algorithm>
 
 using namespace std;
 
 FBXImporter::FBXImporter()
-	: mHasTexture(false)
 {
 }
 
@@ -105,9 +105,9 @@ void FBXImporter::WalkHierarchy(FbxNode* fbxNode, int depth)
 
 void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 {
-	mMesh = (FbxMesh*)nodeAttribute;
+	FbxMesh* mesh = (FbxMesh*)nodeAttribute;
 	
-	if (!mMesh->IsTriangleMesh())
+	if (!mesh->IsTriangleMesh())
 	{
 		FbxGeometryConverter converter(mSDKManager);
 
@@ -117,187 +117,193 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 		// For FBX SDK 2013.3
 		//converter.TriangulateInPlace(nodeAttribute->GetNode());
 
-		mMesh = (FbxMesh*)nodeAttribute;
+		mesh = (FbxMesh*)nodeAttribute;
 	}
 
-	cout << "TriangleCount:" << mMesh->GetPolygonCount() << endl;
-	cout << "VertexCount:" << mMesh->GetControlPointsCount() << endl;
-	cout << "IndexCount:" << mMesh->GetPolygonVertexCount() << endl;
-	cout << "Layer:" << mMesh->GetLayerCount() << endl;
-	cout << "DeformerCount:" << mMesh->GetDeformerCount() << endl;
-	cout << "MaterialCount:" << nodeAttribute->GetNode()->GetMaterialCount() << endl;
+	FBXMeshData fbxMeshData;
+	fbxMeshData.mMesh = mesh;
+	mFBXMeshDatas.push_back(fbxMeshData);
+
+	for (int i = 0; i < mFBXMeshDatas.size(); i++)
+	{
+		cout << "Name:" << mesh->GetName() << endl;
+		cout << "TriangleCount:" << mesh->GetPolygonCount() << endl;
+		cout << "VertexCount:" << mesh->GetControlPointsCount() << endl;
+		cout << "IndexCount:" << mesh->GetPolygonVertexCount() << endl;
+		cout << "Layer:" << mesh->GetLayerCount() << endl;
+		cout << "DeformerCount:" << mesh->GetDeformerCount() << endl;
+		cout << "MaterialCount:" << mesh->GetNode()->GetMaterialCount() << endl;
+	}
 }
 
 void FBXImporter::SaveData(const char* fileName)
 {
-	FbxVector4* meshVertices = mMesh->GetControlPoints();
-	mVerticesCount = mMesh->GetControlPointsCount();
-	int indicesCount = mMesh->GetPolygonVertexCount();
+	//FbxVector4* meshVertices = mMesh->GetControlPoints();
+	//mVerticesCount = mMesh->GetControlPointsCount();
+	//int indicesCount = mMesh->GetPolygonVertexCount();
 
-	float* vertices = new float[mVerticesCount * 3];
-	float* pV = vertices;
-	for (int i = 0; i < mVerticesCount; i++)
-	{
-		*pV = static_cast<float>(meshVertices[i][0]);
-		pV++;
-		*pV = static_cast<float>(meshVertices[i][1]);
-		pV++;
-		*pV = static_cast<float>(meshVertices[i][2]);
-		pV++;
-	}
+	//float* vertices = new float[mVerticesCount * 3];
+	//float* pV = vertices;
+	//for (int i = 0; i < mVerticesCount; i++)
+	//{
+	//	*pV = static_cast<float>(meshVertices[i][0]);
+	//	pV++;
+	//	*pV = static_cast<float>(meshVertices[i][1]);
+	//	pV++;
+	//	*pV = static_cast<float>(meshVertices[i][2]);
+	//	pV++;
+	//}
 
-	ofstream out(fileName, ios_base::out | ios_base::binary);
+	//ofstream out(fileName, ios_base::out | ios_base::binary);
 
-	// Write geometryInfo: vertex and index count.
-	int geometryInfo[2] = { 48, 49 };
-	out.write(reinterpret_cast<const char*>(geometryInfo), sizeof (int) * 2);
+	//// Write geometryInfo: vertex and index count.
+	//int geometryInfo[2] = { 48, 49 };
+	//out.write(reinterpret_cast<const char*>(geometryInfo), sizeof (int) * 2);
 
-	out.close();
+	//out.close();
 
-	ifstream in("Cube.bin", ios_base::binary);
-	char buffer[2];
-	in.read(buffer, 2);
+	//ifstream in("Cube.bin", ios_base::binary);
+	//char buffer[2];
+	//in.read(buffer, 2);
 
-	printf("buffer:%s", buffer);
+	//printf("buffer:%s", buffer);
 
-	in.close();
+	//in.close();
 
-	int* indices = nullptr;
-	int* meshIndices = mMesh->GetPolygonVertices();
+	//int* indices = nullptr;
+	//int* meshIndices = mMesh->GetPolygonVertices();
 
-	// Convert to 16bit index if possible to save memory.
-	if (mVerticesCount < 65535)
-	{
-		indices = new int[indicesCount];
-		int* currentIndices = indices;
+	//// Convert to 16bit index if possible to save memory.
+	//if (mVerticesCount < 65535)
+	//{
+	//	indices = new int[indicesCount];
+	//	int* currentIndices = indices;
 
-		for (int i = 0; i < indicesCount; i++)
-		{
-			*currentIndices = meshIndices[i];
-		}
-	}
-	else
-	{
+	//	for (int i = 0; i < indicesCount; i++)
+	//	{
+	//		*currentIndices = meshIndices[i];
+	//	}
+	//}
+	//else
+	//{
 
-	}
+	//}
 
-	delete[] vertices;
-	delete[] indices;
+	//delete[] vertices;
+	//delete[] indices;
 }
 
 MeshInfo* FBXImporter::GetMeshInfo()
 {
 	mMeshInfo = new MeshInfo();
 
-	FbxVector4* meshVertices = mMesh->GetControlPoints();
-	mVerticesCount = mMesh->GetControlPointsCount();
-	mIndicesCount = mMesh->GetPolygonVertexCount();
-	mTrianglesCount = mMesh->GetPolygonCount();
-
-	FbxMatrix gloableTransform = mMesh->GetNode()->EvaluateGlobalTransform();
-
-	FbxAMatrix matrixGeo;
-	matrixGeo.SetIdentity();
-
-	const FbxVector4 lT = mMesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot);
-	const FbxVector4 lR = mMesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot);
-	const FbxVector4 lS = mMesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot);
-
-	matrixGeo.SetT(lT);
-	matrixGeo.SetR(lR);
-	matrixGeo.SetS(lS);
-
-	FbxAMatrix matrixL2W;
-	matrixL2W.SetIdentity();
-
-	matrixL2W = mMesh->GetNode()->EvaluateGlobalTransform();
-
-	matrixL2W *= matrixGeo;
-
-	FbxMatrixToXMMATRIX(SharedParameters::globalTransform, matrixL2W);
-
-	int verticesComponentCount = mVerticesCount * 3;
-	int verticesByteWidth = sizeof(float) * mVerticesCount * 3;
-
-	// Extract vertices from FbxMesh.
-	vector<XMFLOAT3> verticesPositions;
-	verticesPositions.resize(mVerticesCount);
-
-	for (int i = 0; i < mVerticesCount; i++)
+	for (int i = 0; i < mFBXMeshDatas.size(); i++)
 	{
-		verticesPositions[i].x = static_cast<float>(meshVertices[i][0]);
-		verticesPositions[i].y = static_cast<float>(meshVertices[i][1]);
-		verticesPositions[i].z = static_cast<float>(meshVertices[i][2]);
-	}
+		FbxMesh* mesh = mFBXMeshDatas[i].mMesh;
+		FBXMeshData fbxMeshData = mFBXMeshDatas[i];
+		FbxVector4* meshVertices = mesh->GetControlPoints();
+		fbxMeshData.mVerticesCount = mesh->GetControlPointsCount();
+		fbxMeshData.mIndicesCount = mesh->GetPolygonVertexCount();
+		fbxMeshData.mTrianglesCount = mesh->GetPolygonCount();
 
-	// Extract indices form FbxMesh.
-	int* meshIndices = mMesh->GetPolygonVertices();
-	vector<UINT> indices;
-	indices.resize(mIndicesCount);
+		FbxMatrix gloableTransform = mesh->GetNode()->EvaluateGlobalTransform();
 
-	// Convert to 16bit index if possible to save memory.
-	for (int i = 0; i < mIndicesCount; i++)
-	{
-		indices[i] = meshIndices[i];
-	}
+		FbxAMatrix matrixGeo;
+		matrixGeo.SetIdentity();
 
-	mNormals.resize(mIndicesCount);
-	mUVs.resize(mIndicesCount);
+		const FbxVector4 lT = mesh->GetNode()->GetGeometricTranslation(FbxNode::eSourcePivot);
+		const FbxVector4 lR = mesh->GetNode()->GetGeometricRotation(FbxNode::eSourcePivot);
+		const FbxVector4 lS = mesh->GetNode()->GetGeometricScaling(FbxNode::eSourcePivot);
 
-	int* triangleMaterialIndices = new int[mTrianglesCount];
-	ConnectMaterialsToMesh(mMesh, mTrianglesCount, triangleMaterialIndices);
-	LoadMaterials(mMesh);
+		matrixGeo.SetT(lT);
+		matrixGeo.SetR(lR);
+		matrixGeo.SetS(lS);
 
-	int triangleCount = mMesh->GetPolygonCount();
-	int controlPointIndex = 0;
-	int normalIndex = 0;
-	vector<XMFLOAT2> uvs(mIndicesCount);
+		FbxAMatrix matrixL2W;
+		matrixL2W.SetIdentity();
 
-	// Extract normals and uvs from FbxMesh.
-	for (int i = 0; i < triangleCount; i++)
-	{
-		int polygonSize = mMesh->GetPolygonSize(i);
+		matrixL2W = mesh->GetNode()->EvaluateGlobalTransform();
 
-		for (int j = 0; j < polygonSize; j++)
+		matrixL2W *= matrixGeo;
+
+		FbxMatrixToXMMATRIX(SharedParameters::globalTransform, matrixL2W);
+
+		int verticesComponentCount = fbxMeshData.mVerticesCount * 3;
+		int verticesByteWidth = sizeof(float) * fbxMeshData.mVerticesCount * 3;
+
+		// Extract vertices from FbxMesh.
+		for (int i = 0; i < fbxMeshData.mVerticesCount; i++)
 		{
-			controlPointIndex = mMesh->GetPolygonVertex(i, j);
-
-			ReadNormals(controlPointIndex, normalIndex, mNormals);
-
-			if (mHasTexture)
-			{
-				ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, mUVs);
-			}
-
-			normalIndex++;
+			fbxMeshData.mVertices[i].x = static_cast<float>(meshVertices[i][0]);
+			fbxMeshData.mVertices[i].y = static_cast<float>(meshVertices[i][1]);
+			fbxMeshData.mVertices[i].z = static_cast<float>(meshVertices[i][2]);
 		}
+
+		// Extract indices form FbxMesh.
+		int* meshIndices = mesh->GetPolygonVertices();
+
+		// Convert to 16bit index if possible to save memory.
+		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+		{
+			fbxMeshData.mIndices[i] = meshIndices[i];
+		}
+
+		int* triangleMaterialIndices = new int[fbxMeshData.mTrianglesCount];
+		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount, triangleMaterialIndices);
+		LoadMaterials(fbxMeshData);
+
+		int triangleCount = mesh->GetPolygonCount();
+		int controlPointIndex = 0;
+		int normalIndex = 0;
+		vector<XMFLOAT2> uvs(fbxMeshData.mIndicesCount);
+
+		// Extract normals and uvs from FbxMesh.
+		for (int i = 0; i < triangleCount; i++)
+		{
+			int polygonSize = mesh->GetPolygonSize(i);
+
+			for (int j = 0; j < polygonSize; j++)
+			{
+				controlPointIndex = mesh->GetPolygonVertex(i, j);
+
+				ReadNormals(fbxMeshData, controlPointIndex, normalIndex);
+
+				if (fbxMeshData.mHasTexture)
+				{
+					ReadUVs(fbxMeshData, controlPointIndex, normalIndex, mesh->GetTextureUVIndex(i, j), 0);
+				}
+
+				normalIndex++;
+			}
+		}
+
+		SplitVertexByNormal(fbxMeshData);
+
+		if (fbxMeshData.mHasTexture)
+		{
+			SplitVertexByUV(fbxMeshData);
+		}
+
+		mMeshInfo->verticesCount += fbxMeshData.mVerticesCount;
+		mMeshInfo->indicesCount += fbxMeshData.mIndicesCount;
+
+		Merge(mMeshInfo->vertices, fbxMeshData.mVertices);
 	}
-
-	mMeshInfo->vertices = verticesPositions;
-	mMeshInfo->indices = indices;
-	mMeshInfo->uvs = uvs;
-
-	SplitVertexByNormal();
-
-	if (mHasTexture)
-	{
-		SplitVertexByUV();
-	}
-
-	mMeshInfo->verticesCount = mVerticesCount;
-	mMeshInfo->indicesCount = mIndicesCount;
 
 	return mMeshInfo;
 }
 
-void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMFLOAT3>& normals)
+void FBXImporter::ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex)
 {
-	if (mMesh->GetElementNormalCount() < 1)
+	FbxMesh* mesh = fbxMeshData.mMesh;
+	vector<XMFLOAT3>& normals = fbxMeshData.mNormals;
+
+	if (mesh->GetElementNormalCount() < 1)
 	{
 		return;
 	}
 
-	FbxGeometryElementNormal* normal = mMesh->GetElementNormal(0);
+	FbxGeometryElementNormal* normal = mesh->GetElementNormal(0);
 	switch (normal->GetMappingMode())
 	{
 	case FbxGeometryElement::eByControlPoint:
@@ -306,9 +312,11 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(contorlPointIndex);
-			normals[normalIndex].x = static_cast<float>(fbxNormal[0]);
-			normals[normalIndex].y = static_cast<float>(fbxNormal[1]);
-			normals[normalIndex].z = static_cast<float>(fbxNormal[2]);
+			XMFLOAT3 normal;
+			normal.x = static_cast<float>(fbxNormal[0]);
+			normal.y = static_cast<float>(fbxNormal[1]);
+			normal.z = static_cast<float>(fbxNormal[2]);
+			normals.push_back(normal);
 		}
 			break;
 
@@ -316,9 +324,11 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 		{
 			int id = normal->GetIndexArray().GetAt(contorlPointIndex);
 			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(id);
-			normals[normalIndex].x = static_cast<float>(fbxNormal[0]);
-			normals[normalIndex].y = static_cast<float>(fbxNormal[1]);
-			normals[normalIndex].z = static_cast<float>(fbxNormal[2]);
+			XMFLOAT3 normal;
+			normal.x = static_cast<float>(fbxNormal[0]);
+			normal.y = static_cast<float>(fbxNormal[1]);
+			normal.z = static_cast<float>(fbxNormal[2]);
+			normals.push_back(normal);
 		}
 		default:
 			break;
@@ -332,9 +342,11 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 		case FbxGeometryElement::eDirect:
 		{
 			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(normalIndex);
-			normals[normalIndex].x = static_cast<float>(fbxNormal[0]);
-			normals[normalIndex].y = static_cast<float>(fbxNormal[1]);
-			normals[normalIndex].z = static_cast<float>(fbxNormal[2]);
+			XMFLOAT3 normal;
+			normal.x = static_cast<float>(fbxNormal[0]);
+			normal.y = static_cast<float>(fbxNormal[1]);
+			normal.z = static_cast<float>(fbxNormal[2]);
+			normals.push_back(normal);
 		}
 			break;
 
@@ -342,9 +354,11 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 		{
 			int id = normal->GetIndexArray().GetAt(normalIndex);
 			FbxVector4 fbxNormal = normal->GetDirectArray().GetAt(id);
-			normals[normalIndex].x = static_cast<float>(fbxNormal[0]);
-			normals[normalIndex].y = static_cast<float>(fbxNormal[1]);
-			normals[normalIndex].z = static_cast<float>(fbxNormal[2]);
+			XMFLOAT3 normal;
+			normal.x = static_cast<float>(fbxNormal[0]);
+			normal.y = static_cast<float>(fbxNormal[1]);
+			normal.z = static_cast<float>(fbxNormal[2]);
+			normals.push_back(normal);
 		}
 		default:
 			break;
@@ -356,8 +370,11 @@ void FBXImporter::ReadNormals(int contorlPointIndex, int normalIndex, vector<XMF
 	}
 }
 
-void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int textureUVIndex, int uvLayer, vector<XMFLOAT2>& uvs)
+void FBXImporter::ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int index, int textureUVIndex, int uvLayer)
 {
+	FbxMesh* mesh = fbxMeshData.mMesh;
+	vector<XMFLOAT2>& uvs = fbxMeshData.mUVs;
+
 	if (uvLayer >= 2 || mesh->GetElementUVCount() <= uvLayer)
 	{
 		return;
@@ -371,15 +388,19 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 		switch (vertexUV->GetReferenceMode())
 		{
 		case FbxGeometryElement::eDirect:
-			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(controlPointIndex)[0]);
-			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(controlPointIndex)[1]);
-
+			XMFLOAT2 uv;
+			FbxVector2 fbxUV = vertexUV->GetDirectArray().GetAt(controlPointIndex);
+			uv.x = static_cast<float>(fbxUV[0]);
+			uv.y = static_cast<float>(fbxUV[1]);
+			uvs.push_back(uv);
 			break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = vertexUV->GetIndexArray().GetAt(controlPointIndex);
-			uvs[index].x = static_cast<float>(vertexUV->GetDirectArray().GetAt(id)[0]);
-			uvs[index].y = static_cast<float>(vertexUV->GetDirectArray().GetAt(id)[1]);
+			FbxVector2 fbxUV = vertexUV->GetDirectArray().GetAt(id);
+			uv.x = static_cast<float>(fbxUV[0]);
+			uv.y = static_cast<float>(fbxUV[1]);
+			uvs.push_back(uv);
 		}
 
 		break;
@@ -406,13 +427,13 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 	}
 }
 
-void FBXImporter::SplitVertexByNormal()
+void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
 {
 	vector<XMFLOAT3> normals;
-	normals.resize(mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+	normals.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	vector<UINT>& indicesBuffer = mMeshInfo->indices;
-	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
+	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
 
 	// 遍历索引，根据法线来划分顶点，使得每个顶点包含唯一的法线(顶点会有冗余)。
 	// 基本思路就是先建一个和顶点数组相同尺寸的法线数组，然后按照索引顺序来填充这个数组。
@@ -421,25 +442,25 @@ void FBXImporter::SplitVertexByNormal()
 	// 我们将这个新顶点对应的法线存入法线数组。
 	int counter1 = 0;
 	int counter2 = 0;
-	for (int i = 0; i < mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{              
-			normals[indicesBuffer[i]] = mNormals[i];
+			normals[indicesBuffer[i]] = fbxMeshData.mNormals[i];
 			counter1++;
 		}
-		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]))
+		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], fbxMeshData.mNormals[i]))
 		{
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(mVerticesCount + 1);
-			verticesBuffer[mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
+			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = mVerticesCount;
-			mVerticesCount++;
+			indicesBuffer[i] = fbxMeshData.mVerticesCount;
+			fbxMeshData.mVerticesCount++;
 
 			// 保存法线。
-			normals.push_back(mNormals[i]);
+			normals.push_back(fbxMeshData.mNormals[i]);
 			counter2++;
 		}
 	}
@@ -447,58 +468,54 @@ void FBXImporter::SplitVertexByNormal()
 	Log("Counter:%d", counter1);
 	Log("Counter:%d", counter2);
 
-	mNormals = normals;
-
-	mMeshInfo->normals = mNormals;
+	fbxMeshData.mNormals = normals;
 }
 
-void FBXImporter::SplitVertexByUV()
+void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)
 {
 	vector<XMFLOAT2> uvs;
-	uvs.resize(mVerticesCount, XMFLOAT2(-1.0f, -1.0f));
+	uvs.resize(fbxMeshData.mVerticesCount, XMFLOAT2(-1.0f, -1.0f));
 
-	vector<UINT>& indicesBuffer = mMeshInfo->indices;
-	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
+	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
 	
 	// 在SplitVertexByNormal这一步后执行。
 	// 原因是UV可能会使顶点进一步冗余，而法线数量在上一步已经可以确定。
 	// 遍历索引，根据UV来划分顶点，使得每个顶点都包含唯一的UV(顶点数可能会进一步冗余)。
 	// 思路和根据法线划分顶点类似。
-	for (int i = 0; i < mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
 	{
 		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
 		{
-			uvs[indicesBuffer[i]] = mUVs[i];
+			uvs[indicesBuffer[i]] = fbxMeshData.mUVs[i];
 		} 
-		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], mUVs[i]))
+		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], fbxMeshData.mUVs[i]))
 		{			
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(mVerticesCount + 1);
-			verticesBuffer[mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
+			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
-			mNormals.resize(mVerticesCount + 1);
-			mNormals[mVerticesCount] = mMeshInfo->normals[indicesBuffer[i]];
+			fbxMeshData.mNormals.resize(fbxMeshData.mVerticesCount + 1);
+			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = mMeshInfo->normals[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = mVerticesCount;
+			indicesBuffer[i] = fbxMeshData.mVerticesCount;
 
 			// 更新顶点数。
-			mVerticesCount++;
+			fbxMeshData.mVerticesCount++;
 
 			// 保存ＵＶ。
-			uvs.push_back(mUVs[i]);
+			uvs.push_back(fbxMeshData.mUVs[i]);
 		}
 	}
 
-	mUVs = uvs;
-	mMeshInfo->uvs = mUVs;
-	mMeshInfo->normals = mNormals;
+	fbxMeshData.mUVs = uvs;
 }
 
-void FBXImporter::ComputeNormals()
+void FBXImporter::ComputeNormals(FBXMeshData& fbxMeshData)
 {
-	for (int i = 0; i < mTrianglesCount; i++)
+	for (int i = 0; i < fbxMeshData.mTrianglesCount; i++)
 	{
 		// Indices of the ith triangle.
 		UINT i0 = mMeshInfo->indices[i * 3];
@@ -523,7 +540,7 @@ void FBXImporter::ComputeNormals()
 		XMFLOAT3Add(mMeshInfo->normals[i2], mMeshInfo->normals[i2], normal);
 	}
 
-	for (int i = 0; i < mVerticesCount; i++)
+	for (int i = 0; i <fbxMeshData.mVerticesCount; i++)
 	{
 		XMFLOAT3Normalize(mMeshInfo->normals[i], mMeshInfo->normals[i]);
 	}
@@ -580,11 +597,12 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 	}
 }
 
-void FBXImporter::LoadMaterials(FbxMesh* mesh)
+void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 {
 	int materialCount = 0;
 	int polygonCount = 0;
 	FbxNode* node = nullptr;
+	FbxMesh* mesh = fbxMeshData.mMesh;
 
 	if ((mesh != nullptr) && (mesh->GetNode() != nullptr))
 	{
@@ -593,9 +611,9 @@ void FBXImporter::LoadMaterials(FbxMesh* mesh)
 	}
 
 	bool isAllSame = true;
-	for (int i = 0; i < mMesh->GetElementMaterialCount(); i++)
+	for (int i = 0; i < mesh->GetElementMaterialCount(); i++)
 	{
-		FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(i);
+		FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(i);
 		if (materialElement->GetMappingMode() == FbxGeometryElement::eByPolygon)
 		{
 			isAllSame = false;
@@ -605,16 +623,17 @@ void FBXImporter::LoadMaterials(FbxMesh* mesh)
 	//For eAllSame mapping type, just out the material and texture mapping info once
 	if (isAllSame)
 	{
-		for (int i = 0; i < mMesh->GetElementMaterialCount(); i++)
+		for (int i = 0; i < mesh->GetElementMaterialCount(); i++)
 		{
-			FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(i);
+			FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(i);
 			if (materialElement->GetMappingMode() == FbxGeometryElement::eAllSame)
 			{
-				FbxSurfaceMaterial* material = mMesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(0));
+				FbxSurfaceMaterial* material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(0));
+				fbxMeshData.mSurfaceMaterial = material;
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
-					LoadMaterialAttributes(material);
+					LoadMaterialAttributes(fbxMeshData);
 				}
 			}
 		}
@@ -624,12 +643,12 @@ void FBXImporter::LoadMaterials(FbxMesh* mesh)
 	{
 		for (int i = 0; i < polygonCount; i++)
 		{
-			for (int j = 0; j < mMesh->GetElementMaterialCount(); j++)
+			for (int j = 0; j < mesh->GetElementMaterialCount(); j++)
 			{
-				FbxGeometryElementMaterial* materialElement = mMesh->GetElementMaterial(j);
+				FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(j);
 				FbxSurfaceMaterial* material = NULL;
 				int materialId = -1;
-				material = mMesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
+				material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
 				materialId = materialElement->GetIndexArray().GetAt(i);
 
 				if (materialId >= 0)
@@ -640,9 +659,10 @@ void FBXImporter::LoadMaterials(FbxMesh* mesh)
 	}
 }
 
-void FBXImporter::LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial)
+void FBXImporter::LoadMaterialAttributes(FBXMeshData& fbxMeshData)
 {
 	// Get the name of material.
+	FbxSurfaceMaterial* surfaceMaterial = fbxMeshData.mSurfaceMaterial;
 	const char* materialName = surfaceMaterial->GetName();
 
 	Log("Material name:%s\n", materialName);
@@ -688,10 +708,10 @@ void FBXImporter::LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial)
 		FbxDouble opacity = ((FbxSurfaceLambert*)surfaceMaterial)->TransparencyFactor;
 	}
 
-	LoadMaterialTexture(surfaceMaterial);
+	LoadMaterialTexture(fbxMeshData);
 }
 
-void FBXImporter::LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial)
+void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 {
 	int textureLayerIndex;
 	FbxProperty property;
@@ -719,7 +739,7 @@ void FBXImporter::LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial)
 	//}
 
 	// #NoteReference to DisplayMesh.cxx in FBX SDK samples.Note#
-	property = surfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+	property = fbxMeshData.mSurfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
 
 	if (property.IsValid())
 	{
@@ -727,7 +747,7 @@ void FBXImporter::LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial)
 
 		if (textureCount > 0)
 		{
-			mHasTexture = true;
+			fbxMeshData.mHasTexture = true;
 		}
 
 		for (int i = 0; i < textureCount; i++)

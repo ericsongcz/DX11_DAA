@@ -88,3 +88,12 @@ void XMFLOAT3Cross(XMFLOAT3& out, XMFLOAT3& lhs, XMFLOAT3& rhs);
 void XMFLOAT3Normalize(XMFLOAT3& out, XMFLOAT3& in);
 bool XMFLOAT3Equal(const XMFLOAT3& lhs, const XMFLOAT3& rhs);
 bool XMFLOAT2Equal(const XMFLOAT2& lhs, const XMFLOAT2& rhs);
+
+template<typename T1, typename T2>
+void Merge(T1 t1, T2 t2)
+{
+	for (int i = 0; i < t1.size(); i++)
+	{
+		t1.push_back(t2[i]);
+	}
+}

@@ -3,6 +3,27 @@
 #include <fbxsdk.h>
 #include "Geometry.h"
 
+struct FBXMeshData
+{
+	FBXMeshData()
+		: mHasTexture(false),
+		  mMesh(nullptr),
+		  mSurfaceMaterial(nullptr)
+	{}
+
+	int mVerticesCount;
+	int mIndicesCount;
+	int mTrianglesCount;
+	vector<XMFLOAT3> mVertices;
+	vector<UINT> mIndices;
+	vector<XMFLOAT3> mNormals;
+	vector<XMFLOAT2> mUVs;
+	bool mHasTexture;
+
+	FbxMesh* mMesh;
+	FbxSurfaceMaterial* mSurfaceMaterial;
+};
+
 class FBXImporter
 {
 public:
@@ -20,35 +41,29 @@ public:
 	MeshInfo* GetMeshInfo();
 
 	// 读取网格中的法线。
-	void ReadNormals(int contorlPointIndex, int normalIndex, vector<XMFLOAT3>& normals); 
+	void ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex); 
 
 	// 读取网格中的纹理坐标。
-	void ReadUVs(FbxMesh* mesh, int controlPointIndex, int textureUVIndex, int index, int uvLayer, vector<XMFLOAT2>& uvs);
+	void ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int textureUVIndex, int index, int uvLayer);
 
 	// 根据法线类拆分顶点。
-	void SplitVertexByNormal();	
+	void SplitVertexByNormal(FBXMeshData& fbxMeshData);	
 
 	// 根据UV拆分顶点。
-	void SplitVertexByUV();
+	void SplitVertexByUV(FBXMeshData& fbxMeshData);
 
 	// 计算多边形法线。
-	void ComputeNormals();
+	void ComputeNormals(FBXMeshData& fbxMeshData);
 
 	// FbxMatrix到XXMMATRIX的转换。
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* materialIndices);
-	void LoadMaterials(FbxMesh* mesh);
-	void LoadMaterialAttributes(FbxSurfaceMaterial* surfaceMaterial);
-	void LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial);
+	void LoadMaterials(FBXMeshData& fbxMeshData);
+	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
+	void LoadMaterialTexture(FBXMeshData& fbxMeshData);
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
-	FbxMesh* mMesh;
 	MeshInfo* mMeshInfo;
-	int mVerticesCount;
-	int mIndicesCount;
-	int mTrianglesCount;
-	vector<XMFLOAT3> mNormals;
-	vector<XMFLOAT2> mUVs;
-	bool mHasTexture;
+	vector<FBXMeshData> mFBXMeshDatas;
 };
