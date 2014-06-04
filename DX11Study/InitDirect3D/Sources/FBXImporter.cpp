@@ -234,9 +234,13 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		// Extract vertices from FbxMesh.
 		for (int i = 0; i < fbxMeshData.mVerticesCount; i++)
 		{
-			fbxMeshData.mVertices[i].x = static_cast<float>(meshVertices[i][0]);
-			fbxMeshData.mVertices[i].y = static_cast<float>(meshVertices[i][1]);
-			fbxMeshData.mVertices[i].z = static_cast<float>(meshVertices[i][2]);
+			XMFLOAT3 vertex;
+
+			vertex.x = static_cast<float>(meshVertices[i][0]);
+			vertex.y = static_cast<float>(meshVertices[i][1]);
+			vertex.z = static_cast<float>(meshVertices[i][2]);
+
+			fbxMeshData.mVertices.push_back(vertex);
 		}
 
 		// Extract indices form FbxMesh.
@@ -245,7 +249,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		// Convert to 16bit index if possible to save memory.
 		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
 		{
-			fbxMeshData.mIndices[i] = meshIndices[i];
+			fbxMeshData.mIndices.push_back(meshIndices[i]);
 		}
 
 		int* triangleMaterialIndices = new int[fbxMeshData.mTrianglesCount];
@@ -288,6 +292,9 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		mMeshInfo->indicesCount += fbxMeshData.mIndicesCount;
 
 		Merge(mMeshInfo->vertices, fbxMeshData.mVertices);
+		Merge(mMeshInfo->indices, fbxMeshData.mIndices);
+		Merge(mMeshInfo->normals, fbxMeshData.mNormals);
+		Merge(mMeshInfo->uvs, fbxMeshData.mUVs);
 	}
 
 	return mMeshInfo;
@@ -388,16 +395,19 @@ void FBXImporter::ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int i
 		switch (vertexUV->GetReferenceMode())
 		{
 		case FbxGeometryElement::eDirect:
+		{
 			XMFLOAT2 uv;
 			FbxVector2 fbxUV = vertexUV->GetDirectArray().GetAt(controlPointIndex);
 			uv.x = static_cast<float>(fbxUV[0]);
 			uv.y = static_cast<float>(fbxUV[1]);
 			uvs.push_back(uv);
+		}
 			break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = vertexUV->GetIndexArray().GetAt(controlPointIndex);
 			FbxVector2 fbxUV = vertexUV->GetDirectArray().GetAt(id);
+			XMFLOAT2 uv;
 			uv.x = static_cast<float>(fbxUV[0]);
 			uv.y = static_cast<float>(fbxUV[1]);
 			uvs.push_back(uv);

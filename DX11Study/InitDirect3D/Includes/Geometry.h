@@ -19,6 +19,12 @@ struct Vertex
 
 struct MeshInfo
 {
+	MeshInfo()
+	: verticesCount(0),
+	  indicesCount(0)
+	{
+	}
+	 
 	vector<XMFLOAT3> vertices;
 	vector<XMFLOAT3> normals;
 	vector<UINT> indices;
