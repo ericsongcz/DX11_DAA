@@ -50,4 +50,5 @@ private:
 	int mTrianglesCount;
 	vector<XMFLOAT3> mNormals;
 	vector<XMFLOAT2> mUVs;
+	bool mHasTexture;
 };

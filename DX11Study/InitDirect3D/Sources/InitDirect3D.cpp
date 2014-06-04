@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("dragon.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -149,30 +149,30 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 	case VK_UP:
 	case VK_W:
-		mCamera->fly(1000.0f * time);
+		mCamera->fly(100.0f * time);
 		break;;
 
 	case VK_DOWN:
 	case VK_S:
-		mCamera->fly(-1000.0f * time);
+		mCamera->fly(-100.0f * time);
 		break;
 
 	case VK_LEFT:
 	case VK_A:
-		mCamera->strafe(-1000.0f * time);
+		mCamera->strafe(-100.0f * time);
 		break;
 
 	case VK_RIGHT:
 	case VK_D:
-		mCamera->strafe(1000.0f * time);
+		mCamera->strafe(100.0f * time);
 		break;
 
 	case VK_Q:
-		mCamera->walk(1000.0f * time);
+		mCamera->walk(100.0f * time);
 		break;
 
 	case VK_E:
-		mCamera->walk(-1000.0f * time);
+		mCamera->walk(-100.0f * time);
 		break;
 
 	case VK_F:

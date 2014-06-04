@@ -9,6 +9,7 @@
 using namespace std;
 
 FBXImporter::FBXImporter()
+	: mHasTexture(false)
 {
 }
 
@@ -235,20 +236,17 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	indices.resize(mIndicesCount);
 
 	// Convert to 16bit index if possible to save memory.
-	if (mVerticesCount < 65535)
+	for (int i = 0; i < mIndicesCount; i++)
 	{
-		for (int i = 0; i < mIndicesCount; i++)
-		{
-			indices[i] = meshIndices[i];
-		}
-	}
-	else
-	{
-
+		indices[i] = meshIndices[i];
 	}
 
 	mNormals.resize(mIndicesCount);
 	mUVs.resize(mIndicesCount);
+
+	int* triangleMaterialIndices = new int[mTrianglesCount];
+	ConnectMaterialsToMesh(mMesh, mTrianglesCount, triangleMaterialIndices);
+	LoadMaterials(mMesh);
 
 	int triangleCount = mMesh->GetPolygonCount();
 	int controlPointIndex = 0;
@@ -266,7 +264,10 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 			ReadNormals(controlPointIndex, normalIndex, mNormals);
 
-			ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, mUVs);
+			if (mHasTexture)
+			{
+				ReadUVs(mMesh, controlPointIndex, normalIndex, mMesh->GetTextureUVIndex(i, j), 0, mUVs);
+			}
 
 			normalIndex++;
 		}
@@ -277,15 +278,14 @@ MeshInfo* FBXImporter::GetMeshInfo()
 	mMeshInfo->uvs = uvs;
 
 	SplitVertexByNormal();
-	SplitVertexByUV();
+
+	if (mHasTexture)
+	{
+		SplitVertexByUV();
+	}
 
 	mMeshInfo->verticesCount = mVerticesCount;
 	mMeshInfo->indicesCount = mIndicesCount;
-
-	int* triangleMaterialIndices = new int[mTrianglesCount];
-
-	ConnectMaterialsToMesh(mMesh, mTrianglesCount, triangleMaterialIndices);
-	LoadMaterials(mMesh);
 
 	return mMeshInfo;
 }
@@ -408,10 +408,8 @@ void FBXImporter::ReadUVs(FbxMesh* mesh, int controlPointIndex, int index, int t
 
 void FBXImporter::SplitVertexByNormal()
 {
-	int verticesCount = mMeshInfo->vertices.size();
-
 	vector<XMFLOAT3> normals;
-	normals.resize(verticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+	normals.resize(mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
 	vector<UINT>& indicesBuffer = mMeshInfo->indices;
 	vector<XMFLOAT3>& verticesBuffer = mMeshInfo->vertices;
@@ -421,32 +419,37 @@ void FBXImporter::SplitVertexByNormal()
 	// 在遍历的过程中，我们会遇到顶点位置相同，但是法线不同的情况，这个时候我们就
 	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
 	// 我们将这个新顶点对应的法线存入法线数组。
+	int counter1 = 0;
+	int counter2 = 0;
 	for (int i = 0; i < mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{              
 			normals[indicesBuffer[i]] = mNormals[i];
+			counter1++;
 		}
 		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], mNormals[i]))
 		{
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(verticesCount + 1);
-			verticesBuffer[verticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(mVerticesCount + 1);
+			verticesBuffer[mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = verticesCount;
-			verticesCount++;
+			indicesBuffer[i] = mVerticesCount;
+			mVerticesCount++;
 
 			// 保存法线。
 			normals.push_back(mNormals[i]);
+			counter2++;
 		}
 	}
+
+	Log("Counter:%d", counter1);
+	Log("Counter:%d", counter2);
 
 	mNormals = normals;
 
 	mMeshInfo->normals = mNormals;
-
-	mVerticesCount = mMeshInfo->vertices.size();
 }
 
 void FBXImporter::SplitVertexByUV()
@@ -721,6 +724,11 @@ void FBXImporter::LoadMaterialTexture(FbxSurfaceMaterial* surfaceMaterial)
 	if (property.IsValid())
 	{
 		int textureCount = property.GetSrcObjectCount<FbxTexture>();
+
+		if (textureCount > 0)
+		{
+			mHasTexture = true;
+		}
 
 		for (int i = 0; i < textureCount; i++)
 		{
