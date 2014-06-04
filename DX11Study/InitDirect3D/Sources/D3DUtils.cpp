@@ -86,3 +86,18 @@ bool XMFLOAT2Equal(const XMFLOAT2& lhs, const XMFLOAT2& rhs)
 
 	return false;
 }
+
+XMMATRIX RotationX(float angle)
+{
+	return XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), angle);
+}
+
+XMMATRIX RotationY(float angle)
+{
+	return XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), angle);
+}
+
+XMMATRIX RotationZ(float angle)
+{
+	return XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 1.0f)), angle);
+}

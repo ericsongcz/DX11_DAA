@@ -23,4 +23,5 @@ private:
 	Shader* mShader;
 	Camera* mCamera;
 	ID3D11ShaderResourceView* mShaderResourceView;
+	XMMATRIX mRotateMatrix;
 };

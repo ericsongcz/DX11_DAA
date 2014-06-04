@@ -124,16 +124,13 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 	fbxMeshData.mMesh = mesh;
 	mFBXMeshDatas.push_back(fbxMeshData);
 
-	for (int i = 0; i < mFBXMeshDatas.size(); i++)
-	{
-		cout << "Name:" << mesh->GetName() << endl;
-		cout << "TriangleCount:" << mesh->GetPolygonCount() << endl;
-		cout << "VertexCount:" << mesh->GetControlPointsCount() << endl;
-		cout << "IndexCount:" << mesh->GetPolygonVertexCount() << endl;
-		cout << "Layer:" << mesh->GetLayerCount() << endl;
-		cout << "DeformerCount:" << mesh->GetDeformerCount() << endl;
-		cout << "MaterialCount:" << mesh->GetNode()->GetMaterialCount() << endl;
-	}
+	cout << "TriangleCount:" << mesh->GetPolygonCount() << endl;
+	cout << "VertexCount:" << mesh->GetControlPointsCount() << endl;
+	cout << "IndexCount:" << mesh->GetPolygonVertexCount() << endl;
+	cout << "Layer:" << mesh->GetLayerCount() << endl;
+	cout << "DeformerCount:" << mesh->GetDeformerCount() << endl;
+	cout << "MaterialCount:" << mesh->GetNode()->GetMaterialCount() << endl;
+	cout << endl;
 }
 
 void FBXImporter::SaveData(const char* fileName)
@@ -193,15 +190,16 @@ void FBXImporter::SaveData(const char* fileName)
 	//delete[] indices;
 }
 
-MeshInfo* FBXImporter::GetMeshInfo()
+MeshData* FBXImporter::GetMeshInfo()
 {
-	mMeshInfo = new MeshInfo();
+	mMeshData = new MeshData();
+
+	int indicesIndexOffset = 0;
 
 	for (int i = 0; i < mFBXMeshDatas.size(); i++)
 	{
 		FbxMesh* mesh = mFBXMeshDatas[i].mMesh;
 		FBXMeshData fbxMeshData = mFBXMeshDatas[i];
-		FbxVector4* meshVertices = mesh->GetControlPoints();
 		fbxMeshData.mVerticesCount = mesh->GetControlPointsCount();
 		fbxMeshData.mIndicesCount = mesh->GetPolygonVertexCount();
 		fbxMeshData.mTrianglesCount = mesh->GetPolygonCount();
@@ -226,12 +224,14 @@ MeshInfo* FBXImporter::GetMeshInfo()
 
 		matrixL2W *= matrixGeo;
 
-		FbxMatrixToXMMATRIX(SharedParameters::globalTransform, matrixL2W);
+		FbxMatrixToXMMATRIX(fbxMeshData.globalTransform, matrixL2W);
 
 		int verticesComponentCount = fbxMeshData.mVerticesCount * 3;
 		int verticesByteWidth = sizeof(float) * fbxMeshData.mVerticesCount * 3;
 
 		// Extract vertices from FbxMesh.
+		FbxVector4* meshVertices = mesh->GetControlPoints();
+
 		for (int i = 0; i < fbxMeshData.mVerticesCount; i++)
 		{
 			XMFLOAT3 vertex;
@@ -259,7 +259,7 @@ MeshInfo* FBXImporter::GetMeshInfo()
 		int triangleCount = mesh->GetPolygonCount();
 		int controlPointIndex = 0;
 		int normalIndex = 0;
-		vector<XMFLOAT2> uvs(fbxMeshData.mIndicesCount);
+		fbxMeshData.mUVs.resize(fbxMeshData.mIndicesCount, XMFLOAT2(-1.0f, -1.0f));
 
 		// Extract normals and uvs from FbxMesh.
 		for (int i = 0; i < triangleCount; i++)
@@ -288,16 +288,27 @@ MeshInfo* FBXImporter::GetMeshInfo()
 			SplitVertexByUV(fbxMeshData);
 		}
 
-		mMeshInfo->verticesCount += fbxMeshData.mVerticesCount;
-		mMeshInfo->indicesCount += fbxMeshData.mIndicesCount;
+		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+		{
+			fbxMeshData.mIndices[i] = fbxMeshData.mIndices[i] + indicesIndexOffset;
+		}
 
-		Merge(mMeshInfo->vertices, fbxMeshData.mVertices);
-		Merge(mMeshInfo->indices, fbxMeshData.mIndices);
-		Merge(mMeshInfo->normals, fbxMeshData.mNormals);
-		Merge(mMeshInfo->uvs, fbxMeshData.mUVs);
+		mMeshData->verticesCount += fbxMeshData.mVerticesCount;
+		mMeshData->indicesCount += fbxMeshData.mIndicesCount;
+		mMeshData->indicesCounts.push_back(fbxMeshData.mIndicesCount);
+		mMeshData->indicesOffset.push_back(indicesIndexOffset);
+		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
+		mMeshData->meshesCount++;
+
+		indicesIndexOffset += fbxMeshData.mIndices.size();
+
+		Merge(mMeshData->vertices, fbxMeshData.mVertices);
+		Merge(mMeshData->indices, fbxMeshData.mIndices);
+		Merge(mMeshData->normals, fbxMeshData.mNormals);
+		Merge(mMeshData->uvs, fbxMeshData.mUVs);
 	}
 
-	return mMeshInfo;
+	return mMeshData;
 }
 
 void FBXImporter::ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex)
@@ -457,7 +468,6 @@ void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{              
 			normals[indicesBuffer[i]] = fbxMeshData.mNormals[i];
-			counter1++;
 		}
 		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], fbxMeshData.mNormals[i]))
 		{
@@ -471,12 +481,8 @@ void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
 
 			// 保存法线。
 			normals.push_back(fbxMeshData.mNormals[i]);
-			counter2++;
 		}
 	}
-
-	Log("Counter:%d", counter1);
-	Log("Counter:%d", counter2);
 
 	fbxMeshData.mNormals = normals;
 }
@@ -507,7 +513,7 @@ void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)
 
 			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
 			fbxMeshData.mNormals.resize(fbxMeshData.mVerticesCount + 1);
-			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = mMeshInfo->normals[indicesBuffer[i]];
+			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = mMeshData->normals[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
 			indicesBuffer[i] = fbxMeshData.mVerticesCount;
@@ -528,14 +534,14 @@ void FBXImporter::ComputeNormals(FBXMeshData& fbxMeshData)
 	for (int i = 0; i < fbxMeshData.mTrianglesCount; i++)
 	{
 		// Indices of the ith triangle.
-		UINT i0 = mMeshInfo->indices[i * 3];
-		UINT i1 = mMeshInfo->indices[i * 3 + 1];
-		UINT i2 = mMeshInfo->indices[i * 3 + 2];
+		UINT i0 = mMeshData->indices[i * 3];
+		UINT i1 = mMeshData->indices[i * 3 + 1];
+		UINT i2 = mMeshData->indices[i * 3 + 2];
 
 		// Vertices of ith triangle.
-		XMFLOAT3 pos0 = mMeshInfo->vertices[i0];
-		XMFLOAT3 pos1 = mMeshInfo->vertices[i1];
-		XMFLOAT3 pos2 = mMeshInfo->vertices[i2];
+		XMFLOAT3 pos0 = mMeshData->vertices[i0];
+		XMFLOAT3 pos1 = mMeshData->vertices[i1];
+		XMFLOAT3 pos2 = mMeshData->vertices[i2];
 
 		XMFLOAT3 e0;
 		XMFLOAT3 e1;
@@ -545,14 +551,14 @@ void FBXImporter::ComputeNormals(FBXMeshData& fbxMeshData)
 		XMFLOAT3 normal;
 		XMFLOAT3Cross(normal, e0, e1);
 
-		XMFLOAT3Add(mMeshInfo->normals[i0], mMeshInfo->normals[i0], normal);
-		XMFLOAT3Add(mMeshInfo->normals[i1], mMeshInfo->normals[i1], normal);
-		XMFLOAT3Add(mMeshInfo->normals[i2], mMeshInfo->normals[i2], normal);
+		XMFLOAT3Add(mMeshData->normals[i0], mMeshData->normals[i0], normal);
+		XMFLOAT3Add(mMeshData->normals[i1], mMeshData->normals[i1], normal);
+		XMFLOAT3Add(mMeshData->normals[i2], mMeshData->normals[i2], normal);
 	}
 
 	for (int i = 0; i <fbxMeshData.mVerticesCount; i++)
 	{
-		XMFLOAT3Normalize(mMeshInfo->normals[i], mMeshInfo->normals[i]);
+		XMFLOAT3Normalize(mMeshData->normals[i], mMeshData->normals[i]);
 	}
 }
 
@@ -772,7 +778,7 @@ void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 
 				Log("Texture file name:%s\n", fileTexture->GetFileName());
 
-				mMeshInfo->textureFilePath = fileTexture->GetFileName();
+				mMeshData->textureFilePath = fileTexture->GetFileName();
 			}
 		}
 	}

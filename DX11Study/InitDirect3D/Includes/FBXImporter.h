@@ -19,9 +19,11 @@ struct FBXMeshData
 	vector<XMFLOAT3> mNormals;
 	vector<XMFLOAT2> mUVs;
 	bool mHasTexture;
-
+	XMMATRIX globalTransform;
 	FbxMesh* mMesh;
 	FbxSurfaceMaterial* mSurfaceMaterial;
+	string textureFileName;
+	string textureFilePath;
 };
 
 class FBXImporter
@@ -38,7 +40,7 @@ public:
 	void SaveData(const char* fileName);
 
 	// 解析网格的基础数据(顶点，法线，材质，纹理等等)。
-	MeshInfo* GetMeshInfo();
+	MeshData* GetMeshInfo();
 
 	// 读取网格中的法线。
 	void ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex); 
@@ -64,6 +66,6 @@ public:
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
-	MeshInfo* mMeshInfo;
+	MeshData* mMeshData;
 	vector<FBXMeshData> mFBXMeshDatas;
 };

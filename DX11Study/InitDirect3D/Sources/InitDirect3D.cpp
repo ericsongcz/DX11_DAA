@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("cube.fbx");
+	fbxImporter->LoadScene("elephant.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -77,6 +77,8 @@ bool InitDirect3D::Init()
 
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+
+	mRotateMatrix = XMMatrixIdentity();
 
 	return true;
 }
@@ -103,9 +105,8 @@ void InitDirect3D::DrawScene()
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
-	worldMatrix = XMMatrixTranslation(0.0f, 0.0f, 0.0f);
 	
-	worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::globalTransform);
+	worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
 #if USE_RIGHT_HAND
 	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 10.0f));
 #else
@@ -124,9 +125,22 @@ void InitDirect3D::DrawScene()
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
 
-	mShader->render(worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+	MeshData* meshData = mGeometry->GetMeshData();
+	int meshCount = meshData->meshesCount;
+	int indicesCount = 0;
+	int indicesOffset = 0;
 
-	mGeometry->renderBuffer();
+	for (int i = 0; i < meshCount; i++)
+	{
+		worldMatrix = meshData->globalTransforms[i];
+		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
+		mShader->render(worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+		indicesCount = meshData->indicesCounts[i];
+		indicesOffset = meshData->indicesOffset[i];
+
+		mGeometry->renderBuffer(indicesCount, indicesOffset, 0);
+	}
 
 	mSwapChain->Present(0, 0);
 }
@@ -145,24 +159,60 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 	{
 	case VK_ESCAPE:
 		DestroyWindow(mMainHWnd);
-		break;
 
+		break;
 	case VK_UP:
+	{
+		static float rotate = 0.0f;
+
+		rotate += time * 720.0f;
+
+		mRotateMatrix = RotationX(rotate);
+	}
+
+		break;
 	case VK_W:
 		mCamera->fly(100.0f * time);
-		break;;
 
+		break;
 	case VK_DOWN:
+	{
+		static float rotate = 0.0f;
+
+		rotate += time * 100.0f;
+
+		mRotateMatrix = RotationX(-rotate);
+	}
+
+		break;
 	case VK_S:
 		mCamera->fly(-100.0f * time);
-		break;
 
+		break;
 	case VK_LEFT:
+	{
+		static float rotate = 0.0f;
+
+		rotate += time * 100.0f;
+
+		mRotateMatrix = RotationY(rotate);
+	}
+
+		break;
 	case VK_A:
 		mCamera->strafe(-100.0f * time);
-		break;
 
+		break;
 	case VK_RIGHT:
+	{
+		static float rotate = 0.0f;
+
+		rotate += time * 100.0f;
+
+		mRotateMatrix = RotationX(-rotate);
+	}
+
+		break;
 	case VK_D:
 		mCamera->strafe(100.0f * time);
 		break;

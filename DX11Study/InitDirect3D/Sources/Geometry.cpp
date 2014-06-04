@@ -14,24 +14,26 @@ Geometry::Geometry()
 {
 }
 
-void Geometry::FillMeshData(MeshInfo* meshInfo)
+void Geometry::FillMeshData(MeshData* meshData)
 {
-	mVertices = new Vertex[meshInfo->verticesCount];
-	mIndices = new UINT[meshInfo->indicesCount];
-	mVerticesCount = meshInfo->verticesCount;
-	mIndicesCount = meshInfo->indicesCount;
+	mMeshdata = meshData;
+
+	mVertices = new Vertex[mMeshdata->verticesCount];
+	mIndices = new UINT[mMeshdata->indicesCount];
+	mVerticesCount = mMeshdata->verticesCount;
+	mIndicesCount = mMeshdata->indicesCount;
 
 	srand((int)time(nullptr));
 
 	for (int i = 0; i < mVerticesCount; i++)
 	{
-		mVertices[i].position = meshInfo->vertices[i];
+		mVertices[i].position = mMeshdata->vertices[i];
 		mVertices[i].color = XMFLOAT4(Colors::White);
-		mVertices[i].normal = meshInfo->normals[i];
-		mVertices[i].texcoord = meshInfo->uvs[i];
+		mVertices[i].normal = mMeshdata->normals[i];
+		mVertices[i].texcoord = mMeshdata->uvs[i];
 	}
 
-	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshInfo->indices[0]), sizeof(UINT) * mIndicesCount);
+	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
 	//GeometryGenerator geometryGenerator;
 	//GeometryGenerator::MeshData meshData;
@@ -56,7 +58,7 @@ void Geometry::FillMeshData(MeshInfo* meshInfo)
 	TexMetadata metaData;
 	ScratchImage image;
 
-	const char* filepath = meshInfo->textureFilePath.c_str();
+	const char* filepath = mMeshdata->textureFilePath.c_str();
 
 	if (strlen(filepath) > 0)
 	{
@@ -125,10 +127,15 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	return true;
 }
 
-void Geometry::renderBuffer()
+void Geometry::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
 {
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	mDeviceContext->DrawIndexed(mIndicesCount, 0, 0);
+	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
 	//mDeviceContext->Draw(mVerticesCount, 0);
+}
+
+MeshData* Geometry::GetMeshData() const
+{
+	return mMeshdata;
 }

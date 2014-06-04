@@ -17,11 +17,13 @@ struct Vertex
 	XMFLOAT2 texcoord;
 };
 
-struct MeshInfo
+struct MeshData
 {
-	MeshInfo()
+	MeshData()
 	: verticesCount(0),
-	  indicesCount(0)
+	  indicesCount(0),
+	  indicesOffset(0),
+	  meshesCount(0)
 	{
 	}
 	 
@@ -33,6 +35,10 @@ struct MeshInfo
 	UINT indicesCount;	
 	string textureFileName;
 	string textureFilePath;
+	vector<int> indicesCounts;
+	vector<int> indicesOffset;
+	vector<XMMATRIX> globalTransforms;
+	int meshesCount;
 };
 
 class Geometry
@@ -41,9 +47,10 @@ public:
 	Geometry();
 	~Geometry();
 
-	void FillMeshData(MeshInfo* meshInfo);
+	void FillMeshData(MeshData* meshData);
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
-	void renderBuffer();
+	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
+	MeshData* GetMeshData() const;
 private:
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
@@ -54,4 +61,5 @@ private:
 	int mIndicesCount;
 	Vertex* mVertices;
 	UINT* mIndices;
+	MeshData* mMeshdata;
 };
