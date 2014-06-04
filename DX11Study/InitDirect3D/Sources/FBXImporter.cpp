@@ -195,6 +195,7 @@ MeshData* FBXImporter::GetMeshInfo()
 	mMeshData = new MeshData();
 
 	int indicesIndexOffset = 0;
+	int verticesIndexOffset = 0;
 
 	for (int i = 0; i < mFBXMeshDatas.size(); i++)
 	{
@@ -290,7 +291,7 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
 		{
-			fbxMeshData.mIndices[i] = fbxMeshData.mIndices[i] + indicesIndexOffset;
+			fbxMeshData.mIndices[i] = fbxMeshData.mIndices[i] + verticesIndexOffset;
 		}
 
 		mMeshData->verticesCount += fbxMeshData.mVerticesCount;
@@ -300,7 +301,8 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
-		indicesIndexOffset += fbxMeshData.mIndices.size();
+		verticesIndexOffset += fbxMeshData.mVertices.size();
+		indicesIndexOffset = fbxMeshData.mIndices.size();
 
 		Merge(mMeshData->vertices, fbxMeshData.mVertices);
 		Merge(mMeshData->indices, fbxMeshData.mIndices);
@@ -461,8 +463,6 @@ void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
 	// 在遍历的过程中，我们会遇到顶点位置相同，但是法线不同的情况，这个时候我们就
 	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
 	// 我们将这个新顶点对应的法线存入法线数组。
-	int counter1 = 0;
-	int counter2 = 0;
 	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))

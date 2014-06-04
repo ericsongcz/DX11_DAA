@@ -6,7 +6,7 @@ Camera::Camera()
 {
 	XMStoreFloat4x4(&mWorldMatrix, XMMatrixIdentity());
 #if USE_RIGHT_HAND
-	mPosition = XMFLOAT3(0.0f, 0.0f, 10.0f);
+	mPosition = XMFLOAT3(0.0f, 0.0f, 20.0f);
 #else
 	mPosition = XMFLOAT3(0.0f, 0.0f, -10.0f);
 #endif

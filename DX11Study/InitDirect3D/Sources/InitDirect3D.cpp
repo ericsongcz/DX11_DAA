@@ -130,7 +130,7 @@ void InitDirect3D::DrawScene()
 	int indicesCount = 0;
 	int indicesOffset = 0;
 
-	for (int i = 1; i < meshCount; i++)
+	for (int i = 1; i >= 0; i--)
 	{
 		worldMatrix = meshData->globalTransforms[i];
 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
