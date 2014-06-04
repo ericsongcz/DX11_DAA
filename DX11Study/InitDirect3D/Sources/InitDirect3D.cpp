@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("elephant.fbx");
+	fbxImporter->LoadScene("twoCubes.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -130,7 +130,7 @@ void InitDirect3D::DrawScene()
 	int indicesCount = 0;
 	int indicesOffset = 0;
 
-	for (int i = 0; i < meshCount; i++)
+	for (int i = 1; i < meshCount; i++)
 	{
 		worldMatrix = meshData->globalTransforms[i];
 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
@@ -154,6 +154,12 @@ void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
 void InitDirect3D::OnKeyDown(DWORD keyCode)
 {
 	float time = mTimer.DeltaTime();
+	static float rotateX = 0.0f;
+	static float rotateY = 0.0f;
+	float roateRate = 360.0f;
+
+	static XMMATRIX rotateXMatrix = XMMatrixIdentity();
+	static XMMATRIX rotateYMatrix = XMMatrixIdentity();
 
 	switch (keyCode)
 	{
@@ -163,11 +169,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 		break;
 	case VK_UP:
 	{
-		static float rotate = 0.0f;
+		rotateX -= time * roateRate;
 
-		rotate += time * 720.0f;
+		rotateXMatrix = RotationX(rotateX);
 
-		mRotateMatrix = RotationX(rotate);
+		mRotateMatrix = rotateYMatrix * rotateXMatrix;
 	}
 
 		break;
@@ -177,11 +183,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 		break;
 	case VK_DOWN:
 	{
-		static float rotate = 0.0f;
+		rotateX += time * roateRate;
 
-		rotate += time * 100.0f;
+		rotateXMatrix = RotationX(rotateX);
 
-		mRotateMatrix = RotationX(-rotate);
+		mRotateMatrix = rotateYMatrix * rotateXMatrix;
 	}
 
 		break;
@@ -191,11 +197,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 		break;
 	case VK_LEFT:
 	{
-		static float rotate = 0.0f;
+		rotateY -= time * roateRate;
 
-		rotate += time * 100.0f;
+		rotateYMatrix = RotationY(rotateY);
 
-		mRotateMatrix = RotationY(rotate);
+		mRotateMatrix = rotateXMatrix * rotateYMatrix;
 	}
 
 		break;
@@ -207,9 +213,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 	{
 		static float rotate = 0.0f;
 
-		rotate += time * 100.0f;
+		rotateY += time * roateRate;
 
-		mRotateMatrix = RotationX(-rotate);
+		rotateYMatrix = RotationY(rotateY);
+
+		mRotateMatrix = rotateXMatrix * rotateYMatrix;
 	}
 
 		break;
