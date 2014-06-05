@@ -17,6 +17,12 @@ struct Vertex
 	XMFLOAT2 texcoord;
 };
 
+struct Material
+{
+	int materialId;
+	string textureFile;
+};
+
 struct MeshData
 {
 	MeshData()
@@ -40,6 +46,7 @@ struct MeshData
 	vector<string> textureFiles;
 	int meshesCount;
 	bool hasTexture;
+	vector<Material> materials;
 };
 
 class Geometry

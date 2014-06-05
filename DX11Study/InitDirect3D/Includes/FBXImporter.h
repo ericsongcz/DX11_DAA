@@ -62,7 +62,7 @@ public:
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices);
 	void LoadMaterials(FBXMeshData& fbxMeshData);
 	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
-	void LoadMaterialTexture(FBXMeshData& fbxMeshData);
+	string LoadMaterialTexture(FBXMeshData& fbxMeshData);
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;

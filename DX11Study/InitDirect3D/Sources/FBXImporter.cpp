@@ -651,7 +651,7 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
-					LoadMaterialAttributes(fbxMeshData);
+					LoadMaterialTexture(fbxMeshData);
 				}
 			}
 		}
@@ -670,11 +670,20 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				materialId = materialElement->GetIndexArray().GetAt(i);
 				fbxMeshData.mSurfaceMaterial = material;
 
+				Material mat;
+				mat.materialId = materialId;
+
+				string textureFilaName = "";
+
 				if (materialId >= 0)
 				{
 					Log("MaterialId:%d\n", materialId);
-					LoadMaterialAttributes(fbxMeshData);
+					textureFilaName = LoadMaterialTexture(fbxMeshData);
 				}
+
+				mat.textureFile = textureFilaName;
+
+				mMeshData->materials.push_back(mat);
 			}
 		}
 	}
@@ -732,35 +741,11 @@ void FBXImporter::LoadMaterialAttributes(FBXMeshData& fbxMeshData)
 	LoadMaterialTexture(fbxMeshData);
 }
 
-void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
+string FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 {
-	int textureLayerIndex;
-	FbxProperty property;
-	int textureId;
-
-	//for (textureLayerIndex = 0; textureLayerIndex < FbxLayerElement::sTypeTextureCount; textureLayerIndex++)
-	//{
-	//	property = surfaceMaterial->FindProperty(FbxLayerElement::sTextureChannelNames[textureLayerIndex]);
-
-	//	if (property.IsValid())
-	//	{
-	//		int textureCount = property.GetSrcObjectCount<FbxTexture>();
-
-	//		for (int i = 0; i < textureCount; i++)
-	//		{
-	//			FbxTexture* texture = FbxCast<FbxTexture>(property.GetSrcObject<FbxTexture>(i));
-
-	//			if (texture != nullptr)
-	//			{
-	//				texture->
-	//				Log("Texture name:%s\n", texture->GetName());
-	//			}
-	//		}
-	//	}
-	//}
-
 	// #NoteReference to DisplayMesh.cxx in FBX SDK samples.Note#
-	property = fbxMeshData.mSurfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+	FbxProperty property = fbxMeshData.mSurfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+	string textureFilePath = "";
 
 	if (property.IsValid())
 	{
@@ -785,9 +770,13 @@ void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 
 				Log("Texture file name:%s\n", fileTexture->GetFileName());
 
+				textureFilePath = fileTexture->GetFileName();
 				fbxMeshData.textureFilePath = fileTexture->GetFileName();
+
 				mMeshData->textureFiles.push_back(fileTexture->GetFileName());
 			}
 		}
 	}
+
+	return textureFilePath;
 }
