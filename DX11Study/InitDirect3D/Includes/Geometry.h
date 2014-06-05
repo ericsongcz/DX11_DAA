@@ -23,7 +23,8 @@ struct MeshData
 	: verticesCount(0),
 	  indicesCount(0),
 	  indicesOffset(0),
-	  meshesCount(0)
+	  meshesCount(0),
+	  hasTexture(false)
 	{
 	}
 	 
@@ -33,12 +34,12 @@ struct MeshData
 	vector<XMFLOAT2> uvs;
 	UINT verticesCount;
 	UINT indicesCount;	
-	string textureFileName;
-	string textureFilePath;
 	vector<int> indicesCounts;
 	vector<int> indicesOffset;
 	vector<XMMATRIX> globalTransforms;
+	vector<string> textureFiles;
 	int meshesCount;
+	bool hasTexture;
 };
 
 class Geometry

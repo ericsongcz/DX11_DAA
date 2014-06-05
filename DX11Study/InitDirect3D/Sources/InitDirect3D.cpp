@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("twoCubes.fbx");
+	fbxImporter->LoadScene("mutiplyMaterialCube.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -129,12 +129,30 @@ void InitDirect3D::DrawScene()
 	int meshCount = meshData->meshesCount;
 	int indicesCount = 0;
 	int indicesOffset = 0;
+	bool hasTexture = false;
 
-	for (int i = 1; i >= 0; i--)
+	for (int i = 0; i < meshCount; i++)
 	{
 		worldMatrix = meshData->globalTransforms[i];
 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
-		mShader->render(worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+		if (meshData->textureFiles[i].size() > 0)
+		{
+			hasTexture = true;
+		}
+		else
+		{
+			hasTexture = false;
+		}
+		
+		mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+		if (hasTexture)
+		{
+			ID3D11ShaderResourceView* shaderResourceView = nullptr;
+			shaderResourceView = CreateShaderResourceViewFromFile(meshData->textureFiles[i], mDevice);
+			mShader->setShaderResource(shaderResourceView);
+		}
 
 		indicesCount = meshData->indicesCounts[i];
 		indicesOffset = meshData->indicesOffset[i];
@@ -170,10 +188,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 	case VK_UP:
 	{
 		rotateX -= time * roateRate;
+		rotateX = -0.1f;
 
 		rotateXMatrix = RotationX(rotateX);
 
-		mRotateMatrix = rotateYMatrix * rotateXMatrix;
+		mRotateMatrix *= rotateXMatrix;
 	}
 
 		break;
@@ -184,10 +203,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 	case VK_DOWN:
 	{
 		rotateX += time * roateRate;
+		rotateX = 0.1f;
 
 		rotateXMatrix = RotationX(rotateX);
 
-		mRotateMatrix = rotateYMatrix * rotateXMatrix;
+		mRotateMatrix *= rotateXMatrix;
 	}
 
 		break;
@@ -198,10 +218,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 	case VK_LEFT:
 	{
 		rotateY -= time * roateRate;
+		rotateY = -0.1f;
 
 		rotateYMatrix = RotationY(rotateY);
 
-		mRotateMatrix = rotateXMatrix * rotateYMatrix;
+		mRotateMatrix *= rotateYMatrix;
 	}
 
 		break;
@@ -214,10 +235,11 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 		static float rotate = 0.0f;
 
 		rotateY += time * roateRate;
+		rotateY = 0.1f;
 
 		rotateYMatrix = RotationY(rotateY);
 
-		mRotateMatrix = rotateXMatrix * rotateYMatrix;
+		mRotateMatrix *= rotateYMatrix;
 	}
 
 		break;

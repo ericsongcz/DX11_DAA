@@ -54,31 +54,6 @@ void Geometry::FillMeshData(MeshData* meshData)
 	//}
 
 	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshData.Indices[0]), sizeof(UINT) * mIndicesCount);
-
-	TexMetadata metaData;
-	ScratchImage image;
-
-	const char* filepath = mMeshdata->textureFilePath.c_str();
-
-	if (strlen(filepath) > 0)
-	{
-		size_t len = strlen(filepath) + 1;
-
-		size_t converted = 0;
-
-		wchar_t *WStr;
-
-		WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
-
-		mbstowcs_s(&converted, WStr, len, filepath, _TRUNCATE);
-
-		HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
-
-		ID3D11ShaderResourceView* shaderResourceView = nullptr;
-		HR(CreateShaderResourceView(SharedParameters::device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
-
-		SharedParameters::shader->setShaderResource(shaderResourceView);
-	}
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)

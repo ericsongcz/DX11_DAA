@@ -21,6 +21,13 @@ struct TestBuffer
 	float scaleFactor1;
 	float scaleFactor2;
 	float scaleFactor3;
+	bool hasTexture;
+	bool dummy1;
+	bool dummy2;
+	bool dummy3;
+	float dummy4;
+	float dummy5;
+	float dummy6;
 };
 
 class Shader
@@ -29,8 +36,8 @@ public:
 	Shader();
 	~Shader();
 
-	bool render(FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
-	bool setShaderParameters(FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool render(bool hasTexture, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool setShaderParameters(bool hasTexture, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
 	void renderShader();
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName);
 

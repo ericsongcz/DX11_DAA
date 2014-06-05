@@ -59,7 +59,7 @@ public:
 
 	// FbxMatrixµ½XXMMATRIXµÄ×ª»»¡£
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
-	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* materialIndices);
+	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices);
 	void LoadMaterials(FBXMeshData& fbxMeshData);
 	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
 	void LoadMaterialTexture(FBXMeshData& fbxMeshData);

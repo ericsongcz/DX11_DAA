@@ -2,8 +2,13 @@
 // Simple d3d error checker for book demos.
 //---------------------------------------------------------------------------------------
 #pragma once
+#include <d3d11.h>
 #include <DirectXMath.h>
 #include <DxErr.h>
+#include "DirectXTex/DirectXTex.h"
+#include <string>
+
+using std::string;
 
 #define RAND_ONE_FLOAT() rand() / (float)(RAND_MAX+1)
 
@@ -100,3 +105,5 @@ void Merge(T1& t1, T2& t2)
 		t1.push_back(t2[i]);
 	}
 }
+
+ID3D11ShaderResourceView* CreateShaderResourceViewFromFile(const string& fileName, ID3D11Device* device);

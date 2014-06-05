@@ -14,6 +14,16 @@ cbuffer MatrixBuffer
 cbuffer Test
 {
 	float scaleFactor;
+	float scaleFactor1;
+	float scaleFactor2;
+	float scaleFactor3;
+	bool hasTexture;
+	bool dummy1;
+	bool dummy2;
+	bool dummy3;
+	float dummy4;
+	float dummy5;
+	float dummy6;
 };
 
 struct VertexInput

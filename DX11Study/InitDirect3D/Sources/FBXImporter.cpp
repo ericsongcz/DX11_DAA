@@ -253,7 +253,7 @@ MeshData* FBXImporter::GetMeshInfo()
 			fbxMeshData.mIndices.push_back(meshIndices[i]);
 		}
 
-		int* triangleMaterialIndices = new int[fbxMeshData.mTrianglesCount];
+		vector<int> triangleMaterialIndices;
 		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount, triangleMaterialIndices);
 		LoadMaterials(fbxMeshData);
 
@@ -309,6 +309,8 @@ MeshData* FBXImporter::GetMeshInfo()
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
 	}
+
+	mMeshData->textureFiles.resize(mFBXMeshDatas.size(), "");
 
 	return mMeshData;
 }
@@ -513,7 +515,7 @@ void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)
 
 			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
 			fbxMeshData.mNormals.resize(fbxMeshData.mVerticesCount + 1);
-			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = mMeshData->normals[indicesBuffer[i]];
+			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = fbxMeshData.mNormals[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
 			indicesBuffer[i] = fbxMeshData.mVerticesCount;
@@ -570,7 +572,7 @@ void FBXImporter::FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in)
 					  in.Get(3, 0), in.Get(3, 1), in.Get(3, 2), in.Get(3, 3));
 }
 
-void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* triangleMaterialIndices)
+void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices)
 {
 	// Get the material index list of current mesh.
 	FbxLayerElementArrayTemplate<int>* materialIndices;
@@ -590,7 +592,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
 				{
 					int materialIndex = materialIndices->GetAt(triangleIndex);
-					triangleMaterialIndices[triangleIndex] = materialIndex;
+					triangleMaterialIndices.push_back(materialIndex);
 				}
 			}
 
@@ -602,7 +604,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 
 			for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
 			{
-				triangleMaterialIndices[triangleIndex] = materialIndex;
+				triangleMaterialIndices.push_back(materialIndex);
 			}
 		}
 
@@ -615,10 +617,10 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, int* 
 
 void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 {
-	int materialCount = 0;
-	int polygonCount = 0;
 	FbxNode* node = nullptr;
 	FbxMesh* mesh = fbxMeshData.mMesh;
+	int materialCount = 0;
+	int polygonCount = mesh->GetPolygonCount();
 
 	if ((mesh != nullptr) && (mesh->GetNode() != nullptr))
 	{
@@ -666,9 +668,12 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				int materialId = -1;
 				material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
 				materialId = materialElement->GetIndexArray().GetAt(i);
+				fbxMeshData.mSurfaceMaterial = material;
 
 				if (materialId >= 0)
 				{
+					Log("MaterialId:%d\n", materialId);
+					LoadMaterialAttributes(fbxMeshData);
 				}
 			}
 		}
@@ -774,11 +779,14 @@ void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 			{
 				Log("Texture name:%s\n", texture->GetName());
 
+				fbxMeshData.textureFileName = texture->GetName();
+
 				FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
 
 				Log("Texture file name:%s\n", fileTexture->GetFileName());
 
-				mMeshData->textureFilePath = fileTexture->GetFileName();
+				fbxMeshData.textureFilePath = fileTexture->GetFileName();
+				mMeshData->textureFiles.push_back(fileTexture->GetFileName());
 			}
 		}
 	}

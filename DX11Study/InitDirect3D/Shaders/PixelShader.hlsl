@@ -9,6 +9,21 @@ cbuffer MatrixBuffer
 	float4 specularColor;
 };
 
+cbuffer Test
+{
+	float scaleFactor;
+	float scaleFactor1;
+	float scaleFactor2;
+	float scaleFactor3;
+	bool hasTexture;
+	bool dummy1;
+	bool dummy2;
+	bool dummy3;
+	float dummy4;
+	float dummy5;
+	float dummy6;
+};
+
 struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
@@ -62,17 +77,17 @@ float4 main(PixelInput input) : SV_TARGET
 	// All color components are summed in the pixel shader.
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
-	float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
 	float4 color;
 
-	//if (!float4Equal(textureColor, float4(0.0f, 0.0f, 0.0f, 0.0f)))
-	//{
-	//	color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
-	//}
-	//else
-	//{
+	if (hasTexture)
+	{
+		float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
+		color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
+	}
+	else
+	{
 		color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
-	//}
+	}
 
 	return color;
 }

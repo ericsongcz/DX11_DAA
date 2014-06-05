@@ -101,3 +101,31 @@ XMMATRIX RotationZ(float angle)
 {
 	return XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 1.0f)), angle);
 }
+
+ID3D11ShaderResourceView* CreateShaderResourceViewFromFile(const string& fileName, ID3D11Device* device)
+{
+	TexMetadata metaData;
+	ScratchImage image;
+
+	if (fileName.size() > 0)
+	{
+		size_t len = fileName.size() + 1;
+
+		size_t converted = 0;
+
+		wchar_t *WStr;
+
+		WStr = (wchar_t*)malloc(len*sizeof(wchar_t));
+
+		mbstowcs_s(&converted, WStr, len, fileName.c_str(), _TRUNCATE);
+
+		HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
+
+		ID3D11ShaderResourceView* shaderResourceView = nullptr;
+		HR(CreateShaderResourceView(device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
+
+		return shaderResourceView;
+	}
+
+	return nullptr;
+}

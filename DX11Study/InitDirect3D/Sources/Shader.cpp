@@ -168,9 +168,9 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	return true;
 }
 
-bool Shader::render(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::render(bool hasTextue, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	if (!setShaderParameters(worldMatrix, viewMatrix, projectionMatrix))
+	if (!setShaderParameters(hasTextue, worldMatrix, viewMatrix, projectionMatrix))
 	{
 		return false;
 	}
@@ -178,7 +178,7 @@ bool Shader::render(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& pr
 	return true;
 }
 
-bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::setShaderParameters(bool hasTexture, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* matrixData;
@@ -227,6 +227,7 @@ bool Shader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, 
 	testData->scaleFactor1 = 0.5f;
 	testData->scaleFactor2 = 0.5f;
 	testData->scaleFactor3 = 0.5f;
+	testData->hasTexture = hasTexture;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
