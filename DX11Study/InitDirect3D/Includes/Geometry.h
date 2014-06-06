@@ -4,6 +4,7 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 using namespace DirectX;
 using std::vector;
@@ -19,7 +20,24 @@ struct Vertex
 
 struct Material
 {
+	Material(int id, string file)
+	: materialId(id),
+	textureFile(file)
+	{}
+
 	int materialId;
+	string textureFile;
+};
+
+struct RenderPackage
+{
+	RenderPackage()
+	: indicesCount(0),
+	  indicesOffset(0)
+	{}
+
+	int indicesCount;
+	int indicesOffset;
 	string textureFile;
 };
 
@@ -46,7 +64,8 @@ struct MeshData
 	vector<string> textureFiles;
 	int meshesCount;
 	bool hasTexture;
-	vector<Material> materials;
+	vector<RenderPackage> renderPackages;
+	vector<Material> triangleMaterialIndices;
 };
 
 class Geometry

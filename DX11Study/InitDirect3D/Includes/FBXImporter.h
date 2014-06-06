@@ -6,9 +6,9 @@
 struct FBXMeshData
 {
 	FBXMeshData()
-		: mHasTexture(false),
-		  mMesh(nullptr),
-		  mSurfaceMaterial(nullptr)
+	  : mHasTexture(false),
+		mMesh(nullptr),
+		mSurfaceMaterial(nullptr)
 	{}
 
 	int mVerticesCount;
@@ -59,7 +59,7 @@ public:
 
 	// FbxMatrixµ½XXMMATRIXµÄ×ª»»¡£
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
-	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices);
+	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<Material>& triangleMaterialIndices);
 	void LoadMaterials(FBXMeshData& fbxMeshData);
 	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
 	string LoadMaterialTexture(FBXMeshData& fbxMeshData);

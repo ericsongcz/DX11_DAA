@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("mutiplyMaterialCube.fbx");
+	fbxImporter->LoadScene("teapot.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -125,18 +125,48 @@ void InitDirect3D::DrawScene()
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
 
+	//MeshData* meshData = mGeometry->GetMeshData();
+	//int meshCount = meshData->meshesCount;
+	//int indicesCount = 0;
+	//int indicesOffset = 0;
+	//bool hasTexture = false;
+
+	//for (int i = 0; i < meshCount; i++)
+	//{
+	//	worldMatrix = meshData->globalTransforms[i];
+	//	worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
+
+	//	if (meshData->textureFiles[i].size() > 0)
+	//	{
+	//		hasTexture = true;
+	//	}
+	//	else
+	//	{
+	//		hasTexture = false;
+	//	}
+	//	
+	//	mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+	//	if (hasTexture)
+	//	{
+	//		ID3D11ShaderResourceView* shaderResourceView = nullptr;
+	//		shaderResourceView = CreateShaderResourceViewFromFile(meshData->textureFiles[i], mDevice);
+	//		mShader->setShaderResource(shaderResourceView);
+	//	}
+
+	//	indicesCount = meshData->indicesCounts[i];
+	//	indicesOffset = meshData->indicesOffset[i];
+
+	//	mGeometry->renderBuffer(indicesCount, indicesOffset, 0);
+	//}
+
 	MeshData* meshData = mGeometry->GetMeshData();
-	int meshCount = meshData->meshesCount;
-	int indicesCount = 0;
-	int indicesOffset = 0;
+	vector<RenderPackage> renderPackages = meshData->renderPackages;
 	bool hasTexture = false;
 
-	for (int i = 0; i < meshCount; i++)
+	for (int i = 0; i < renderPackages.size(); i++)
 	{
-		worldMatrix = meshData->globalTransforms[i];
-		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
-
-		if (meshData->textureFiles[i].size() > 0)
+		if (renderPackages[i].textureFile.size() > 0)
 		{
 			hasTexture = true;
 		}
@@ -144,20 +174,16 @@ void InitDirect3D::DrawScene()
 		{
 			hasTexture = false;
 		}
-		
-		mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 
 		if (hasTexture)
 		{
+			mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 			ID3D11ShaderResourceView* shaderResourceView = nullptr;
-			shaderResourceView = CreateShaderResourceViewFromFile(meshData->textureFiles[i], mDevice);
+			shaderResourceView = CreateShaderResourceViewFromFile(renderPackages[i].textureFile, mDevice);
 			mShader->setShaderResource(shaderResourceView);
 		}
 
-		indicesCount = meshData->indicesCounts[i];
-		indicesOffset = meshData->indicesOffset[i];
-
-		mGeometry->renderBuffer(indicesCount, indicesOffset, 0);
+		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
 
 	mSwapChain->Present(0, 0);
