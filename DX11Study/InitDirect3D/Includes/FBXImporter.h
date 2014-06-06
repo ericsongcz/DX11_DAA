@@ -59,7 +59,7 @@ public:
 
 	// FbxMatrixµ½XXMMATRIXµÄ×ª»»¡£
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
-	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<Material>& triangleMaterialIndices);
+	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices);
 	void LoadMaterials(FBXMeshData& fbxMeshData);
 	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
 	string LoadMaterialTexture(FBXMeshData& fbxMeshData);
@@ -68,4 +68,6 @@ private:
 	FbxScene* mScene;
 	MeshData* mMeshData;
 	vector<FBXMeshData> mFBXMeshDatas;
+	bool isByPolygon;
+	bool isAllSame;
 };

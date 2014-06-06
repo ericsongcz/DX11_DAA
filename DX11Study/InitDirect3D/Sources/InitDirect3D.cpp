@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("teapotTextured.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -166,6 +166,9 @@ void InitDirect3D::DrawScene()
 
 	for (int i = 0; i < renderPackages.size(); i++)
 	{
+ 		worldMatrix = meshData->globalTransforms[i];
+ 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
+
 		if (renderPackages[i].textureFile.size() > 0)
 		{
 			hasTexture = true;

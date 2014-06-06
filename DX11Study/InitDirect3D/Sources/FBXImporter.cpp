@@ -10,6 +10,8 @@
 using namespace std;
 
 FBXImporter::FBXImporter()
+: isAllSame(false),
+  isByPolygon(false)
 {
 }
 
@@ -253,7 +255,8 @@ MeshData* FBXImporter::GetMeshInfo()
 			fbxMeshData.mIndices.push_back(meshIndices[i]);
 		}
 
-		//ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount, triangleMaterialIndices);
+		vector<int> triangleMaterialIndices;
+		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount, triangleMaterialIndices);
 		LoadMaterials(fbxMeshData);
 
 		int triangleCount = mesh->GetPolygonCount();
@@ -300,6 +303,46 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
+		if (isAllSame)
+		{
+			RenderPackage renderPackage;
+			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
+			renderPackage.indicesOffset = indicesIndexOffset;
+			renderPackage.textureFile = fbxMeshData.textureFileName;
+
+			mMeshData->renderPackages.push_back(renderPackage);
+		}
+		else
+		{
+			vector<Material> materialIndices = mMeshData->triangleMaterialIndices;
+			int lastMaterialId = materialIndices[0].materialId;
+			RenderPackage batchRenderPackage;
+			RenderPackage independentRenderPackage;
+
+			for (int i = 0; i < materialIndices.size(); i++)
+			{
+				if (lastMaterialId == materialIndices[i].materialId)
+				{
+					batchRenderPackage.indicesCount += 3;
+					batchRenderPackage.textureFile = materialIndices[i].textureFile;
+
+					if (i == materialIndices.size() - 1)
+					{
+						mMeshData->renderPackages.push_back(batchRenderPackage);
+					}
+				}
+				else
+				{
+					mMeshData->renderPackages.push_back(batchRenderPackage);
+					batchRenderPackage.indicesOffset = i * 3;
+					batchRenderPackage.indicesCount = 0;
+					batchRenderPackage.indicesCount += 3;
+				}
+
+				lastMaterialId = materialIndices[i].materialId;
+			}
+		}
+
 		verticesIndexOffset += fbxMeshData.mVertices.size();
 		indicesIndexOffset = fbxMeshData.mIndices.size();
 
@@ -308,34 +351,6 @@ MeshData* FBXImporter::GetMeshInfo()
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
 	}
-
-	//vector<Material> materialIndices = mMeshData->triangleMaterialIndices;
-	//int lastMaterialId = materialIndices[0].materialId;
-	//RenderPackage batchRenderPackage;
-	//RenderPackage independentRenderPackage;
-
-	//for (int i = 0; i < materialIndices.size(); i++)
-	//{
-	//	if (lastMaterialId == materialIndices[i].materialId)
-	//	{
-	//		batchRenderPackage.indicesCount += 3;
-	//		batchRenderPackage.textureFile = materialIndices[i].textureFile;
-
-	//		if (i == materialIndices.size() - 1)
-	//		{
-	//			mMeshData->renderPackages.push_back(batchRenderPackage);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		mMeshData->renderPackages.push_back(batchRenderPackage);
-	//		batchRenderPackage.indicesOffset = i * 3;
-	//		batchRenderPackage.indicesCount = 0;
-	//		batchRenderPackage.indicesCount += 3;
-	//	}
-
-	//	lastMaterialId = materialIndices[i].materialId;
-	//}
 
 	mMeshData->textureFiles.resize(mFBXMeshDatas.size(), "");
 
@@ -599,47 +614,52 @@ void FBXImporter::FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in)
 					  in.Get(3, 0), in.Get(3, 1), in.Get(3, 2), in.Get(3, 3));
 }
 
-void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<Material>& triangleMaterialIndices)
+void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vector<int>& triangleMaterialIndices)
 {
-	//// Get the material index list of current mesh.
-	//FbxLayerElementArrayTemplate<int>* materialIndices;
-	//FbxGeometryElement::EMappingMode materialMappingMode = FbxGeometryElement::eNone;
+	// Get the material index list of current mesh.
+	FbxLayerElementArrayTemplate<int>* materialIndices;
+	FbxGeometryElement::EMappingMode materialMappingMode = FbxGeometryElement::eNone;
 
-	//if (mesh->GetElementMaterial() != nullptr)
-	//{
-	//	// Get the material indices.
-	//	materialIndices = &mesh->GetElementMaterial()->GetIndexArray();
-	//	materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
+	if (mesh->GetElementMaterial() != nullptr)
+	{
+		// Get the material indices.
+		materialIndices = &mesh->GetElementMaterial()->GetIndexArray();
+		materialMappingMode = mesh->GetElementMaterial()->GetMappingMode();
 
-	//	switch (materialMappingMode)
-	//	{
-	//	case FbxLayerElement::eByPolygon:
-	//		if (materialIndices->GetCount() == triangleCount)
-	//		{
-	//			for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
-	//			{
-	//				int materialIndex = materialIndices->GetAt(triangleIndex);
-	//				triangleMaterialIndices.push_back(materialIndex);
-	//			}
-	//		}
+		switch (materialMappingMode)
+		{
+		case FbxLayerElement::eByPolygon:
 
-	//		break;
+			isByPolygon = true;
 
-	//	case FbxLayerElement::eAllSame:
-	//	{
-	//		int materialIndex = materialIndices->GetAt(0);
+			if (materialIndices->GetCount() == triangleCount)
+			{
+				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
+				{
+					int materialIndex = materialIndices->GetAt(triangleIndex);
+					triangleMaterialIndices.push_back(materialIndex);
+				}
+			}
 
-	//		for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
-	//		{
-	//			triangleMaterialIndices.push_back(materialIndex);
-	//		}
-	//	}
+			break;
 
-	//		break;
-	//	default:
-	//		break;
-	//	}
-	//}
+		case FbxLayerElement::eAllSame:
+		{
+			isAllSame = true;
+
+			int materialIndex = materialIndices->GetAt(0);
+
+			for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
+			{
+				triangleMaterialIndices.push_back(materialIndex);
+			}
+		}
+
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
@@ -678,7 +698,9 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
-					LoadMaterialTexture(fbxMeshData);
+					string textureFileName = LoadMaterialTexture(fbxMeshData);
+					fbxMeshData.textureFileName = textureFileName;
+					mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
 				}
 			}
 		}
