@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapotTextured.fbx");
+	fbxImporter->LoadScene("subMaterial.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -166,7 +166,7 @@ void InitDirect3D::DrawScene()
 
 	for (int i = 0; i < renderPackages.size(); i++)
 	{
- 		worldMatrix = meshData->globalTransforms[i];
+ 		worldMatrix = renderPackages[i].globalTransform;
  		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
 
 		if (renderPackages[i].textureFile.size() > 0)
@@ -178,9 +178,10 @@ void InitDirect3D::DrawScene()
 			hasTexture = false;
 		}
 
+		mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
 		if (hasTexture)
 		{
-			mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 			ID3D11ShaderResourceView* shaderResourceView = nullptr;
 			shaderResourceView = CreateShaderResourceViewFromFile(renderPackages[i].textureFile, mDevice);
 			mShader->setShaderResource(shaderResourceView);

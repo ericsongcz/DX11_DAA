@@ -303,16 +303,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
-		if (isAllSame)
-		{
-			RenderPackage renderPackage;
-			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
-			renderPackage.indicesOffset = indicesIndexOffset;
-			renderPackage.textureFile = fbxMeshData.textureFileName;
-
-			mMeshData->renderPackages.push_back(renderPackage);
-		}
-		else
+		if (isByPolygon)
 		{
 			vector<Material> materialIndices = mMeshData->triangleMaterialIndices;
 			int lastMaterialId = materialIndices[0].materialId;
@@ -321,6 +312,8 @@ MeshData* FBXImporter::GetMeshInfo()
 
 			for (int i = 0; i < materialIndices.size(); i++)
 			{
+				batchRenderPackage.globalTransform = fbxMeshData.globalTransform;
+
 				if (lastMaterialId == materialIndices[i].materialId)
 				{
 					batchRenderPackage.indicesCount += 3;
@@ -341,6 +334,16 @@ MeshData* FBXImporter::GetMeshInfo()
 
 				lastMaterialId = materialIndices[i].materialId;
 			}
+		}
+		else
+		{
+			RenderPackage renderPackage;
+			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
+			renderPackage.indicesOffset = indicesIndexOffset;
+			renderPackage.textureFile = fbxMeshData.textureFileName;
+			renderPackage.globalTransform = fbxMeshData.globalTransform;
+
+			mMeshData->renderPackages.push_back(renderPackage);
 		}
 
 		verticesIndexOffset += fbxMeshData.mVertices.size();

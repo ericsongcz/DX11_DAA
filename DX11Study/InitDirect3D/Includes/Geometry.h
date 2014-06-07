@@ -39,6 +39,7 @@ struct RenderPackage
 	int indicesCount;
 	int indicesOffset;
 	string textureFile;
+	XMMATRIX globalTransform;
 };
 
 struct MeshData
