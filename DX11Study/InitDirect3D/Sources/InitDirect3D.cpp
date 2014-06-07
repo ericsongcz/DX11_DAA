@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("subMaterial.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -163,8 +163,9 @@ void InitDirect3D::DrawScene()
 	MeshData* meshData = mGeometry->GetMeshData();
 	vector<RenderPackage> renderPackages = meshData->renderPackages;
 	bool hasTexture = false;
+	int renderPackageSize = renderPackages.size();
 
-	for (int i = 0; i < renderPackages.size(); i++)
+	for (int i = 0; i < renderPackageSize; i++)
 	{
  		worldMatrix = renderPackages[i].globalTransform;
  		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);

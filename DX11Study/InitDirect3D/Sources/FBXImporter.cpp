@@ -51,7 +51,7 @@ void FBXImporter::WalkHierarchy(FbxNode* fbxNode, int depth)
 
 	if (nodeAttribute == nullptr)
 	{
-		cout << "Name:" << fbxNode->GetName() << " NodeType:None" << endl;
+		Log("Name:%s NodeType:None\n", fbxNode->GetName());
 	}
 	else
 	{
@@ -62,14 +62,14 @@ void FBXImporter::WalkHierarchy(FbxNode* fbxNode, int depth)
 		case FbxNodeAttribute::eSkeleton:
 			break;
 		case FbxNodeAttribute::eMesh:
-			cout << "Name:" << fbxNode->GetName() << " NodeType:Mesh" << endl;
+			Log("Name:%s NodeType:Mesh\n", fbxNode->GetName());
 			ProcessMesh(nodeAttribute);
 			break;
 		case FbxNodeAttribute::eCamera:
-			cout << "Name:" << fbxNode->GetName() << " NodeType:Camera" << endl;
+			Log("Name:%s NodeType:Camera\n", fbxNode->GetName());
 			break;
 		case FbxNodeAttribute::eLight:
-			cout << "Name:" << fbxNode->GetName() << " NodeType:Light" << endl;
+			Log("Name:%s NodeType:Light\n", fbxNode->GetName());
 			break;
 		case FbxNodeAttribute::eBoundary:
 			break;
@@ -126,13 +126,13 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 	fbxMeshData.mMesh = mesh;
 	mFBXMeshDatas.push_back(fbxMeshData);
 
-	cout << "TriangleCount:" << mesh->GetPolygonCount() << endl;
-	cout << "VertexCount:" << mesh->GetControlPointsCount() << endl;
-	cout << "IndexCount:" << mesh->GetPolygonVertexCount() << endl;
-	cout << "Layer:" << mesh->GetLayerCount() << endl;
-	cout << "DeformerCount:" << mesh->GetDeformerCount() << endl;
-	cout << "MaterialCount:" << mesh->GetNode()->GetMaterialCount() << endl;
-	cout << endl;
+	Log("TriangleCount:%d\n", mesh->GetPolygonCount());
+	Log("VertexCount:%d\n", mesh->GetControlPointsCount());
+	Log("IndexCount:%d\n", mesh->GetPolygonVertexCount());
+	Log("Layer:%d\n", mesh->GetLayerCount());
+	Log("DeformerCount:%d\n", mesh->GetDeformerCount());
+	Log("MaterialCount%d\n", mesh->GetNode()->GetMaterialCount());
+	Log("\n");
 }
 
 void FBXImporter::SaveData(const char* fileName)
@@ -257,7 +257,7 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		vector<int> triangleMaterialIndices;
 		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount, triangleMaterialIndices);
-		LoadMaterials(fbxMeshData);
+		//LoadMaterials(fbxMeshData);
 
 		int triangleCount = mesh->GetPolygonCount();
 		int controlPointIndex = 0;
@@ -305,12 +305,12 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		if (isByPolygon && fbxMeshData.mHasTexture)
 		{
-			vector<Material> materialIndices = mMeshData->triangleMaterialIndices;
+			vector<Material*> materialIndices = mMeshData->triangleMaterialIndices;
 			int lastMaterialId;
 
 			if (materialIndices.size() > 0)
 			{
-				lastMaterialId = materialIndices[0].materialId;
+				lastMaterialId = materialIndices[0]->materialId;
 			}
 
 			RenderPackage batchRenderPackage;
@@ -320,10 +320,10 @@ MeshData* FBXImporter::GetMeshInfo()
 			{
 				batchRenderPackage.globalTransform = fbxMeshData.globalTransform;
 
-				if (lastMaterialId == materialIndices[i].materialId)
+				if (lastMaterialId == materialIndices[i]->materialId)
 				{
 					batchRenderPackage.indicesCount += 3;
-					batchRenderPackage.textureFile = materialIndices[i].textureFile;
+					batchRenderPackage.textureFile = materialIndices[i]->textureFile;
 
 					if (i == materialIndices.size() - 1)
 					{
@@ -338,7 +338,7 @@ MeshData* FBXImporter::GetMeshInfo()
 					batchRenderPackage.indicesCount += 3;
 				}
 
-				lastMaterialId = materialIndices[i].materialId;
+				lastMaterialId = materialIndices[i]->materialId;
 			}
 		}
 		else
@@ -359,6 +359,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		Merge(mMeshData->indices, fbxMeshData.mIndices);
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
+		mMeshData->triangleMaterialIndices.clear();
 	}
 
 	mMeshData->textureFiles.resize(mFBXMeshDatas.size(), "");
@@ -640,6 +641,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vecto
 		case FbxLayerElement::eByPolygon:
 
 			isByPolygon = true;
+			isAllSame = false;
 
 			if (materialIndices->GetCount() == triangleCount)
 			{
@@ -680,6 +682,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vecto
 		case FbxLayerElement::eAllSame:
 		{
 			isAllSame = true;
+			isByPolygon = false;
 
 			int materialIndex = materialIndices->GetAt(0);
 
@@ -719,6 +722,7 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 			break;
 		}
 	}
+
 	//For eAllSame mapping type, just out the material and texture mapping info once
 	if (isAllSame)
 	{
@@ -734,7 +738,8 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				{
 					string textureFileName = LoadMaterialTexture(fbxMeshData);
 					fbxMeshData.textureFileName = textureFileName;
-					mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
+					Material* mat = new Material(materialId, textureFileName);
+					mMeshData->triangleMaterialIndices.push_back(mat);
 				}
 			}
 		}
@@ -778,12 +783,12 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 
 			fbxMeshData.mSurfaceMaterial = material;
 
-			Log("MaterialId:%d\n", materialId);
+			//Log("MaterialId:%d\n", materialId);
 			string textureFileName = LoadMaterialTexture(fbxMeshData);
-
+			Material* mat = new Material(materialId, textureFileName);
 			for (int i = 0; i < polygonCount; i++)
 			{
-				mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
+				mMeshData->triangleMaterialIndices.push_back(mat);
 			}
 
 			polygonId += mMeshData->materialIdOffsets[i].polygonCount;
@@ -866,13 +871,13 @@ string FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 
 			if (texture != nullptr)
 			{
-				Log("Texture name:%s\n", texture->GetName());
+				//Log("Texture name:%s\n", texture->GetName());
 
 				fbxMeshData.textureFileName = texture->GetName();
 
 				FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
 
-				Log("Texture file name:%s\n", fileTexture->GetFileName());
+				//Log("Texture file name:%s\n", fileTexture->GetFileName());
 				texutureFileName = fileTexture->GetFileName();
 				fbxMeshData.textureFilePath = fileTexture->GetFileName();
 			}

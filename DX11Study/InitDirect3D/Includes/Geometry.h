@@ -76,7 +76,7 @@ struct MeshData
 	int meshesCount;
 	bool hasTexture;
 	vector<RenderPackage> renderPackages;
-	vector<Material> triangleMaterialIndices;
+	vector<Material*> triangleMaterialIndices;
 	vector<MaterialIdOffset> materialIdOffsets;
 };
 
