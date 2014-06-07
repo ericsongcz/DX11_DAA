@@ -3,6 +3,12 @@
 #include <cstdio>
 #include <cstdarg>
 
+enum EImageFormat
+{
+	IF_TGA,
+	IF_DDS
+};
+
 float RGB256(UINT c)
 {
 	return 1.0f / 256.0f * c;
@@ -108,9 +114,21 @@ ID3D11ShaderResourceView* CreateShaderResourceViewFromFile(const string& fileNam
 {
 	TexMetadata metaData;
 	ScratchImage image;
+	EImageFormat imageFormat;
 
 	if (fileName.size() > 0)
 	{
+		string ext = fileName.substr(fileName.length() - 4);
+
+		if (ext == ".tga" || ext == ".TGA")
+		{
+			imageFormat = IF_TGA;
+		}
+		else if (ext == ".dds" || ext == ".DDS")
+		{
+			imageFormat = IF_DDS;
+		}
+
 		size_t len = fileName.size() + 1;
 
 		size_t converted = 0;
@@ -121,7 +139,19 @@ ID3D11ShaderResourceView* CreateShaderResourceViewFromFile(const string& fileNam
 
 		mbstowcs_s(&converted, WStr, len, fileName.c_str(), _TRUNCATE);
 
-		HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
+		switch (imageFormat)
+		{
+		case IF_TGA:
+			HR(LoadFromTGAFile(WStr, &metaData, image));
+
+			break;
+		case IF_DDS:
+			HR(LoadFromDDSFile(WStr, DDS_FLAGS_NONE, &metaData, image));
+
+			break;
+		default:
+			break;
+		}
 
 		ID3D11ShaderResourceView* shaderResourceView = nullptr;
 		HR(CreateShaderResourceView(device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));

@@ -303,10 +303,16 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
-		if (isByPolygon)
+		if (isByPolygon && fbxMeshData.mHasTexture)
 		{
 			vector<Material> materialIndices = mMeshData->triangleMaterialIndices;
-			int lastMaterialId = materialIndices[0].materialId;
+			int lastMaterialId;
+
+			if (materialIndices.size() > 0)
+			{
+				lastMaterialId = materialIndices[0].materialId;
+			}
+
 			RenderPackage batchRenderPackage;
 			RenderPackage independentRenderPackage;
 
@@ -637,10 +643,35 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount, vecto
 
 			if (materialIndices->GetCount() == triangleCount)
 			{
+				int materialId = materialIndices->GetAt(0);
+				int polygonCount = 0;
+				MaterialIdOffset offset;
+				vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
+
 				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
 				{
 					int materialIndex = materialIndices->GetAt(triangleIndex);
 					triangleMaterialIndices.push_back(materialIndex);
+
+					if (materialId == materialIndex)
+					{
+						offset.polygonCount++;
+						offset.materialId = materialIndex;
+
+						if (triangleIndex == triangleCount - 1)
+						{
+							offsets.push_back(offset);
+						}
+					}
+					else
+					{
+						offsets.push_back(offset);
+						offset.materialId = materialIndex;
+						offset.polygonCount = 0;
+						offset.polygonCount++;
+					}
+
+					materialId = materialIndex;
 				}
 			}
 
@@ -711,27 +742,51 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 	//For eByPolygon mapping type, just out the material and texture mapping info once
 	else
 	{
-		for (int i = 0; i < polygonCount; i++)
+		//for (int i = 0; i < polygonCount; i++)
+		//{
+		//	for (int j = 0; j < mesh->GetElementMaterialCount(); j++)
+		//	{
+		//		FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(j);
+		//		FbxSurfaceMaterial* material = NULL;
+		//		int materialId = -1;
+
+		//		material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
+		//		materialId = materialElement->GetIndexArray().GetAt(i);
+
+		//		fbxMeshData.mSurfaceMaterial = material;
+
+		//		if (materialId >= 0)
+		//		{
+		//			Log("MaterialId:%d\n", materialId);
+		//			string textureFileName = LoadMaterialTexture(fbxMeshData);
+
+		//			mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
+		//		}
+		//	}
+		//}
+		int materialId = 0;
+		int polygonId = 0;
+		polygonCount = 0;
+		for (int i = 0; i < mMeshData->materialIdOffsets.size(); i++)
 		{
-			for (int j = 0; j < mesh->GetElementMaterialCount(); j++)
+			FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(0);
+			FbxSurfaceMaterial* material = NULL;
+			materialId = mMeshData->materialIdOffsets[i].materialId;
+
+			material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(polygonId));
+			polygonCount = mMeshData->materialIdOffsets[i].polygonCount;
+
+			fbxMeshData.mSurfaceMaterial = material;
+
+			Log("MaterialId:%d\n", materialId);
+			string textureFileName = LoadMaterialTexture(fbxMeshData);
+
+			for (int i = 0; i < polygonCount; i++)
 			{
-				FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(j);
-				FbxSurfaceMaterial* material = NULL;
-				int materialId = -1;
-
-				material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(i));
-				materialId = materialElement->GetIndexArray().GetAt(i);
-
-				fbxMeshData.mSurfaceMaterial = material;
-
-				if (materialId >= 0)
-				{
-					Log("MaterialId:%d\n", materialId);
-					string textureFileName = LoadMaterialTexture(fbxMeshData);
-
-					mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
-				}
+				mMeshData->triangleMaterialIndices.push_back(Material(materialId, textureFileName));
 			}
+
+			polygonId += mMeshData->materialIdOffsets[i].polygonCount;
 		}
 	}
 }

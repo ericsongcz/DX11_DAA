@@ -29,6 +29,16 @@ struct Material
 	string textureFile;
 };
 
+struct MaterialIdOffset
+{
+	MaterialIdOffset()
+	: materialId(0),
+	  polygonCount(0)
+	{}
+	int materialId;
+	int polygonCount;
+};
+
 struct RenderPackage
 {
 	RenderPackage()
@@ -67,6 +77,7 @@ struct MeshData
 	bool hasTexture;
 	vector<RenderPackage> renderPackages;
 	vector<Material> triangleMaterialIndices;
+	vector<MaterialIdOffset> materialIdOffsets;
 };
 
 class Geometry
