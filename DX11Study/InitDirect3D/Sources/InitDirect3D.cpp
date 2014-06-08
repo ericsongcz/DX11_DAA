@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("sponza_split.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -129,13 +129,13 @@ void InitDirect3D::DrawScene()
 	vector<RenderPackage> renderPackages = meshData->renderPackages;
 	bool hasTexture = false;
 	int renderPackageSize = renderPackages.size();
-
-	for (int i = 0; i < renderPackages.size(); i++)
+	
+	for (int i = 0; i < renderPackageSize; i++)
 	{
 		worldMatrix = renderPackages[i].globalTransform;
 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
 
-		if (renderPackages[i].textureFile.size() > 0)
+		if (renderPackages[i].diffuseTextureFile.size() > 0)
 		{
 			hasTexture = true;
 		}
@@ -148,35 +148,11 @@ void InitDirect3D::DrawScene()
 
 		if (hasTexture)
 		{
-			mShader->setShaderResource(renderPackages[i].texture);
+			mShader->setShaderResource(renderPackages[i].diffuseTexture);
 		}
 
 		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
-
-	//for (auto iter = renderPackages.begin(); iter != renderPackages.end(); iter++)
-	//{
- //		worldMatrix = iter->globalTransform;
- //		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
-
-	//	if (iter->textureFile.size() > 0)
-	//	{
-	//		hasTexture = true;
-	//	}
-	//	else
-	//	{
-	//		hasTexture = false;
-	//	}
-
-	//	mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-	//	if (hasTexture)
-	//	{
-	//		mShader->setShaderResource(iter->texture);
-	//	}
-
-	//	mGeometry->renderBuffer(iter->indicesCount, iter->indicesOffset, 0);
-	//}
 
 	mSwapChain->Present(0, 0);
 }

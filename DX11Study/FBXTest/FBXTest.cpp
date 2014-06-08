@@ -6,26 +6,25 @@
 #include <vector>
 #include <windows.h>
 #include <DirectXMath.h>
+#include "../InitDirect3D/Includes/GameTimer.h"
 
 using namespace DirectX;
 using namespace std;
 
-struct Value
-{
-	int a;
-};
-
-class Test
-{
-public:
-	void foo(const Value& value)
-	{
-		value.a = 10;
-	}
-};
-
 int _tmain(int argc, _TCHAR* argv[])
 {
+	vector<int> vect(100000);
+
+	GameTimer timer;
+	timer.Reset();
+
+	for (size_t i = 0; i < vect.size(); i++)
+	{
+		cout << vect[i] << endl;
+		timer.Tick();
+	}
+
+	cout << timer.DeltaTime() << endl;
 
 	return 0;
 }

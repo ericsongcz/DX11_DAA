@@ -4,7 +4,6 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
-#include <unordered_map>
 
 using namespace DirectX;
 using std::vector;
@@ -22,11 +21,11 @@ struct Material
 {
 	Material(int id, string file)
 	: materialId(id),
-	textureFile(file)
+	  diffuseTextureFile(file)
 	{}
 
 	int materialId;
-	string textureFile;
+	string diffuseTextureFile;
 };
 
 struct MaterialIdOffset
@@ -37,21 +36,34 @@ struct MaterialIdOffset
 	{}
 	int materialId;
 	int polygonCount;
-	string textureFileName;
+	string diffuseTextureFile;
 };
 
 struct RenderPackage
 {
 	RenderPackage()
 	: indicesCount(0),
-	  indicesOffset(0)
+	  indicesOffset(0),
+	  ambientTexture(nullptr),
+	  diffuseTexture(nullptr),
+	  normalMapTexture(nullptr),
+	  specularTexture(nullptr),
+	  maskTexture(nullptr)
 	{}
 
 	int indicesCount;
 	int indicesOffset;
-	string textureFile;
+	string diffuseTextureFile;
+	string normalMapTextureFile;
+	string specularTextureFile;
+	string maskTextureFile;
+
 	XMMATRIX globalTransform;
-	ID3D11ShaderResourceView* texture;
+	ID3D11ShaderResourceView* ambientTexture;
+	ID3D11ShaderResourceView* diffuseTexture;
+	ID3D11ShaderResourceView* normalMapTexture;
+	ID3D11ShaderResourceView* specularTexture;
+	ID3D11ShaderResourceView* maskTexture;
 };
 
 struct MeshData

@@ -65,7 +65,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	for (int i = 0; i < meshData->renderPackages.size(); i ++)
 	{
-		meshData->renderPackages[i].texture = shaderReresourceViews[meshData->renderPackages[i].textureFile];
+		meshData->renderPackages[i].diffuseTexture = shaderReresourceViews[meshData->renderPackages[i].diffuseTextureFile];
 	}
 }
 
