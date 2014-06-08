@@ -36,7 +36,9 @@ struct PixelInput
 Texture2D shaderTexture;
 SamplerState samplerState
 {
-	Filter = MIN_MAG_MIP_LINEAR;
+	MipFilter = ANISOTROPIC;
+	MinFilter = ANISOTROPIC;
+	MagFilter = ANISOTROPIC;
 	AddressU = Wrap;
 	AddressV = Wrap;
 };
@@ -82,7 +84,7 @@ float4 main(PixelInput input) : SV_TARGET
 	if (hasTexture)
 	{
 		float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
-		color = (ambientLightColor + diffuse) * textureColor + specular * 0.5f;
+		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
 	}
 	else
 	{

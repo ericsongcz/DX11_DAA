@@ -37,6 +37,7 @@ struct MaterialIdOffset
 	{}
 	int materialId;
 	int polygonCount;
+	string textureFileName;
 };
 
 struct RenderPackage
@@ -50,6 +51,7 @@ struct RenderPackage
 	int indicesOffset;
 	string textureFile;
 	XMMATRIX globalTransform;
+	ID3D11ShaderResourceView* texture;
 };
 
 struct MeshData
@@ -69,7 +71,6 @@ struct MeshData
 	vector<XMFLOAT2> uvs;
 	UINT verticesCount;
 	UINT indicesCount;	
-	vector<int> indicesCounts;
 	vector<int> indicesOffset;
 	vector<XMMATRIX> globalTransforms;
 	vector<string> textureFiles;

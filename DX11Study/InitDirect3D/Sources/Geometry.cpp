@@ -6,6 +6,7 @@
 #include "SharedParameters.h"
 #include <DirectXTex/DirectXTex.h>
 #include "GeometryGenerator.h"
+#include <map>
 
 using namespace DirectX;
 using namespace std;
@@ -54,6 +55,18 @@ void Geometry::FillMeshData(MeshData* meshData)
 	//}
 
 	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshData.Indices[0]), sizeof(UINT) * mIndicesCount);
+
+	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
+
+	for (int i = 0; i < meshData->textureFiles.size(); i++)
+	{
+		shaderReresourceViews[mMeshdata->textureFiles[i]] = CreateShaderResourceViewFromFile(meshData->textureFiles[i], SharedParameters::device);
+	}
+
+	for (int i = 0; i < meshData->renderPackages.size(); i ++)
+	{
+		meshData->renderPackages[i].texture = shaderReresourceViews[meshData->renderPackages[i].textureFile];
+	}
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)

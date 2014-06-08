@@ -153,8 +153,12 @@ ID3D11ShaderResourceView* CreateShaderResourceViewFromFile(const string& fileNam
 			break;
 		}
 
+		// 为纹理生成mipmaps。
+		ScratchImage mipChain;
+		HR(GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), TEX_FILTER_DEFAULT, 0, mipChain));
+
 		ID3D11ShaderResourceView* shaderResourceView = nullptr;
-		HR(CreateShaderResourceView(device, image.GetImages(), image.GetImageCount(), metaData, &shaderResourceView));
+		HR(CreateShaderResourceView(device, mipChain.GetImages(), mipChain.GetImageCount(), mipChain.GetMetadata(), &shaderResourceView));
 
 		return shaderResourceView;
 	}
