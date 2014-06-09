@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapotTextured.fbx");
+	fbxImporter->LoadScene("NormalMap.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();

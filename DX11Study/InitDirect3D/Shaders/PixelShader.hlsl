@@ -35,7 +35,9 @@ struct PixelInput
 	float2 texcoord : TEXCOORD0;
 };
 
-Texture2D shaderTexture;
+Texture2D diffuseTexture;
+Texture2D normalMapTexture;
+
 SamplerState samplerState
 {
 	MipFilter = ANISOTROPIC;
@@ -60,23 +62,32 @@ bool float4Equal(float4 lhs, float4 rhs)
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
-	float3 normal = normalize(input.normal.xyz);
-	float3 directionToLight = normalize(input.lightDir);
-	float diffuseIntensity = saturate(dot(directionToLight, normal));
+	float3 normal;
+	float3 lightDir = normalize(input.lightDir);
+	float3 viewDir = normalize(input.viewDir);
+
+	if (hasNormalMapTexture)
+	{
+		normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+	}
+	else
+	{
+		normal = normalize(input.normal.xyz);
+	}
+
+	float diffuseIntensity = saturate(dot(lightDir, normal));
 	float4 diffuse = diffuseColor * diffuseIntensity;
 
 	// Calculate Phong components per-pixel.
-	float3 reflectionVector = normalize(reflect(-directionToLight, normal));
+	float3 reflectionVector = normalize(reflect(-lightDir, normal));
 
 	// Manually compute reflection vector.
 	// r = I - 2(N¡¤L)N.
-	//float3 reflectionVector = normalize(-directionToLight - 2 * (dot(input.normal.xyz, -directionToLight) * input.normal.xyz));
-
-	float3 directionToCamera = normalize(input.viewDir);
+	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
 
 	// Calculate specular component.
 	// specular = pow(max(v¡¤r, 0), p)
-	float4 specular = specularColor * pow(saturate(dot(reflectionVector, directionToCamera)), 50.0f);
+	float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 50.0f);
 
 	// All color components are summed in the pixel shader.
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
@@ -85,7 +96,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	if (hasDiffuseTexture)
 	{
-		float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
+		float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
 		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
 	}
 	else
