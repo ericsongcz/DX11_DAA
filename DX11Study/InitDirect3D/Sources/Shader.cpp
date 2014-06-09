@@ -80,6 +80,8 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[2], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[3], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	ZeroMemory(&poloygonLayout[4], sizeof(D3D11_INPUT_ELEMENT_DESC));
+
 	poloygonLayout[0].SemanticName = "POSITION";	// VS中的输入参数。
 	poloygonLayout[0].SemanticIndex = 0;
 	poloygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -188,20 +190,19 @@ bool Shader::render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, F
 
 bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	MatrixBuffer* matrixData;
-	UINT bufferNumber;
-
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
+	
+	MatrixBuffer* matrixData;
+	D3D11_MAPPED_SUBRESOURCE matrixBufferResource;
 
 	// 锁定常量缓冲，以便能够写入。
-	HR(mDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+	HR(mDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &matrixBufferResource));
 
 	// 得到const buffer指针。
-	matrixData = (MatrixBuffer*)mappedResource.pData;
+	matrixData = (MatrixBuffer*)matrixBufferResource.pData;
 
 	// 设置world，view和projection矩阵。
 	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
@@ -225,28 +226,31 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
+	D3D11_MAPPED_SUBRESOURCE testBufferResource;
+
 	TestBuffer* testData;
-	ZeroMemory(&mappedResource, sizeof D3D11_MAPPED_SUBRESOURCE);
-	HR(mDeviceContext->Map(mTestBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-	testData = (TestBuffer*)mappedResource.pData;
+	HR(mDeviceContext->Map(mTestBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &testBufferResource));
 
-	testData->scaleFactor = 0.5f;
-	testData->scaleFactor1 = 0.5f;
-	testData->scaleFactor2 = 0.5f;
-	testData->scaleFactor3 = 0.5f;
+	testData = (TestBuffer*)testBufferResource.pData;
+
 	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+	testData->dummy2 = false;
+	testData->dummy3 = false;
+	testData->dummy4 = 100.0f;
+	testData->dummy5 = 100.0f;
+	testData->dummy6 = 100.0f;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
 	// 设置常量缓冲位置。
-	bufferNumber = 0;
+	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* buffers[] = { mMatrixBuffer, mTestBuffer };
-	mDeviceContext->VSSetConstantBuffers(bufferNumber, 2, buffers);
-	mDeviceContext->PSSetConstantBuffers(bufferNumber, 2, buffers);
+	mDeviceContext->VSSetConstantBuffers(startSlot, 2, buffers);
+	mDeviceContext->PSSetConstantBuffers(startSlot, 2, buffers);
 
 	return true;
 }

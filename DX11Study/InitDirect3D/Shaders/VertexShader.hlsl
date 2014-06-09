@@ -1,6 +1,6 @@
 // Shader中使用的全局变量都定义在const buffer中，
 // 这样Shader编译后，这些变量放在GPU的const buffer中。
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
@@ -11,19 +11,10 @@ cbuffer MatrixBuffer
 	float4 specularColor;
 };
 
-cbuffer Test
+cbuffer Test : register(b1)
 {
-	float scaleFactor;
-	float scaleFactor1;
-	float scaleFactor2;
-	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
-	bool dummy2;
-	bool dummy3;
-	float dummy4;
-	float dummy5;
-	float dummy6;
 };
 
 struct VertexInput
@@ -79,9 +70,9 @@ PixelInput main(VertexInput input)
 		worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		output.lightDir = (lightPosition - output.worldPosition).xyz;
-		output.lightDir = mul(float4(output.lightDir, 1.0f), worldToTangentSpace).xyz;
+		output.lightDir = mul(worldToTangentSpace, float4(output.lightDir, 1.0f)).xyz;
 		output.viewDir = (cameraPosition - output.worldPosition).xyz;
-		output.viewDir = mul(float4(output.viewDir, 1.0f), worldToTangentSpace).xyz;
+		output.viewDir = mul(worldToTangentSpace, float4(output.viewDir, 1.0f)).xyz;
 	}
 	else
 	{
@@ -94,10 +85,6 @@ PixelInput main(VertexInput input)
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;
 	output.texcoord = input.texcoord;
-
-	//output.position.x *= scaleFactor;
-	//output.position.y *= scaleFactor;
-	//output.position.z *= scaleFactor;
 
 	return output;
 }

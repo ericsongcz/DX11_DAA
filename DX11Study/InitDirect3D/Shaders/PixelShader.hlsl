@@ -1,4 +1,4 @@
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
@@ -9,20 +9,12 @@ cbuffer MatrixBuffer
 	float4 specularColor;
 };
 
-cbuffer Test
+cbuffer Test : register(b1)
 {
-	float scaleFactor;
-	float scaleFactor1;
-	float scaleFactor2;
-	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
-	bool dummy2;
-	bool dummy3;
-	float dummy4;
-	float dummy5;
-	float dummy6;
 };
+
 
 struct PixelInput
 {
@@ -35,10 +27,10 @@ struct PixelInput
 	float2 texcoord : TEXCOORD0;
 };
 
-Texture2D diffuseTexture;
-Texture2D normalMapTexture;
+Texture2D diffuseTexture : register(t0);
+Texture2D normalMapTexture : register(t1);
 
-SamplerState samplerState
+SamplerState samplerState : register(s0)
 {
 	MipFilter = ANISOTROPIC;
 	MinFilter = ANISOTROPIC;

@@ -18,10 +18,6 @@ struct MatrixBuffer
 
 struct TestBuffer
 {
-	float scaleFactor;
-	float scaleFactor1;
-	float scaleFactor2;
-	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
 	bool dummy2;

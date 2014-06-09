@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("NormalMap.fbx");
+	fbxImporter->LoadScene("teapot.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -141,7 +141,7 @@ void InitDirect3D::DrawScene()
 			renderParameters.hasDiffuseTexture = true;
 		}
 
-		if (renderPackages[i].hasDiffuseTexture)
+		if (renderPackages[i].hasNormalMapTexture)
 		{
 			renderParameters.hasNormalMapTexture = true;
 		}
