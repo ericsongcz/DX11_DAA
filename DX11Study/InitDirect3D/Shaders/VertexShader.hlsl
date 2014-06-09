@@ -54,12 +54,6 @@ PixelInput main(VertexInput input)
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
-	if (hasDiffuseTexture)
-	{
-		output.lightDir = (lightPosition - output.worldPosition).xyz;
-		output.viewDir = (cameraPosition - output.worldPosition).xyz;
-	}
-
 	if (hasNormalMapTexture)
 	{
 		float4x4 worldToTangentSpace;

@@ -18,10 +18,17 @@ struct MatrixBuffer
 
 struct TestBuffer
 {
-	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
+	TestBuffer()
+	: hasDiffuseTexture(false),
+	  hasNormalMapTexture(false),
+	  dummy2(false),
+	  dummy3(false)
+	{}
+
 	bool dummy2;
 	bool dummy3;
+	bool hasDiffuseTexture;
+	bool hasNormalMapTexture;
 	float dummy4;
 	float dummy5;
 	float dummy6;

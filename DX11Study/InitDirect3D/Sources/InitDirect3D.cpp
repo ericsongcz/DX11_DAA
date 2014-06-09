@@ -127,7 +127,6 @@ void InitDirect3D::DrawScene()
 
 	MeshData* meshData = mGeometry->GetMeshData();
 	vector<RenderPackage> renderPackages = meshData->renderPackages;
-	bool hasTexture = false;
 	int renderPackageSize = renderPackages.size();
 	RenderParameters renderParameters;
 

@@ -139,7 +139,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// 创建const buffer指针，以便访问shader常量。
+	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
 	D3D11_BUFFER_DESC testBufferDesc;
@@ -150,6 +150,8 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	testBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 	testBufferDesc.MiscFlags = 0;
 	testBufferDesc.StructureByteStride = 0;
+
+	Log("ByteWidth:%d", sizeof(TestBuffer));
 
 	HR(mDevice->CreateBuffer(&testBufferDesc, nullptr, &mTestBuffer));
 
@@ -196,6 +198,7 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
 	
 	MatrixBuffer* matrixData;
+
 	D3D11_MAPPED_SUBRESOURCE matrixBufferResource;
 
 	// 锁定常量缓冲，以便能够写入。
@@ -236,11 +239,11 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 
 	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
-	testData->dummy2 = false;
-	testData->dummy3 = false;
+	testData->dummy2 = renderParameters.hasDiffuseTexture;
+	testData->dummy3 = renderParameters.hasNormalMapTexture;
 	testData->dummy4 = 100.0f;
-	testData->dummy5 = 100.0f;
-	testData->dummy6 = 100.0f;
+	//testData->dummy5 = 100.0f;
+	//testData->dummy6 = 100.0f;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
@@ -249,8 +252,8 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* buffers[] = { mMatrixBuffer, mTestBuffer };
-	mDeviceContext->VSSetConstantBuffers(startSlot, 2, buffers);
-	mDeviceContext->PSSetConstantBuffers(startSlot, 2, buffers);
+	mDeviceContext->VSSetConstantBuffers(0, 2, buffers);
+	mDeviceContext->PSSetConstantBuffers(0, 2, buffers);
 
 	return true;
 }
@@ -264,6 +267,7 @@ void Shader::renderShader()
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
+	mDeviceContext->PSSetSamplers(1, 1, &mSamplerState);
 }
 
 void Shader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
