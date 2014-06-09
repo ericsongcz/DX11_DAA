@@ -9,7 +9,13 @@
 struct FBXMeshData
 {
 	FBXMeshData()
-	  : mHasTexture(false),
+	  : mVerticesCount(0),
+		mIndicesCount(0),
+		mTrianglesCount(0),
+		mTangentCount(0),
+		mBinormalCount(0),
+	    mHasDiffuseTexture(false),
+	    mHasNormalMapTexture(false),
 		mMesh(nullptr),
 		mSurfaceMaterial(nullptr)
 	{}
@@ -17,11 +23,15 @@ struct FBXMeshData
 	int mVerticesCount;
 	int mIndicesCount;
 	int mTrianglesCount;
+	int mTangentCount;
+	int mBinormalCount;
 	vector<XMFLOAT3> mVertices;
 	vector<UINT> mIndices;
 	vector<XMFLOAT3> mNormals;
+	vector<XMFLOAT3> mTangents;
 	vector<XMFLOAT2> mUVs;
-	bool mHasTexture;
+	bool mHasDiffuseTexture;
+	bool mHasNormalMapTexture;
 	XMMATRIX globalTransform;
 	FbxMesh* mMesh;
 	FbxSurfaceMaterial* mSurfaceMaterial;
@@ -67,11 +77,17 @@ public:
 	// 读取网格的切线信息。
 	void ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, int tangentIndex);
 
+	// 读取网格的副法线信息。
+	void ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex);
+
 	// 读取网格的纹理坐标。
 	void ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int textureUVIndex, int index, int uvLayer);
 
 	// 根据法线拆分顶点。
 	void SplitVertexByNormal(FBXMeshData& fbxMeshData);	
+
+	// 根据切线拆分顶点(?)。
+	void SplitVertexByTangent(FBXMeshData& fbxMeshData);
 
 	// 根据UV拆分顶点。
 	void SplitVertexByUV(FBXMeshData& fbxMeshData);
@@ -82,7 +98,8 @@ public:
 	// FbxMatrix到XXMMATRIX的转换。
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
 
-	// 获取材质索引列表(和三角形对应)以及分组拥有同一个materialId的三角形。
+	// 获取材质索引列表(和三角形对应)以及将拥有同一个materialId的三角形分组。
+	// 这样就可以减少LoadMaterialTexture函数的调用(否则需要基于triangleCount来循环调用)。
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount);
 
 	// 获取FbxSurfaceMaterial实例。
@@ -91,7 +108,7 @@ public:
 	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
 
 	// 获取对应FbxSurfaceTexture中对应的纹理。
-	string LoadMaterialTexture(FBXMeshData& fbxMeshData);
+	void LoadMaterialTexture(FBXMeshData& fbxMeshData, const char* textureType);
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;

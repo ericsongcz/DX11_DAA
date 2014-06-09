@@ -14,29 +14,31 @@ struct Vertex
 	XMFLOAT3 position;
 	XMFLOAT4 color;
 	XMFLOAT3 normal;
+	XMFLOAT3 tangent;
 	XMFLOAT2 texcoord;
 };
 
 struct Material
 {
-	Material(int id, string file)
+	Material();
+	Material(int id, string diffuse, string normalMap)
 	: materialId(id),
-	  diffuseTextureFile(file)
+	  diffuseTextureFile(diffuse),
+	  normalMapTextureFile(normalMap)
 	{}
 
 	int materialId;
 	string diffuseTextureFile;
+	string normalMapTextureFile;
 };
 
 struct MaterialIdOffset
 {
 	MaterialIdOffset()
-	: materialId(0),
-	  polygonCount(0)
+	: polygonCount(0)
 	{}
-	int materialId;
 	int polygonCount;
-	string diffuseTextureFile;
+	Material material;
 };
 
 struct RenderPackage
@@ -44,6 +46,8 @@ struct RenderPackage
 	RenderPackage()
 	: indicesCount(0),
 	  indicesOffset(0),
+	  hasDiffuseTexture(false),
+	  hasNormalMapTexture(false),
 	  ambientTexture(nullptr),
 	  diffuseTexture(nullptr),
 	  normalMapTexture(nullptr),
@@ -51,8 +55,23 @@ struct RenderPackage
 	  maskTexture(nullptr)
 	{}
 
+	void RefreshTextures()
+	{
+		if (diffuseTexture != nullptr)
+		{
+			textures.push_back(diffuseTexture);
+		}
+
+		if (normalMapTexture != nullptr)
+		{
+			textures.push_back(normalMapTexture);
+		}
+	}
+
 	int indicesCount;
 	int indicesOffset;
+	bool hasDiffuseTexture;
+	bool hasNormalMapTexture;
 	string diffuseTextureFile;
 	string normalMapTextureFile;
 	string specularTextureFile;
@@ -64,6 +83,18 @@ struct RenderPackage
 	ID3D11ShaderResourceView* normalMapTexture;
 	ID3D11ShaderResourceView* specularTexture;
 	ID3D11ShaderResourceView* maskTexture;
+	vector<ID3D11ShaderResourceView*> textures;
+};
+
+struct RenderParameters
+{
+	RenderParameters()
+	: hasDiffuseTexture(false),
+      hasNormalMapTexture(false)
+	{}
+
+	bool hasDiffuseTexture;
+	bool hasNormalMapTexture;
 };
 
 struct MeshData
@@ -79,6 +110,7 @@ struct MeshData
 	 
 	vector<XMFLOAT3> vertices;
 	vector<XMFLOAT3> normals;
+	vector<XMFLOAT3> tangents;
 	vector<UINT> indices;
 	vector<XMFLOAT2> uvs;
 	UINT verticesCount;

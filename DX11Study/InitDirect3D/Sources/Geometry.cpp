@@ -65,7 +65,19 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	for (int i = 0; i < meshData->renderPackages.size(); i ++)
 	{
-		meshData->renderPackages[i].diffuseTexture = shaderReresourceViews[meshData->renderPackages[i].diffuseTextureFile];
+		if (meshData->renderPackages[i].diffuseTextureFile.size() > 0)
+		{
+			meshData->renderPackages[i].diffuseTexture = shaderReresourceViews[meshData->renderPackages[i].diffuseTextureFile];
+			meshData->renderPackages[i].hasDiffuseTexture = true;
+		}
+
+		if (meshData->renderPackages[i].normalMapTextureFile.size() > 0)
+		{
+			meshData->renderPackages[i].normalMapTexture = shaderReresourceViews[meshData->renderPackages[i].normalMapTextureFile];
+			meshData->renderPackages[i].hasNormalMapTexture = true;
+		}
+
+		meshData->renderPackages[i].RefreshTextures();
 	}
 }
 

@@ -1,6 +1,7 @@
 #pragma once
 #include <d3d11.h>
 #include <DirectXMath.h>
+#include "Geometry.h"
 
 using namespace DirectX;
 
@@ -21,13 +22,13 @@ struct TestBuffer
 	float scaleFactor1;
 	float scaleFactor2;
 	float scaleFactor3;
-	bool hasTexture;
+	bool hasDiffuseTexture;
+	bool hasNormalMapTexture;
 	bool dummy1;
 	bool dummy2;
-	bool dummy3;
+	float dummy3;
 	float dummy4;
 	float dummy5;
-	float dummy6;
 };
 
 class Shader
@@ -36,12 +37,12 @@ public:
 	Shader();
 	~Shader();
 
-	bool render(bool hasTexture, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
-	bool setShaderParameters(bool hasTexture, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool setShaderParameters(RenderParameters renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
 	void renderShader();
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName);
 
-	void setShaderResource(ID3D11ShaderResourceView* shaderResourceView);
+	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 
 	void shutdown();
 private:

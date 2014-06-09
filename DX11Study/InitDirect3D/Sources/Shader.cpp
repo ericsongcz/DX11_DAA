@@ -168,9 +168,9 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	return true;
 }
 
-bool Shader::render(bool hasTextue, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	if (!setShaderParameters(hasTextue, worldMatrix, viewMatrix, projectionMatrix))
+	if (!setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix))
 	{
 		return false;
 	}
@@ -178,7 +178,7 @@ bool Shader::render(bool hasTextue, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatri
 	return true;
 }
 
-bool Shader::setShaderParameters(bool hasTexture, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBuffer* matrixData;
@@ -227,7 +227,8 @@ bool Shader::setShaderParameters(bool hasTexture, FXMMATRIX& worldMatrix, FXMMAT
 	testData->scaleFactor1 = 0.5f;
 	testData->scaleFactor2 = 0.5f;
 	testData->scaleFactor3 = 0.5f;
-	testData->hasTexture = hasTexture;
+	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
+	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
@@ -253,9 +254,9 @@ void Shader::renderShader()
 	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
 }
 
-void Shader::setShaderResource(ID3D11ShaderResourceView* shaderResourceView)
+void Shader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
 {
-	mDeviceContext->PSSetShaderResources(0, 1, &shaderResourceView);
+	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
 }
 
 void Shader::shutdown()

@@ -11,20 +11,32 @@
 using namespace DirectX;
 using namespace std;
 
+struct Object
+{
+	int value;
+};
+
+void foo(Object* objects, int numObjects)
+{
+	for (int i = 0; i < numObjects; i++)
+	{
+		cout << objects[i].value << endl;
+	}
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 {
-	vector<int> vect(100000);
+	Object obj1;
+	obj1.value = 10;
 
-	GameTimer timer;
-	timer.Reset();
+	Object obj2;
+	obj2.value = 20;
 
-	for (size_t i = 0; i < vect.size(); i++)
-	{
-		cout << vect[i] << endl;
-		timer.Tick();
-	}
+	vector<Object> objects;
+	objects.push_back(obj1);
+	objects.push_back(obj2);
 
-	cout << timer.DeltaTime() << endl;
+	foo(&objects[0], objects.size());
 
 	return 0;
 }

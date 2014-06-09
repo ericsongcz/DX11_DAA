@@ -195,11 +195,12 @@ MeshData* FBXImporter::GetMeshInfo()
 				controlPointIndex = mesh->GetPolygonVertex(i, j);
 
 				ReadNormals(fbxMeshData, controlPointIndex, normalIndex);
-				ReadTangents(fbxMeshData, controlPointIndex, normalIndex);
 
-				if (fbxMeshData.mHasTexture)
+				if (fbxMeshData.mHasDiffuseTexture)
 				{
 					ReadUVs(fbxMeshData, controlPointIndex, normalIndex, mesh->GetTextureUVIndex(i, j), 0);
+					ReadTangents(fbxMeshData, controlPointIndex, normalIndex);
+					ReadBinormals(fbxMeshData, controlPointIndex, normalIndex);
 				}
 
 				normalIndex++;
@@ -208,9 +209,13 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		SplitVertexByNormal(fbxMeshData);
 
-		if (fbxMeshData.mHasTexture)
+		if (fbxMeshData.mHasDiffuseTexture)
 		{
 			SplitVertexByUV(fbxMeshData);
+		}
+		else if (fbxMeshData.mHasNormalMapTexture)
+		{
+			SplitVertexByTangent(fbxMeshData);
 		}
 		else
 		{
@@ -228,7 +233,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
-		if (isByPolygon && fbxMeshData.mHasTexture)
+		if (isByPolygon && fbxMeshData.mHasDiffuseTexture)
 		{
 			vector<MaterialIdOffset> materialIdOffsets = mMeshData->materialIdOffsets;
 
@@ -248,6 +253,7 @@ MeshData* FBXImporter::GetMeshInfo()
 				}
 
 				renderPacakge.diffuseTextureFile = materialIdOffsets[i].diffuseTextureFile;
+				renderPacakge.normalMapTextureFile = materialIdOffsets[i].normalMapTextureFile;
 				mMeshData->renderPackages.push_back(renderPacakge);
 
 				indicesIndexOffset += renderPacakge.indicesCount;
@@ -259,6 +265,7 @@ MeshData* FBXImporter::GetMeshInfo()
 			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
 			renderPackage.indicesOffset = indicesIndexOffset;
 			renderPackage.diffuseTextureFile = fbxMeshData.diffuseTextureFile;
+			renderPackage.normalMapTextureFile = fbxMeshData.normalMapTextureFile;
 			renderPackage.globalTransform = fbxMeshData.globalTransform;
 
 			mMeshData->renderPackages.push_back(renderPackage);
@@ -268,10 +275,12 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		verticesIndexOffset += fbxMeshData.mVertices.size();
 
+		// 将当前mesh的数据追加到全局数据容器。
 		Merge(mMeshData->vertices, fbxMeshData.mVertices);
 		Merge(mMeshData->indices, fbxMeshData.mIndices);
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
+		Merge(mMeshData->tangents, fbxMeshData.mTangents);
 
 		mMeshData->triangleMaterialIndices.clear();
 		mMeshData->materialIdOffsets.clear();
@@ -386,7 +395,7 @@ void FBXImporter::ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, i
 	}
 }
 
-void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, int tangentIndex)
+void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex)
 {
 	FbxMesh* mesh = fbxMeshData.mMesh;
 
@@ -405,18 +414,103 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, 
 		{
 		case FbxGeometryElement::eDirect:
 		{
-			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(contorlPointIndex);
+			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(controlPointIndex);
 			XMFLOAT3 tangent;
 			tangent.x = static_cast<float>(fbxTangent[0]);
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
+			fbxMeshData.mTangents.push_back(tangent);
 		}
 
 		break;
 
 		case FbxGeometryElement::eIndexToDirect:
 		{
-			int id = tangentElement->GetIndexArray().GetAt(contorlPointIndex);
+			int id = tangentElement->GetIndexArray().GetAt(controlPointIndex);
+			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(id);
+			XMFLOAT3 tangent;
+			tangent.x = static_cast<float>(fbxTangent[0]);
+			tangent.y = static_cast<float>(fbxTangent[1]);
+			tangent.z = static_cast<float>(fbxTangent[2]);
+			fbxMeshData.mTangents.push_back(tangent);
+		}
+
+		break;
+		default:
+
+		break;
+		}
+	}
+
+	case FbxGeometryElement::eByPolygonVertex:
+	{
+		switch (tangentElement->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(tangentIndex);
+			XMFLOAT3 tangent;
+			tangent.x = static_cast<float>(fbxTangent[0]);
+			tangent.y = static_cast<float>(fbxTangent[1]);
+			tangent.z = static_cast<float>(fbxTangent[2]);
+			fbxMeshData.mTangents.push_back(tangent);
+		}
+			
+		break;
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = tangentElement->GetIndexArray().GetAt(tangentIndex);
+			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(id);
+			XMFLOAT3 tangent;
+			tangent.x = static_cast<float>(fbxTangent[0]);
+			tangent.y = static_cast<float>(fbxTangent[1]);
+			tangent.z = static_cast<float>(fbxTangent[2]);
+			fbxMeshData.mTangents.push_back(tangent);
+		}
+		
+		break;
+		default:
+			break;
+		}
+	}
+
+		break;
+	default:
+		break;
+	}
+}
+
+void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex)
+{
+	FbxMesh* mesh = fbxMeshData.mMesh;
+
+	if (mesh->GetElementTangentCount() < 1)
+	{
+		return;
+	}
+
+	FbxGeometryElementTangent* tangentElement = mesh->GetElementTangent(0);
+
+	switch (tangentElement->GetMappingMode())
+	{
+	case FbxGeometryElement::eByControlPoint:
+	{
+		switch (tangentElement->GetReferenceMode())
+		{
+		case FbxGeometryElement::eDirect:
+		{
+			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(controlPointIndex);
+			XMFLOAT3 tangent;
+			tangent.x = static_cast<float>(fbxTangent[0]);
+			tangent.y = static_cast<float>(fbxTangent[1]);
+			tangent.z = static_cast<float>(fbxTangent[2]);
+		}
+
+			break;
+
+		case FbxGeometryElement::eIndexToDirect:
+		{
+			int id = tangentElement->GetIndexArray().GetAt(controlPointIndex);
 			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(id);
 			XMFLOAT3 tangent;
 			tangent.x = static_cast<float>(fbxTangent[0]);
@@ -424,7 +518,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, 
 			tangent.z = static_cast<float>(fbxTangent[2]);
 		}
 
-		break;
+			break;
 		default:
 			break;
 		}
@@ -442,8 +536,8 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, 
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
 		}
-			
-		break;
+
+			break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
 			int id = tangentElement->GetIndexArray().GetAt(tangentIndex);
@@ -453,8 +547,8 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, 
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
 		}
-		
-		break;
+
+			break;
 		default:
 			break;
 		}
@@ -561,6 +655,43 @@ void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
 	}
 
 	fbxMeshData.mNormals = normals;
+}
+
+void FBXImporter::SplitVertexByTangent(FBXMeshData& fbxMeshData)
+{
+	vector<XMFLOAT3> tangents;
+	tangents.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+
+	// 遍历索引，根据法线来划分顶点，使得每个顶点包含唯一的切线(顶点会有冗余)。
+	// 基本思路就是先建一个和顶点数组相同尺寸的切线数组，然后按照索引顺序来填充这个数组。
+	// 在遍历的过程中，我们会遇到顶点位置相同，但是切线不同的情况，这个时候我们就
+	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
+	// 我们将这个新顶点对应的切线存入切线数组。
+	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	{
+		if (XMFLOAT3Equal(tangents[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
+		{
+			tangents[indicesBuffer[i]] = fbxMeshData.mTangents[i];
+		}
+		else if (!XMFLOAT3Equal(tangents[indicesBuffer[i]], fbxMeshData.mTangents[i]))
+		{
+			// 扩大顶点数组，将新的顶点追加到末尾。
+			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
+			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+
+			// 然后更新这个顶点的索引。
+			indicesBuffer[i] = fbxMeshData.mVerticesCount;
+			fbxMeshData.mVerticesCount++;
+
+			// 保存法线。
+			tangents.push_back(fbxMeshData.mTangents[i]);
+		}
+	}
+
+	fbxMeshData.mTangents = tangents;
 }
 
 void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)
@@ -760,17 +891,27 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
-					string textureFileName = LoadMaterialTexture(fbxMeshData);
-					fbxMeshData.diffuseTextureFile = textureFileName;
-					Material* mat = new Material(materialId, textureFileName);
+					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
+					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
+
+					Material* mat = new Material(materialId, fbxMeshData.diffuseTextureFile, fbxMeshData.normalMapTextureFile);
 					mMeshData->triangleMaterialIndices.push_back(mat);
 
 					vector<string>& textureFiles = mMeshData->textureFiles;
-					auto iter = find(textureFiles.begin(), textureFiles.end(), textureFileName);
+					auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
 
 					if (iter == textureFiles.end())
 					{
-						textureFiles.push_back(textureFileName);
+						textureFiles.push_back(fbxMeshData.diffuseTextureFile);
+					}
+
+					if (fbxMeshData.normalMapTextureFile.size() > 0)
+					{
+						iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.normalMapTextureFile);
+						if (iter == textureFiles.end())
+						{
+							textureFiles.push_back(fbxMeshData.normalMapTextureFile);
+						}
 					}
 				}
 			}
@@ -796,21 +937,32 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 
 			fbxMeshData.mSurfaceMaterial = material;
 
-			string textureFileName = LoadMaterialTexture(fbxMeshData);
-			materialIdOffsets[i].diffuseTextureFile = textureFileName;
+			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
+			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
-			Material* mat = new Material(materialId, textureFileName);
+			materialIdOffsets[i].diffuseTextureFile = fbxMeshData.diffuseTextureFile;
+
+			Material* mat = new Material(materialId, fbxMeshData.diffuseTextureFile, fbxMeshData.normalMapTextureFile);
 
 			for (int j = 0; j < polygonCount; j++)
 			{
 				mMeshData->triangleMaterialIndices.push_back(mat);
 			}
 
-			auto iter = find(textureFiles.begin(), textureFiles.end(), textureFileName);
+			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
 
 			if (iter == textureFiles.end())
 			{
-				textureFiles.push_back(textureFileName);
+				textureFiles.push_back(fbxMeshData.diffuseTextureFile);
+			}
+
+			if (fbxMeshData.normalMapTextureFile.size() > 0)
+			{
+				iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.normalMapTextureFile);
+				if (iter == textureFiles.end())
+				{
+					textureFiles.push_back(fbxMeshData.normalMapTextureFile);
+				}
 			}
 
 			polygonId += mMeshData->materialIdOffsets[i].polygonCount;
@@ -864,17 +1016,14 @@ void FBXImporter::LoadMaterialAttributes(FBXMeshData& fbxMeshData)
 		// Opacity.
 		FbxDouble opacity = ((FbxSurfaceLambert*)surfaceMaterial)->TransparencyFactor;
 	}
-
-	LoadMaterialTexture(fbxMeshData);
 }
 
-string FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
+void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData, const char* textureType)
 {
 	FbxProperty property;
-	string texutureFileName;
 
 	// #NoteReference to DisplayMesh.cxx in FBX SDK samples.Note#
-	property = fbxMeshData.mSurfaceMaterial->FindProperty(FbxSurfaceMaterial::sDiffuse);
+	property = fbxMeshData.mSurfaceMaterial->FindProperty(textureType);
 
 	if (property.IsValid())
 	{
@@ -882,7 +1031,14 @@ string FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 
 		if (textureCount > 0)
 		{
-			fbxMeshData.mHasTexture = true;
+			if (strcmp(textureType, FbxSurfaceMaterial::sDiffuse) == 0)
+			{
+				fbxMeshData.mHasDiffuseTexture = true;
+			}
+			else if (strcmp(textureType, FbxSurfaceMaterial::sBump) == 0)
+			{
+				fbxMeshData.mHasNormalMapTexture = true;
+			}
 		}
 
 		for (int i = 0; i < textureCount; i++)
@@ -893,12 +1049,15 @@ string FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData)
 			{
 				FbxFileTexture* fileTexture = FbxCast<FbxFileTexture>(texture);
 
-				Log("Texture file name:%s\n", fileTexture->GetFileName());
-				texutureFileName = fileTexture->GetFileName();
-				fbxMeshData.diffuseTextureFile = fileTexture->GetFileName();
+				if (strcmp(textureType, FbxSurfaceMaterial::sDiffuse) == 0)
+				{
+					fbxMeshData.diffuseTextureFile = fileTexture->GetFileName();
+				}
+				else if (strcmp(textureType, FbxSurfaceMaterial::sBump) == 0)
+				{
+					fbxMeshData.normalMapTextureFile = fileTexture->GetFileName();
+				}
 			}
 		}
 	}
-
-	return texutureFileName;
 }

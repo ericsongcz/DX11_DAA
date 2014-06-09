@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("subMaterial.fbx");
+	fbxImporter->LoadScene("NormalMap.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -129,7 +129,8 @@ void InitDirect3D::DrawScene()
 	vector<RenderPackage> renderPackages = meshData->renderPackages;
 	bool hasTexture = false;
 	int renderPackageSize = renderPackages.size();
-	
+	RenderParameters renderParameters;
+
 	for (int i = 0; i < renderPackageSize; i++)
 	{
 		worldMatrix = renderPackages[i].globalTransform;
@@ -137,18 +138,19 @@ void InitDirect3D::DrawScene()
 
 		if (renderPackages[i].diffuseTextureFile.size() > 0)
 		{
-			hasTexture = true;
-		}
-		else
-		{
-			hasTexture = false;
+			renderParameters.hasDiffuseTexture = true;
 		}
 
-		mShader->render(hasTexture, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-		if (hasTexture)
+		if (renderPackages[i].hasNormalMapTexture)
 		{
-			mShader->setShaderResource(renderPackages[i].diffuseTexture);
+			renderParameters.hasNormalMapTexture = true;
+		}
+
+		mShader->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			mShader->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
 		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);

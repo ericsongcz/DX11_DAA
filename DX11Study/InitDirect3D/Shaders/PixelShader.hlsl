@@ -15,13 +15,13 @@ cbuffer Test
 	float scaleFactor1;
 	float scaleFactor2;
 	float scaleFactor3;
-	bool hasTexture;
+	bool hasDiffuseTexture;
+	bool hasNormalMapTexture;
 	bool dummy1;
 	bool dummy2;
-	bool dummy3;
+	float dummy3;
 	float dummy4;
 	float dummy5;
-	float dummy6;
 };
 
 struct PixelInput
@@ -33,7 +33,9 @@ struct PixelInput
 	float2 texcoord : TEXCOORD0;
 };
 
-Texture2D shaderTexture;
+Texture2D diffuseTexture;
+Texture2D normalMapTexture;
+
 SamplerState samplerState
 {
 	MipFilter = ANISOTROPIC;
@@ -81,9 +83,9 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float4 color;
 
-	if (hasTexture)
+	if (hasDiffuseTexture)
 	{
-		float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
+		float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
 		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
 	}
 	else
