@@ -19,11 +19,11 @@ cbuffer Test
 	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
-	bool dummy1;
 	bool dummy2;
-	float dummy3;
+	bool dummy3;
 	float dummy4;
 	float dummy5;
+	float dummy6;
 };
 
 struct VertexInput
@@ -31,6 +31,7 @@ struct VertexInput
 	float4 position : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 	float2 texcoord : TEXCOORD0;
 };
 
@@ -40,6 +41,8 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
+	float3 lightDir : NORMAL1;
+	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
 };
 
@@ -59,6 +62,26 @@ PixelInput main(VertexInput input)
 	output.position = mul(input.position, worldMatrix);
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
+
+	if (hasNormalMapTexture)
+	{
+		float4x4 worldToTangentSpace;
+
+		worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
+		worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, input.normal.xyz), 1.0f), worldMatrix);
+		worldToTangentSpace[2] = mul(input.normal, worldMatrix);
+		worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+		output.lightDir = (lightPosition - output.worldPosition).xyz;
+		output.lightDir = mul(float4(output.lightDir, 1.0f), worldToTangentSpace).xyz;
+		output.viewDir = (cameraPosition - output.worldPosition).xyz;
+		output.viewDir = mul(float4(output.viewDir, 1.0f), worldToTangentSpace).xyz;
+	}
+	else
+	{
+		output.lightDir = (lightPosition - output.worldPosition).xyz;
+		output.viewDir = (cameraPosition - output.worldPosition).xyz;
+	}
 
 	output.normal = mul(input.normal, worldMatrix);
 

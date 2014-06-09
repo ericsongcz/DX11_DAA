@@ -17,11 +17,11 @@ cbuffer Test
 	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
-	bool dummy1;
 	bool dummy2;
-	float dummy3;
+	bool dummy3;
 	float dummy4;
 	float dummy5;
+	float dummy6;
 };
 
 struct PixelInput
@@ -30,12 +30,12 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
+	float3 lightDir : NORMAL1;
+	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
 };
 
-Texture2D diffuseTexture;
-Texture2D normalMapTexture;
-
+Texture2D shaderTexture;
 SamplerState samplerState
 {
 	MipFilter = ANISOTROPIC;
@@ -61,7 +61,7 @@ float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
 	float3 normal = normalize(input.normal.xyz);
-	float3 directionToLight = normalize(lightPosition - input.worldPosition).xyz;
+	float3 directionToLight = normalize(input.lightDir);
 	float diffuseIntensity = saturate(dot(directionToLight, normal));
 	float4 diffuse = diffuseColor * diffuseIntensity;
 
@@ -72,7 +72,7 @@ float4 main(PixelInput input) : SV_TARGET
 	// r = I - 2(N¡¤L)N.
 	//float3 reflectionVector = normalize(-directionToLight - 2 * (dot(input.normal.xyz, -directionToLight) * input.normal.xyz));
 
-	float3 directionToCamera = normalize(cameraPosition - input.worldPosition).xyz;
+	float3 directionToCamera = normalize(input.viewDir);
 
 	// Calculate specular component.
 	// specular = pow(max(v¡¤r, 0), p)
@@ -85,7 +85,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	if (hasDiffuseTexture)
 	{
-		float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
+		float4 textureColor = shaderTexture.Sample(samplerState, input.texcoord);
 		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
 	}
 	else

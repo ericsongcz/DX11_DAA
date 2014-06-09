@@ -20,7 +20,7 @@ struct Vertex
 
 struct Material
 {
-	Material();
+	Material() {}
 	Material(int id, string diffuse, string normalMap)
 	: materialId(id),
 	  diffuseTextureFile(diffuse),

@@ -252,8 +252,8 @@ MeshData* FBXImporter::GetMeshInfo()
 					renderPacakge.indicesOffset += indicesIndexOffset;
 				}
 
-				renderPacakge.diffuseTextureFile = materialIdOffsets[i].diffuseTextureFile;
-				renderPacakge.normalMapTextureFile = materialIdOffsets[i].normalMapTextureFile;
+				renderPacakge.diffuseTextureFile = materialIdOffsets[i].material.diffuseTextureFile;
+				renderPacakge.normalMapTextureFile = materialIdOffsets[i].material.normalMapTextureFile;
 				mMeshData->renderPackages.push_back(renderPacakge);
 
 				indicesIndexOffset += renderPacakge.indicesCount;
@@ -810,7 +810,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					if (materialId == materialIndex)
 					{
 						offset.polygonCount++;
-						offset.materialId = materialIndex;
+						offset.material.materialId = materialIndex;
 
 						if (triangleIndex == triangleCount - 1)
 						{
@@ -820,7 +820,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					else
 					{
 						offsets.push_back(offset);
-						offset.materialId = materialIndex;
+						offset.material.materialId = materialIndex;
 						offset.polygonCount = 0;
 						offset.polygonCount++;
 					}
@@ -841,7 +841,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 			MaterialIdOffset offset;
 			vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
 
-			offset.materialId = materialIndex;
+			offset.material.materialId = materialIndex;
 			offset.polygonCount = triangleCount;
 
 			offsets.push_back(offset);
@@ -930,7 +930,7 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 		{
 			FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(0);
 			FbxSurfaceMaterial* material = NULL;
-			materialId = mMeshData->materialIdOffsets[i].materialId;
+			materialId = mMeshData->materialIdOffsets[i].material.materialId;
 
 			material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(polygonId));
 			polygonCount = materialIdOffsets[i].polygonCount;
@@ -940,7 +940,7 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
-			materialIdOffsets[i].diffuseTextureFile = fbxMeshData.diffuseTextureFile;
+			materialIdOffsets[i].material.diffuseTextureFile = fbxMeshData.diffuseTextureFile;
 
 			Material* mat = new Material(materialId, fbxMeshData.diffuseTextureFile, fbxMeshData.normalMapTextureFile);
 

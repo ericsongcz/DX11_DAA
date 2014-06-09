@@ -75,7 +75,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
 	// 设置数据布局，以便在Shader中使用。
 	// 定义要和顶点结构一致。
-	D3D11_INPUT_ELEMENT_DESC poloygonLayout[4];
+	D3D11_INPUT_ELEMENT_DESC poloygonLayout[5];
 	ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[2], sizeof(D3D11_INPUT_ELEMENT_DESC));
@@ -104,13 +104,21 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	poloygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[2].InstanceDataStepRate = 0;
 
-	poloygonLayout[3].SemanticName = "TEXCOORD";
+	poloygonLayout[3].SemanticName = "TANGENT";
 	poloygonLayout[3].SemanticIndex = 0;
-	poloygonLayout[3].Format = DXGI_FORMAT_R32G32_FLOAT;
+	poloygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	poloygonLayout[3].InputSlot = 0;
 	poloygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	poloygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[3].InstanceDataStepRate = 0;
+
+	poloygonLayout[4].SemanticName = "TEXCOORD";
+	poloygonLayout[4].SemanticIndex = 0;
+	poloygonLayout[4].Format = DXGI_FORMAT_R32G32_FLOAT;
+	poloygonLayout[4].InputSlot = 0;
+	poloygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	poloygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	poloygonLayout[4].InstanceDataStepRate = 0;
 
 	UINT numElements = sizeof(poloygonLayout) / sizeof(poloygonLayout[0]);
 

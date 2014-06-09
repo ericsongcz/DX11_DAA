@@ -24,11 +24,11 @@ struct TestBuffer
 	float scaleFactor3;
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
-	bool dummy1;
 	bool dummy2;
-	float dummy3;
+	bool dummy3;
 	float dummy4;
 	float dummy5;
+	float dummy6;
 };
 
 class Shader
