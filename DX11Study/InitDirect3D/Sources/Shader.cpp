@@ -245,6 +245,27 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+	
+	if (renderParameters.hasDiffuseTexture)
+	{
+		testData->factor = 1.0f;
+	}
+	else
+	{
+		testData->factor = 0.0f;
+	}
+
+	if (renderParameters.hasNormalMapTexture)
+	{
+		testData->index = 1;
+	}
+	else
+	{
+		testData->index = 0;
+	}
+
+	PointLight pointLight;
+	pointLight.lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 

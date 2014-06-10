@@ -13,7 +13,11 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	cout << sizeof(bool) << endl;
+	int i;
+
+	int a[5];
+
+	int j = a[i];
 
 	return 0;
 }

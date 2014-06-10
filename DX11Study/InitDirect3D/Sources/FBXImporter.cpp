@@ -256,11 +256,6 @@ MeshData* FBXImporter::GetMeshInfo()
 				renderPacakge.diffuseTextureFile = materialIdOffsets[i].material.diffuseTextureFile;
 				renderPacakge.normalMapTextureFile = materialIdOffsets[i].material.normalMapTextureFile;
 
-				if (renderPacakge.normalMapTextureFile.size() > 0)
-				{
-					Log("shit");
-				}
-
 				mMeshData->renderPackages.push_back(renderPacakge);
 
 				indicesIndexOffset += renderPacakge.indicesCount;
@@ -288,8 +283,6 @@ MeshData* FBXImporter::GetMeshInfo()
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
 		Merge(mMeshData->tangents, fbxMeshData.mTangents);
-
-		mMeshData->triangleMaterialIndices.clear();
 		mMeshData->materialIdOffsets.clear();
 	}
 
@@ -898,11 +891,10 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
+					fbxMeshData.diffuseTextureFile.clear();
+					fbxMeshData.normalMapTextureFile.clear();
 					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
-
-					Material* mat = new Material(materialId, fbxMeshData.diffuseTextureFile, fbxMeshData.normalMapTextureFile);
-					mMeshData->triangleMaterialIndices.push_back(mat);
 
 					vector<string>& textureFiles = mMeshData->textureFiles;
 					auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
@@ -944,17 +936,12 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 
 			fbxMeshData.mSurfaceMaterial = material;
 
+			fbxMeshData.diffuseTextureFile.clear();
+			fbxMeshData.normalMapTextureFile.clear();
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
 			materialIdOffsets[i].material.diffuseTextureFile = fbxMeshData.diffuseTextureFile;
-
-			Material* mat = new Material(materialId, fbxMeshData.diffuseTextureFile, fbxMeshData.normalMapTextureFile);
-
-			for (int j = 0; j < polygonCount; j++)
-			{
-				mMeshData->triangleMaterialIndices.push_back(mat);
-			}
 
 			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
 
@@ -970,9 +957,11 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 				{
 					textureFiles.push_back(fbxMeshData.normalMapTextureFile);
 				}
+
+				materialIdOffsets[i].material.normalMapTextureFile = fbxMeshData.normalMapTextureFile;
 			}
 
-			polygonId += mMeshData->materialIdOffsets[i].polygonCount;
+			polygonId += polygonCount;
 		}
 	}
 }

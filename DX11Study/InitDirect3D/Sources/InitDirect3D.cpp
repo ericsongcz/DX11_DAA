@@ -128,10 +128,11 @@ void InitDirect3D::DrawScene()
 	MeshData* meshData = mGeometry->GetMeshData();
 	vector<RenderPackage> renderPackages = meshData->renderPackages;
 	int renderPackageSize = renderPackages.size();
-	RenderParameters renderParameters;
 
 	for (int i = 0; i < renderPackageSize; i++)
 	{
+		RenderParameters renderParameters;
+
 		worldMatrix = renderPackages[i].globalTransform;
 		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
 
@@ -211,14 +212,7 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 		break;
 	case VK_LEFT:
-	{
-		rotateY -= time * roateRate;
-		rotateY = -0.1f;
-
-		rotateYMatrix = RotationY(rotateY);
-
-		mRotateMatrix *= rotateYMatrix;
-	}
+		mCamera->yaw(100.0f * time);
 
 		break;
 	case VK_A:
@@ -226,16 +220,7 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 		break;
 	case VK_RIGHT:
-	{
-		static float rotate = 0.0f;
-
-		rotateY += time * roateRate;
-		rotateY = 0.1f;
-
-		rotateYMatrix = RotationY(rotateY);
-
-		mRotateMatrix *= rotateYMatrix;
-	}
+		mCamera->yaw(-100.0f * time);
 
 		break;
 	case VK_D:

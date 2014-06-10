@@ -14,6 +14,8 @@ cbuffer Test : register(b1)
 {
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
+	float factor;
+	int index;
 };
 
 
@@ -55,9 +57,15 @@ bool float4Equal(float4 lhs, float4 rhs)
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
-	float3 normal;
 	float3 lightDir = input.lightDir;
 	float3 viewDir = input.viewDir;
+
+	float3 normalWorldSpace = input.normal.xyz;
+	float3 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+
+	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
+
+	float3 normal = normals[index];
 
 	if (hasNormalMapTexture)
 	{
@@ -65,7 +73,7 @@ float4 main(PixelInput input) : SV_TARGET
 	}
 	else
 	{
-		normal = normalize(input.normal.xyz);
+		normal = input.normal.xyz;
 	}
 
 	float diffuseIntensity = saturate(dot(lightDir, normal));
@@ -86,16 +94,13 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
 	float4 color;
+	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (hasDiffuseTexture)
-	{
-		float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
-		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
-	}
-	else
-	{
-		color = ambientLightColor * 0.3f + diffuse * 0.8f + specular * 0.5f;
-	}
+	float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
+
+	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
+
+	color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
 
 	return color;
 }

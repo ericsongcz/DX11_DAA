@@ -17,12 +17,18 @@ struct MatrixBuffer
 	XMFLOAT4X4 worldViewProjection;
 };
 
+struct PointLight
+{
+	XMFLOAT4 lightPosition;
+};
+
 struct TestBuffer
 {
 	int hasDiffuseTexture;
 	int hasNormalMapTexture;
-	float dummy1;
-	float dummy2;
+	float factor;
+	int index;
+	PointLight pointLight;
 };
 
 class Shader
