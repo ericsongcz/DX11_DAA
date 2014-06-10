@@ -222,6 +222,10 @@ MeshData* FBXImporter::GetMeshInfo()
 		{
 			SplitVertexByTangent(fbxMeshData);
 		}
+		else
+		{
+			fbxMeshData.mTangents.resize(fbxMeshData.mVerticesCount);
+		}
 
 		// 如果.fbx包含一个以上的mesh，需要计算当前FBXMeshData的索引在全局索引中的位置。
 		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)

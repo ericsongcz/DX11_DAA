@@ -45,45 +45,83 @@ struct PixelInput
 
 PixelInput main(VertexInput input)
 {
+	//PixelInput output;
+
+	//// 顶点坐标扩展成四个分量，并设置为1，以便矩阵运算。
+	//input.position.w = 1.0f;
+
+	//// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
+	//input.normal.w = 0.0f;
+
+	//// 乘以3个矩阵，得到clip空间的坐标。
+	//// 保存worldPosition以便光照计算。
+	//output.worldPosition = mul(input.position, worldMatrix);
+	//output.position = mul(input.position, worldViewProjection);
+
+	//// 使用查表法移除if语句。
+
+	//// 如果在这里归一化向量会导致不正确的渲染结果(?)。
+	////float3 lightDirWorldSpace = normalize(pointLight.lightPosition - output.worldPosition).xyz;
+	////float3 viewDirWorldSpace = normalize(cameraPosition - output.worldPosition).xyz;
+
+	////float4x4 worldToTangentSpace;
+	////worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
+	////worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, input.normal.xyz), 1.0f), worldMatrix);
+	////worldToTangentSpace[2] = mul(input.normal, worldMatrix);
+	////worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	////float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
+	////float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
+
+	////float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
+	////float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
+
+	////output.lightDir = lightDirs[index];
+	////output.viewDir = viewDirs[index];
+
+	////[branch]
+	////if (hasNormalMapTexture)
+	////{
+	////	float4x4 worldToTangentSpace;
+
+	////	worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
+	////	worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, input.normal.xyz), 1.0f), worldMatrix);
+	////	worldToTangentSpace[2] = mul(input.normal, worldMatrix);
+	////	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	////	output.lightDir = (lightPosition - output.worldPosition).xyz;
+	////	output.lightDir = /*normalize*/(mul(worldToTangentSpace, float4(output.lightDir, 1.0f))).xyz;
+	////	output.viewDir = (cameraPosition - output.worldPosition).xyz;
+	////	output.viewDir = /*normalize*/(mul(worldToTangentSpace, float4(output.viewDir, 1.0f))).xyz;
+	////}
+	////else
+	////{
+	//	output.lightDir = /*normalize*/(lightPosition - output.worldPosition).xyz;
+	//	output.viewDir = /*normalize*/(cameraPosition - output.worldPosition).xyz;
+	////}
+
+	//output.normal = /*normalize*/(mul(input.normal, worldMatrix));
+
+	//// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
+	//output.color = input.color;
+	//output.texcoord = input.texcoord;
+
 	PixelInput output;
 
 	// 顶点坐标扩展成四个分量，并设置为1，以便矩阵运算。
 	input.position.w = 1.0f;
-
-	// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
 	input.normal.w = 0.0f;
 
 	// 乘以3个矩阵，得到clip空间的坐标。
-	// 保存worldPosition以便光照计算。
 	output.worldPosition = mul(input.position, worldMatrix);
-	output.position = mul(input.position, worldViewProjection);
-
-	// 使用查表法移除if语句。
-
-	// 如果在这里归一化向量会导致不正确的渲染结果()。
-	float3 lightDirWorldSpace = /*normalize*/(pointLight.lightPosition - output.worldPosition).xyz;
-	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
-
-	float4x4 worldToTangentSpace;
-	worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
-	worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, input.normal.xyz), 1.0f), worldMatrix);
-	worldToTangentSpace[2] = mul(input.normal, worldMatrix);
-	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
-	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
-
-	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
-	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
-
-	output.lightDir = lightDirs[index];
-	output.viewDir = viewDirs[index];
-
-	output.normal = normalize(mul(input.normal, worldMatrix));
+	output.position = mul(input.position, worldMatrix);
+	output.position = mul(output.position, viewMatrix);
+	output.position = mul(output.position, projectionMatrix);
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;
 	output.texcoord = input.texcoord;
+	output.normal = normalize(mul(input.normal, worldMatrix));
 
 	return output;
 }

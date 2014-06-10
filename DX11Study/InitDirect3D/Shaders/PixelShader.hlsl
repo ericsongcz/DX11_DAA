@@ -57,24 +57,27 @@ bool float4Equal(float4 lhs, float4 rhs)
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
-	float3 lightDir = normalize(input.lightDir);
-	float3 viewDir = normalize(input.viewDir);
+	//float3 lightDir = normalize(input.lightDir);
+	//float3 viewDir = normalize(input.viewDir);
 
-	float3 normalWorldSpace = input.normal.xyz;
-	float3 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+	float3 lightDir = normalize(lightPosition - input.worldPosition).xyz;
+	float3 viewDir = normalize(cameraPosition - input.worldPosition).xyz;
 
-	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
+	//float3 normalWorldSpace = input.normal.xyz;
+	//float3 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
 
-	float3 normal = normals[index];
+	//float3 normals[2] = { normalWorldSpace, normalTangentSpace };
 
-	if (hasNormalMapTexture)
-	{
-		normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
-	}
-	else
-	{
-		normal = input.normal.xyz;
-	}
+	//float3 normal = normals[index];
+
+	//if (hasNormalMapTexture)
+	//{
+	//	normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+	//}
+	//else
+	//{
+	float3 normal = normalize(input.normal.xyz);
+	//}
 
 	float diffuseIntensity = saturate(dot(lightDir, normal));
 	float4 diffuse = diffuseColor * diffuseIntensity;
@@ -100,7 +103,15 @@ float4 main(PixelInput input) : SV_TARGET
 
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
-	color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
+	if (hasDiffuseTexture)
+	{
+		float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
+		color = (ambientLightColor + diffuse) * textureColor/* + specular * 0.5f*/;
+	}
+	else
+	{
+		color = (ambientLightColor + diffuse)/* + specular * 0.5f*/;
+	}
 
 	return color;
 }
