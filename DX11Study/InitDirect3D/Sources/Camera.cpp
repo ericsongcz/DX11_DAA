@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Camera.h"
 #include "D3DUtils.h"
+#include "SharedParameters.h"
 
 Camera::Camera()
 {
@@ -15,6 +16,8 @@ Camera::Camera()
 	mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 	mCameraType = AIRCRAFT;
+
+	SharedParameters::camera = this;
 }
 
 Camera::~Camera()
@@ -110,6 +113,11 @@ void Camera::setAspectRatio(float aspectRatio)
 void Camera::setPosition(FXMVECTOR position)
 {
 	XMStoreFloat3(&mPosition, position);
+}
+
+XMFLOAT3 Camera::getPosition() const
+{
+	return mPosition;
 }
 
 void Camera::lookAt(FXMVECTOR lookAt)

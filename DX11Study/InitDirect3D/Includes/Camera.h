@@ -22,6 +22,7 @@ public:
 	XMMATRIX getOrthogonalMatrix() const;
 	void setAspectRatio(float aspectRatio);
 	void setPosition(FXMVECTOR position);
+	XMFLOAT3 getPosition() const;
 	void lookAt(FXMVECTOR lookAt);
 	void strafe(float units); // ×óÓÒ¡£
 	void fly(float units);	  // ÉÏÏÂ¡£
