@@ -180,7 +180,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	return true;
 }
 
-bool Shader::render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	if (!setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix))
 	{
@@ -190,9 +190,13 @@ bool Shader::render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, F
 	return true;
 }
 
-bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
+	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);
+	worldViewProjection = XMMatrixMultiply(worldViewProjection, projectionMatrix);
+
+	worldViewProjection = XMMatrixTranspose(worldViewProjection);
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
@@ -220,11 +224,13 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 
 	matrixData->diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 #if USE_RIGHT_HAND
-	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, 10.0f, 1.0f);
+	matrixData->cameraPositon = XMFLOAT4(0.0f, 5.0f, 20.0f, 1.0f);
 #else
 	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, -10.0f, 1.0f);
 #endif
 	matrixData->specularColor = XMFLOAT4(Colors::White);
+
+	XMStoreFloat4x4(&matrixData->worldViewProjection, worldViewProjection);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
@@ -239,11 +245,6 @@ bool Shader::setShaderParameters(RenderParameters renderParameters, FXMMATRIX& w
 
 	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
-	testData->dummy2 = renderParameters.hasDiffuseTexture;
-	testData->dummy3 = renderParameters.hasNormalMapTexture;
-	testData->dummy4 = 100.0f;
-	//testData->dummy5 = 100.0f;
-	//testData->dummy6 = 100.0f;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 
@@ -267,7 +268,6 @@ void Shader::renderShader()
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
-	mDeviceContext->PSSetSamplers(1, 1, &mSamplerState);
 }
 
 void Shader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)

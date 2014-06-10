@@ -32,6 +32,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 		mVertices[i].color = XMFLOAT4(Colors::White);
 		mVertices[i].normal = mMeshdata->normals[i];
 		mVertices[i].texcoord = mMeshdata->uvs[i];
+		mVertices[i].tangent = mMeshdata->tangents[i];
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);

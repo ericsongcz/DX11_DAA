@@ -9,12 +9,13 @@ cbuffer MatrixBuffer : register(b0)
 	float4 diffuseColor;
 	float4 cameraPosition;
 	float4 specularColor;
+	float4x4 worldViewProjection;
 };
 
 cbuffer Test : register(b1)
 {
 	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
+	bool hasNormalMapTexture;;
 };
 
 struct VertexInput
@@ -50,9 +51,7 @@ PixelInput main(VertexInput input)
 	// 乘以3个矩阵，得到clip空间的坐标。
 	// 保存worldPosition以便光照计算。
 	output.worldPosition = mul(input.position, worldMatrix);
-	output.position = mul(input.position, worldMatrix);
-	output.position = mul(output.position, viewMatrix);
-	output.position = mul(output.position, projectionMatrix);
+	output.position = mul(input.position, worldViewProjection);
 
 	if (hasNormalMapTexture)
 	{
@@ -64,14 +63,14 @@ PixelInput main(VertexInput input)
 		worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		output.lightDir = (lightPosition - output.worldPosition).xyz;
-		output.lightDir = mul(worldToTangentSpace, float4(output.lightDir, 1.0f)).xyz;
+		output.lightDir = normalize(mul(worldToTangentSpace, float4(output.lightDir, 1.0f))).xyz;
 		output.viewDir = (cameraPosition - output.worldPosition).xyz;
-		output.viewDir = mul(worldToTangentSpace, float4(output.viewDir, 1.0f)).xyz;
+		output.viewDir = normalize(mul(worldToTangentSpace, float4(output.viewDir, 1.0f))).xyz;
 	}
 	else
 	{
-		output.lightDir = (lightPosition - output.worldPosition).xyz;
-		output.viewDir = (cameraPosition - output.worldPosition).xyz;
+		output.lightDir = normalize(lightPosition - output.worldPosition).xyz;
+		output.viewDir = normalize(cameraPosition - output.worldPosition).xyz;
 	}
 
 	output.normal = mul(input.normal, worldMatrix);

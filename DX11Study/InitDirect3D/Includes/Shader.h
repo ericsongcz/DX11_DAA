@@ -14,24 +14,15 @@ struct MatrixBuffer
 	XMFLOAT4 diffuseColor;
 	XMFLOAT4 cameraPositon;
 	XMFLOAT4 specularColor;
+	XMFLOAT4X4 worldViewProjection;
 };
 
 struct TestBuffer
 {
-	TestBuffer()
-	: hasDiffuseTexture(false),
-	  hasNormalMapTexture(false),
-	  dummy2(false),
-	  dummy3(false)
-	{}
-
-	bool dummy2;
-	bool dummy3;
-	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
-	float dummy4;
-	float dummy5;
-	float dummy6;
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
+	float dummy1;
+	float dummy2;
 };
 
 class Shader
@@ -40,8 +31,8 @@ public:
 	Shader();
 	~Shader();
 
-	bool render(RenderParameters renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
-	bool setShaderParameters(RenderParameters renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	bool setShaderParameters(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
 	void renderShader();
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName);
 

@@ -7,6 +7,7 @@ cbuffer MatrixBuffer : register(b0)
 	float4 diffuseColor;
 	float4 cameraPosition;
 	float4 specularColor;
+	float4x4 worldViewProjection;
 };
 
 cbuffer Test : register(b1)
@@ -55,8 +56,8 @@ float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
 	float3 normal;
-	float3 lightDir = normalize(input.lightDir);
-	float3 viewDir = normalize(input.viewDir);
+	float3 lightDir = input.lightDir;
+	float3 viewDir = input.viewDir;
 
 	if (hasNormalMapTexture)
 	{

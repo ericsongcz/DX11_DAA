@@ -58,7 +58,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mShader = new Shader();
@@ -222,7 +222,7 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 		break;
 	case VK_A:
-		mCamera->strafe(-100.0f * time);
+		mCamera->strafe(-200.0f * time);
 
 		break;
 	case VK_RIGHT:
@@ -239,15 +239,15 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 
 		break;
 	case VK_D:
-		mCamera->strafe(100.0f * time);
+		mCamera->strafe(200.0f * time);
 		break;
 
 	case VK_Q:
-		mCamera->walk(100.0f * time);
+		mCamera->walk(200.0f * time);
 		break;
 
 	case VK_E:
-		mCamera->walk(-100.0f * time);
+		mCamera->walk(-200.0f * time);
 		break;
 
 	case VK_F:
