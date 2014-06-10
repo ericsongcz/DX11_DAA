@@ -247,6 +247,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
 	
+	// 是否有漫反射纹理。
 	if (renderParameters.hasDiffuseTexture)
 	{
 		testData->factor = 1.0f;
@@ -256,6 +257,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 		testData->factor = 0.0f;
 	}
 
+	// 是否有法线贴图。
 	if (renderParameters.hasNormalMapTexture)
 	{
 		testData->index = 1;
@@ -267,6 +269,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	PointLight pointLight;
 	pointLight.lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+	testData->pointLight = pointLight;
 
 	mDeviceContext->Unmap(mTestBuffer, 0);
 

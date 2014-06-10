@@ -57,8 +57,8 @@ bool float4Equal(float4 lhs, float4 rhs)
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.
-	float3 lightDir = input.lightDir;
-	float3 viewDir = input.viewDir;
+	float3 lightDir = normalize(input.lightDir);
+	float3 viewDir = normalize(input.viewDir);
 
 	float3 normalWorldSpace = input.normal.xyz;
 	float3 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;

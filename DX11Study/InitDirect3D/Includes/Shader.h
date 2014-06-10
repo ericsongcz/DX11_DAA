@@ -20,6 +20,10 @@ struct MatrixBuffer
 struct PointLight
 {
 	XMFLOAT4 lightPosition;
+	float range;
+	float attenuation0;
+	float attenuation1;
+	float attenuation2;
 };
 
 struct TestBuffer

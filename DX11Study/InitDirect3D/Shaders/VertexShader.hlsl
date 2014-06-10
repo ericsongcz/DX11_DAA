@@ -1,3 +1,5 @@
+#include "LightHelper.hlsli"
+
 // Shader中使用的全局变量都定义在const buffer中，
 // 这样Shader编译后，这些变量放在GPU的const buffer中。
 cbuffer MatrixBuffer : register(b0)
@@ -10,11 +12,6 @@ cbuffer MatrixBuffer : register(b0)
 	float4 cameraPosition;
 	float4 specularColor;
 	float4x4 worldViewProjection;
-};
-
-struct PointLight
-{
-	float4 lightPosition;
 };
 
 cbuffer Test : register(b1)
@@ -61,8 +58,11 @@ PixelInput main(VertexInput input)
 	output.worldPosition = mul(input.position, worldMatrix);
 	output.position = mul(input.position, worldViewProjection);
 
-	float3 lightDirWorldSpace = normalize(pointLight.lightPosition - output.worldPosition).xyz;
-	float3 viewDirWorldSpace = normalize(cameraPosition - output.worldPosition).xyz;
+	// 使用查表法移除if语句。
+
+	// 如果在这里归一化向量会导致不正确的渲染结果()。
+	float3 lightDirWorldSpace = /*normalize*/(pointLight.lightPosition - output.worldPosition).xyz;
+	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
 
 	float4x4 worldToTangentSpace;
 	worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
@@ -70,8 +70,8 @@ PixelInput main(VertexInput input)
 	worldToTangentSpace[2] = mul(input.normal, worldMatrix);
 	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float3 lightDirTangentSpace = normalize(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
-	float3 viewDirTangentSpace = normalize(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
+	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
+	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
 
 	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
 	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };

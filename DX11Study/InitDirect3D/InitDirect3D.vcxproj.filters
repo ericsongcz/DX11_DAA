@@ -123,6 +123,9 @@
     <None Include="Docs\Develop Notes.docx">
       <Filter>Docs</Filter>
     </None>
+    <None Include="LightHelper.hlsli">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="InitDirect3D.ico">

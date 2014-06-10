@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\Develop Notes.docx" />
+    <None Include="LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="InitDirect3D.ico" />
