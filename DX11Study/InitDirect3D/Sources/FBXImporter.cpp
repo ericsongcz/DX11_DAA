@@ -213,13 +213,14 @@ MeshData* FBXImporter::GetMeshInfo()
 		{
 			SplitVertexByUV(fbxMeshData);
 		}
-		else if (fbxMeshData.mHasNormalMapTexture)
-		{
-			SplitVertexByTangent(fbxMeshData);
-		}
 		else
 		{
 			fbxMeshData.mUVs.resize(fbxMeshData.mVerticesCount);
+		}
+
+		if (fbxMeshData.mHasNormalMapTexture)
+		{
+			SplitVertexByTangent(fbxMeshData);
 		}
 
 		// 如果.fbx包含一个以上的mesh，需要计算当前FBXMeshData的索引在全局索引中的位置。
@@ -254,6 +255,12 @@ MeshData* FBXImporter::GetMeshInfo()
 
 				renderPacakge.diffuseTextureFile = materialIdOffsets[i].material.diffuseTextureFile;
 				renderPacakge.normalMapTextureFile = materialIdOffsets[i].material.normalMapTextureFile;
+
+				if (renderPacakge.normalMapTextureFile.size() > 0)
+				{
+					Log("shit");
+				}
+
 				mMeshData->renderPackages.push_back(renderPacakge);
 
 				indicesIndexOffset += renderPacakge.indicesCount;
