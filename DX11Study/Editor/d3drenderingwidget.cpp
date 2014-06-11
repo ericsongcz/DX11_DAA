@@ -48,7 +48,7 @@ void D3DRenderingWidget::keyPressEvent(QKeyEvent *event)
 {
 	switch (event->key())
 	{
-	case Qt::Key_W:
+	case Qt::Key_Escape:
 
 		break;
 	default:
