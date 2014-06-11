@@ -66,6 +66,9 @@
     <ClInclude Include="Includes\D3DApp.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="Includes\Direct3DRenderer.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\D3DApp.cpp">
@@ -110,6 +113,9 @@
     <ClCompile Include="Sources\Camera.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Direct3DRenderer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\PixelShader.hlsl">
@@ -123,7 +129,7 @@
     <None Include="Docs\Develop Notes.docx">
       <Filter>Docs</Filter>
     </None>
-    <None Include="LightHelper.hlsli">
+    <None Include="Shaders\LightHelper.hlsli">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

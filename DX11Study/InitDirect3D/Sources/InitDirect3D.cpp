@@ -7,6 +7,7 @@
 #include <DirectXTex/DirectXTex.h>
 #include "FBXImporter.h"
 #include "SharedParameters.h"
+#include "Direct3DRenderer.h"
 
 using namespace DirectX;
 

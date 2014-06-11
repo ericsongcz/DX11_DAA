@@ -22,6 +22,7 @@
     <ClInclude Include="Includes\Camera.h" />
     <ClInclude Include="Includes\D3DApp.h" />
     <ClInclude Include="Includes\D3DUtils.h" />
+    <ClInclude Include="Includes\Direct3DRenderer.h" />
     <ClInclude Include="Includes\FBXImporter.h" />
     <ClInclude Include="Includes\GameTimer.h" />
     <ClInclude Include="Includes\Geometry.h" />
@@ -40,6 +41,7 @@
     <ClCompile Include="Sources\Camera.cpp" />
     <ClCompile Include="Sources\D3DApp.cpp" />
     <ClCompile Include="Sources\D3DUtils.cpp" />
+    <ClCompile Include="Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />
     <ClCompile Include="Sources\GameTimer.cpp" />
     <ClCompile Include="Sources\Geometry.cpp" />
@@ -72,7 +74,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Docs\Develop Notes.docx" />
-    <None Include="LightHelper.hlsli" />
+    <None Include="Shaders\LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="InitDirect3D.ico" />
@@ -165,7 +167,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>./Includes;./Includes/stlport;$(FBX_SDK)/Include;../../../DXSDK/Include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>./Includes;$(FBX_SDK)/Include;../../../DXSDK/Include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
@@ -212,7 +214,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>./Libs/x64/Release;../../../DXSDK/Lib/x64;$(FBX_SDK)/Lib/vs2013/x64/release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;DirectXTex.lib;libfbxsdk-mt.lib;dxerr.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;DirectXTex.lib;libfbxsdk-md.lib;dxerr.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
