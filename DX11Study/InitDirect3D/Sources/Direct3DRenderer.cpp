@@ -15,6 +15,7 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 	mMinimized(false),
 	mAppPaused(false),
 	mFillMode(D3D11_FILL_SOLID),
+	mShader(nullptr),
 	mDevice(nullptr),
 	mDeviceContext(nullptr),
 	mSwapChain(nullptr),
@@ -35,6 +36,7 @@ Direct3DRenderer::~Direct3DRenderer()
 	SafeRelease(mSwapChain);
 	SafeRelease(mDeviceContext);
 	SafeRelease(mDevice);
+	SafeDelete(mShader);
 }
 
 bool Direct3DRenderer::initD3D(HWND hWnd)
@@ -75,6 +77,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 
 	SharedParameters::device = mDevice;
+	SharedParameters::deviceContext = mDeviceContext;
 
 	ID3D11Texture2D* backBuffer = nullptr;
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
@@ -137,11 +140,20 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	rasterizerDesc.FrontCounterClockwise = false;
 	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mWireframeState));
 
+	mShader = new Shader();
+	if (!mShader->initialize(mDevice, mDeviceContext, TEXT("VertexShader.cso"), TEXT("PixelShader.cso")))
+	{
+		return false;
+	}
+
 	return true;
 }
 
-void Direct3DRenderer::createDepthStencilView()
+void Direct3DRenderer::resizeBackBuffer(UINT width, UINT height)
 {
+	mScreenWidth = width;
+	mScreenHeight = height;
+
 	assert(mDeviceContext);
 	assert(mDevice);
 	assert(mSwapChain);
@@ -220,4 +232,40 @@ void Direct3DRenderer::beginScene()
 void Direct3DRenderer::endScene()
 {
 	mSwapChain->Present(0, 0);
+}
+
+void Direct3DRenderer::changeFillMode(D3D11_FILL_MODE fillMode)
+{
+	if (fillMode == D3D11_FILL_SOLID)
+	{
+		mDeviceContext->RSSetState(mSolidState);
+	}
+	else
+	{
+		mDeviceContext->RSSetState(mWireframeState);
+	}
+}
+
+void Direct3DRenderer::switchFillMode()
+{
+	if (mFillMode == D3D11_FILL_SOLID)
+	{
+		mFillMode = D3D11_FILL_WIREFRAME;
+		mDeviceContext->RSSetState(mWireframeState);
+	}
+	else
+	{
+		mFillMode = D3D11_FILL_SOLID;
+		mDeviceContext->RSSetState(mSolidState);
+	}
+}
+
+void Direct3DRenderer::render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix)
+{
+	mShader->render(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
+}
+
+void Direct3DRenderer::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
+{
+	mShader->setShaderResource(ppShaderResourceViews, numViews);
 }

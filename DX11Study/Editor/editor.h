@@ -12,6 +12,8 @@ public:
 	Editor(QWidget *parent = 0);
 	~Editor();
 
+	virtual void keyPressEvent(QKeyEvent *event);
+
 private:
 	Ui::EditorClass ui;
 };

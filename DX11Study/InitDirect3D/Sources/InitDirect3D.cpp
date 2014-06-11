@@ -59,19 +59,13 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
-
-	mShader = new Shader();
-	if (!mShader->initialize(mDevice, mDeviceContext, TEXT("VertexShader.cso"), TEXT("PixelShader.cso")))
-	{
-		return false;
-	}
 
 	mGeometry = new Geometry();
 	mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
 
-	if (!mGeometry->Initialize(mDevice, mDeviceContext))
+	if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
 	{
 		return false;
 	}
@@ -100,10 +94,7 @@ void InitDirect3D::UpdateScene(float dt)
 
 void InitDirect3D::DrawScene()
 {
-	float clearColor[] = { RGB256(100), RGB256(149), RGB256(237) };
-
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
-	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mRenderer->beginScene();
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 	
@@ -147,17 +138,17 @@ void InitDirect3D::DrawScene()
 			renderParameters.hasNormalMapTexture = true;
 		}
 
-		mShader->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+		mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			mShader->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
 		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
 
-	mSwapChain->Present(0, 0);
+	mRenderer->endScene();
 }
 
 void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
@@ -169,12 +160,6 @@ void InitDirect3D::OnMouseDown(WPARAM btnState, int x, int y)
 void InitDirect3D::OnKeyDown(DWORD keyCode)
 {
 	float time = mTimer.DeltaTime();
-	static float rotateX = 0.0f;
-	static float rotateY = 0.0f;
-	float roateRate = 360.0f;
-
-	static XMMATRIX rotateXMatrix = XMMatrixIdentity();
-	static XMMATRIX rotateYMatrix = XMMatrixIdentity();
 
 	switch (keyCode)
 	{
@@ -182,71 +167,53 @@ void InitDirect3D::OnKeyDown(DWORD keyCode)
 		DestroyWindow(mMainHWnd);
 
 		break;
-	case VK_UP:
-	{
-		rotateX -= time * roateRate;
-		rotateX = -0.1f;
-
-		rotateXMatrix = RotationX(rotateX);
-
-		mRotateMatrix *= rotateXMatrix;
-	}
-
-		break;
 	case VK_W:
 		mCamera->fly(100.0f * time);
-
-		break;
-	case VK_DOWN:
-	{
-		rotateX += time * roateRate;
-		rotateX = 0.1f;
-
-		rotateXMatrix = RotationX(rotateX);
-
-		mRotateMatrix *= rotateXMatrix;
-	}
 
 		break;
 	case VK_S:
 		mCamera->fly(-100.0f * time);
 
 		break;
-	case VK_LEFT:
-		mCamera->yaw(100.0f * time);
+	case VK_A:
+		mCamera->strafe(-100.0f * time);
 
 		break;
-	case VK_A:
-		mCamera->strafe(-200.0f * time);
+	case VK_D:
+		mCamera->strafe(200.0f * time);
+
+		break;
+	case VK_Q:
+		mCamera->walk(200.0f * time);
+
+		break;
+	case VK_E:
+		mCamera->walk(-200.0f * time);
+
+		break;
+	case VK_F:
+		mRenderer->switchFillMode();
+
+		break;
+	case VK_UP:
+	{
+		mCamera->pitch(time * -100.0f);
+	}
+
+		break;
+	case VK_DOWN:
+	{
+		mCamera->pitch(time * 100.0f);
+	}
+
+		break;
+	case VK_LEFT:
+		mCamera->yaw(100.0f * time);
 
 		break;
 	case VK_RIGHT:
 		mCamera->yaw(-100.0f * time);
 
-		break;
-	case VK_D:
-		mCamera->strafe(200.0f * time);
-		break;
-
-	case VK_Q:
-		mCamera->walk(200.0f * time);
-		break;
-
-	case VK_E:
-		mCamera->walk(-200.0f * time);
-		break;
-
-	case VK_F:
-		if (mFillMode == D3D11_FILL_SOLID)
-		{
-			mFillMode = D3D11_FILL_WIREFRAME;
-			mDeviceContext->RSSetState(mWireframeState);
-		}
-		else
-		{
-			mFillMode = D3D11_FILL_SOLID;
-			mDeviceContext->RSSetState(mSolidState);
-		}
 		break;
 	}
 }

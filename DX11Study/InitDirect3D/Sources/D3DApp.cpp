@@ -256,7 +256,7 @@ LRESULT CALLBACK D3DApp::MainWinProc(HWND hWnd, UINT message, WPARAM wParam, LPA
 
 void D3DApp::OnResize()
 {
-	mRenderer->createDepthStencilView();
+	mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
 }
 
 void D3DApp::CalculateFrameStats()

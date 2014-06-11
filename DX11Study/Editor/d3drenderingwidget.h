@@ -20,6 +20,7 @@ public:
 protected:
 	virtual void resizeEvent(QResizeEvent* event);
 	virtual void paintEvent(QPaintEvent* event);
+	virtual void keyPressEvent(QKeyEvent *event);
 private:
 	Ui::D3DRenderingWidget ui;
 };

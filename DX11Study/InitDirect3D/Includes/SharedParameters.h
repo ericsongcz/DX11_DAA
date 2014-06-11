@@ -12,5 +12,6 @@ public:
 	static Shader* shader;
 	static Camera* camera;
 	static ID3D11Device* device;
+	static ID3D11DeviceContext* deviceContext;
 private:
 };

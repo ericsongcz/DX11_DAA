@@ -2,6 +2,7 @@
 #include <d3d11.h>
 #include <string>
 #include "GameTimer.h"
+#include "Shader.h"
 
 using std::wstring;
 
@@ -12,9 +13,13 @@ public:
 	~Direct3DRenderer();
 
 	bool initD3D(HWND hWnd);
-	void createDepthStencilView();
+	void resizeBackBuffer(UINT width, UINT height);
 	void beginScene();
 	void endScene();
+	void changeFillMode(D3D11_FILL_MODE fillMode);
+	void switchFillMode();
+	void render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	ID3D11Device* getDevice() const;
 private:
 	// D3D11 stuffs.
@@ -32,6 +37,7 @@ private:
 	HWND mMainHWnd;
 	HINSTANCE mHInstance;
 	GameTimer mTimer;
+	Shader* mShader;
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
 	IDXGISwapChain* mSwapChain;

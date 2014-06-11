@@ -20,7 +20,6 @@ public:
 	void OnKeyDown(DWORD keyCode);
 private:
 	Geometry* mGeometry;
-	Shader* mShader;
 	Camera* mCamera;
 	ID3D11ShaderResourceView* mShaderResourceView;
 	XMMATRIX mRotateMatrix;
