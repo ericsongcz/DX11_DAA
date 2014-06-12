@@ -5,9 +5,8 @@
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
-	Editor w;
-	w.setFixedWidth(800);
-	w.setFixedHeight(600);
-	w.show();
+	Editor editor;
+	editor.show();
+
 	return a.exec();
 }

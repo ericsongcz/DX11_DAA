@@ -15,7 +15,7 @@ public:
 
 	virtual void keyPressEvent(QKeyEvent *event);
 	bool eventFilter(QObject *target, QEvent *event);
-
+	virtual void resizeEvent(QResizeEvent* event);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;

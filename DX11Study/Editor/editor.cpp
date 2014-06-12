@@ -5,11 +5,16 @@ Editor::Editor(QWidget *parent)
 	: QMainWindow(parent)
 {
 	ui.setupUi(this);
+	resize(QSize(1024, 768));
 
-	d3dWidget = new D3DRenderingWidget(this);
-	setCentralWidget(d3dWidget);
+	int w = frameGeometry().width();
+
+	d3dWidget = new D3DRenderingWidget(width(), height(), this);
+	//setCentralWidget(d3dWidget);
 
 	d3dWidget->installEventFilter(this);
+
+	setWindowTitle(tr("Qt D3D Demo"));
 }
 
 Editor::~Editor()
@@ -47,4 +52,12 @@ bool Editor::eventFilter(QObject *target, QEvent *event)
 	}
 
 	return QWidget::eventFilter(target, event);
+}
+
+void Editor::resizeEvent(QResizeEvent* event)
+{
+	QMainWindow::resizeEvent(event);
+
+	int w = width();
+	d3dWidget->resize(width(), height());
 }
