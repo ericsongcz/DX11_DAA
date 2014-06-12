@@ -17,7 +17,6 @@ public:
 	D3DRenderingWidget(int width, int height, QWidget* parent = 0);
 	~D3DRenderingWidget();
 	virtual QPaintEngine* paintEngine() const { return NULL; }
-	bool initDirect3D();
 	HWND getHWND();
 	void drawScene();
 protected:

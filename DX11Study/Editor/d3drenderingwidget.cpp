@@ -27,27 +27,27 @@ D3DRenderingWidget::D3DRenderingWidget(int width, int height, QWidget* parent)
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
 	timer->start(20);
 
-	mRenderer = new Direct3DRenderer(mScreenWidth, mScreenHeight, L"Qt D3D Demo");
-	mRenderer->initD3D(getHWND());
-	mRenderer->setViewport(mScreenWidth, mScreenHeight, 0.0f, 1.0f, 0.0f, 0.0f);
+	//mRenderer = new Direct3DRenderer(mScreenWidth, mScreenHeight, L"Qt D3D Demo");
+	//mRenderer->initD3D(getHWND());
+	//mRenderer->setViewport(mScreenWidth, mScreenHeight, 0.0f, 1.0f, 0.0f, 0.0f);
 
-	FBXImporter* fbxImporter = new FBXImporter();
-	fbxImporter->Init();
-	fbxImporter->LoadScene("teapotTextured.fbx");
-	fbxImporter->WalkHierarchy();
+	//FBXImporter* fbxImporter = new FBXImporter();
+	//fbxImporter->Init();
+	//fbxImporter->LoadScene("teapotTextured.fbx");
+	//fbxImporter->WalkHierarchy();
 
-	mGeometry = new Geometry();
-	mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
+	//mGeometry = new Geometry();
+	//mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
 
-	if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
-	{
-		return;
-	}
+	//if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
+	//{
+	//	return;
+	//}
 
-	mCamera = new Camera();
-	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+	//mCamera = new Camera();
+	//mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 
-	mTimer.Reset();
+	//mTimer.Reset();
 }
 
 D3DRenderingWidget::~D3DRenderingWidget()
@@ -60,7 +60,7 @@ void D3DRenderingWidget::paintEvent(QPaintEvent* event)
 	if (updatesEnabled())
 	{
 		mTimer.Tick();
-		drawScene();
+		//drawScene();
 	}
 }
 
@@ -71,11 +71,11 @@ HWND D3DRenderingWidget::getHWND()
 
 void D3DRenderingWidget::resizeEvent(QResizeEvent* event)
 {
-	mScreenWidth = event->size().width();
-	mScreenHeight = event->size().height();
+	//mScreenWidth = event->size().width();
+	//mScreenHeight = event->size().height();
 
-	mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
-	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+	//mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
+	//mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 }
 
 void D3DRenderingWidget::drawScene()
