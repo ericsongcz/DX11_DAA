@@ -83,8 +83,6 @@ bool D3DApp::InitMainWindow()
 	return true;
 }
 
-
-
 void D3DApp::Run()
 {
 	MSG msg;

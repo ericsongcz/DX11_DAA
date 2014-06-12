@@ -26,7 +26,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	InitDirect3D* app = new InitDirect3D(1024, 768, TEXT("D3DApp Demo"));
+	InitDirect3D* app = new InitDirect3D(800, 600, TEXT("D3DApp Demo"));
 	if (app->Init())
 	{
 		app->Run();

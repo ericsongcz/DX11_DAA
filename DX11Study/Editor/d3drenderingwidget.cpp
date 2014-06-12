@@ -17,10 +17,11 @@ D3DRenderingWidget::D3DRenderingWidget(int width, int height, QWidget* parent)
 
 	mScreenWidth = width;
 	mScreenHeight = height;
+	float topLeftY = ((QMainWindow*)parent)->menuBar()->height();
 
 	setAttribute(Qt::WA_PaintOnScreen, true);
 	setAttribute(Qt::WA_NativeWindow, true);
-	setFocusPolicy(Qt::StrongFocus);
+	//setFocusPolicy(Qt::StrongFocus);
 
 	QTimer* timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -28,10 +29,11 @@ D3DRenderingWidget::D3DRenderingWidget(int width, int height, QWidget* parent)
 
 	mRenderer = new Direct3DRenderer(mScreenWidth, mScreenHeight, L"Qt D3D Demo");
 	mRenderer->initD3D(getHWND());
+	mRenderer->setViewport(mScreenWidth, mScreenHeight, 0.0f, 1.0f, 0.0f, 0.0f);
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("teapotTextured.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();
@@ -43,7 +45,9 @@ D3DRenderingWidget::D3DRenderingWidget(int width, int height, QWidget* parent)
 	}
 
 	mCamera = new Camera();
-	mCamera->setAspectRatio((float)mScreenWidth / (float)mScreenHeight);
+	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+
+	mTimer.Reset();
 }
 
 D3DRenderingWidget::~D3DRenderingWidget()
@@ -55,6 +59,7 @@ void D3DRenderingWidget::paintEvent(QPaintEvent* event)
 {
 	if (updatesEnabled())
 	{
+		mTimer.Tick();
 		drawScene();
 	}
 }
@@ -132,12 +137,59 @@ void D3DRenderingWidget::drawScene()
 
 void D3DRenderingWidget::keyPressEvent(QKeyEvent *event)
 {
+	float time = mTimer.DeltaTime();
+	float speed = 5.0f;
+	float rotateRate = 1.0f;
+
 	switch (event->key())
 	{
-	case Qt::Key_Escape:
+	case Qt::Key_W:
+		mCamera->fly(speed * time);
 
 		break;
-	default:
+	case Qt::Key_S:
+		mCamera->fly(-speed * time);
+
+		break;
+	case Qt::Key_A:
+		mCamera->strafe(-speed * time);
+
+		break;
+	case Qt::Key_D:
+		mCamera->strafe(speed * time);
+
+		break;
+	case Qt::Key_Q:
+		mCamera->walk(speed * time);
+
+		break;
+	case Qt::Key_E:
+		mCamera->walk(-speed * time);
+
+		break;
+	case Qt::Key_F:
+		mRenderer->switchFillMode();
+
+		break;
+	case Qt::Key_Up:
+	{
+		mCamera->pitch(-rotateRate * time);
+	}
+
+		break;
+	case Qt::Key_Down:
+	{
+		mCamera->pitch(rotateRate * time);
+	}
+
+		break;
+	case Qt::Key_Left:
+		mCamera->yaw(rotateRate * time);
+
+		break;
+	case Qt::Key_Right:
+		mCamera->yaw(-rotateRate * time);
+
 		break;
 	}
 }

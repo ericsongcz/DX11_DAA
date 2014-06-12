@@ -6,6 +6,7 @@
 #include "Direct3DRenderer.h"
 #include "Geometry.h"
 #include "Camera.h"
+#include "GameTimer.h"
 
 class D3DRenderingWidget : public QWidget
 {
@@ -30,6 +31,7 @@ private:
 	Geometry* mGeometry;
 	float mScreenWidth;
 	float mScreenHeight;
+	GameTimer mTimer;
 };
 
 #endif // D3DRENDERINGWIDGET_H

@@ -107,15 +107,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
-	D3D11_VIEWPORT viewport;
-	viewport.Width = mScreenWidth;
-	viewport.Height = mScreenHeight;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-
-	mDeviceContext->RSSetViewports(1, &viewport);
+	setViewport(mScreenWidth, mScreenHeight, 0.0f, 0.0f);
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
@@ -201,19 +193,10 @@ void Direct3DRenderer::resizeBackBuffer(UINT width, UINT height)
 	HR(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
 	HR(mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
-
 	// Bind the render target view and depth/stencil view to the pipeline.
 	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
 
-	// Set the viewport transform.
-	mScreenViewport.TopLeftX = 0;
-	mScreenViewport.TopLeftY = 0;
-	mScreenViewport.Width = static_cast<float>(mScreenWidth);
-	mScreenViewport.Height = static_cast<float>(mScreenHeight);
-	mScreenViewport.MinDepth = 0.0f;
-	mScreenViewport.MaxDepth = 1.0f;
-
-	mDeviceContext->RSSetViewports(1, &mScreenViewport);
+	setViewport(mScreenWidth, mScreenHeight);
 }
 
 ID3D11Device* Direct3DRenderer::getDevice() const
@@ -268,4 +251,18 @@ void Direct3DRenderer::render(const RenderParameters& renderParameters, FXMMATRI
 void Direct3DRenderer::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
 {
 	mShader->setShaderResource(ppShaderResourceViews, numViews);
+}
+
+void Direct3DRenderer::setViewport(float width, float height, float topLeftX, float topLeftY, float minDepth, float maxDepth)
+{
+	// Set the viewport transform.
+	D3D11_VIEWPORT viewport;
+	viewport.Width = width;
+	viewport.Height = height;
+	viewport.MinDepth = minDepth;
+	viewport.MaxDepth = maxDepth;
+	viewport.TopLeftX = topLeftX;
+	viewport.TopLeftY = topLeftY;
+
+	mDeviceContext->RSSetViewports(1, &viewport);
 }
