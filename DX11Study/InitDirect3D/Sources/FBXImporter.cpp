@@ -152,6 +152,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		fbxMeshData.mIndicesCount = mesh->GetPolygonVertexCount();
 		fbxMeshData.mTrianglesCount = mesh->GetPolygonCount();
 
+		// 获取3dsmax中的全局变换矩阵，稍后可以在DX中还原。
 		FbxMatrix gloableTransform = mesh->GetNode()->EvaluateGlobalTransform();
 
 		FbxAMatrix matrixGeo;
@@ -174,10 +175,39 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		FbxMatrixToXMMATRIX(fbxMeshData.globalTransform, matrixL2W);
 
+		// 读取顶点。
 		ReadVertices(fbxMeshData);
+		// 读取索引。
 		ReadIndices(fbxMeshData);
 
+		// 先读取网格对应的材质索引信息，以便优化稍后纹理读取。
+		// 一个网格可能只对应一个materialId，也可能对应多个materialId(3dsmax里的Multi/Sub-Object材质)。
+		// 如果只对应一个材质，简单的读取就行，不过普遍情况可能是为了优化渲染合并mesh从而拥有多材质。
+		// 这个函数调用完毕我们会得到materialId和拥有这个materialId的三角形列表(三角形编号列表)，保存在vector<MaterialIdOffset>的容器中。
+		//struct Material
+		//{
+		//	Material() {}
+		//	Material(int id, string diffuse, string normalMap)
+		//		: materialId(id),
+		//		diffuseTextureFile(diffuse),
+		//		normalMapTextureFile(normalMap)
+		//	{}
+		//
+		//	int materialId;
+		//	string diffuseTextureFile;
+		//	string normalMapTextureFile;
+		//};
+		// struct MaterialIdOffset
+		//{
+		//	MaterialIdOffset()
+		//		: polygonCount(0)
+		//	{}
+		//	int polygonCount;
+		//	Material material;
+		//};
 		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount);
+
+		// 根据ConnectMaterialsToMesh得到的信息读取材质纹理信息，同样存入vector<MaterialIdOffset>容器。
 		LoadMaterials(fbxMeshData);
 
 		int triangleCount = mesh->GetPolygonCount();
@@ -196,6 +226,7 @@ MeshData* FBXImporter::GetMeshInfo()
 
 				ReadNormals(fbxMeshData, controlPointIndex, normalIndex);
 
+				// 有纹理我们才读取uv，tangent以及binormal。
 				if (fbxMeshData.mHasDiffuseTexture)
 				{
 					ReadUVs(fbxMeshData, controlPointIndex, normalIndex, mesh->GetTextureUVIndex(i, j), 0);
@@ -238,6 +269,9 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
+		// 多材质的情况。
+		// 根据之前填充的materialIdOffsets容器保存的materialId和三角形的对应关系，
+		// 计算每个RenderPackage渲染所需的索引数量和索引起始位置(偏移)。
 		if (isByPolygon && fbxMeshData.mHasDiffuseTexture)
 		{
 			vector<MaterialIdOffset> materialIdOffsets = mMeshData->materialIdOffsets;
@@ -266,6 +300,7 @@ MeshData* FBXImporter::GetMeshInfo()
 			}
 		}
 		else
+		// 单一材质的情况。
 		{
 			RenderPackage renderPackage;
 			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
@@ -795,6 +830,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 
 		switch (materialMappingMode)
 		{
+		// 单mesh多材质的情况，我们需要按照三角形数量来遍历材质ID。
 		case FbxLayerElement::eByPolygon:
 
 			isByPolygon = true;
@@ -811,18 +847,25 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 				{
 					int materialIndex = materialIndices->GetAt(triangleIndex);
 
+					// 比较当前materialId和上次循环的materialId，
+					// 如果相同的话说明我们在处理拥有同一个materialId的三角形集合，
+					// 我们只需要增加三角形计数，保存materialId。
 					if (materialId == materialIndex)
 					{
 						offset.polygonCount++;
 						offset.material.materialId = materialIndex;
 
+						// 如果已经遍历最后一个三角形，保存材质偏移信息。
 						if (triangleIndex == triangleCount - 1)
 						{
 							offsets.push_back(offset);
 						}
 					}
 					else
+					// 如果当前materialId和上次循环的不同，说明开始了新的三角形集合
+					// 那么我们就将旧的集合保存到容器，开始处理新集合。
 					{
+
 						offsets.push_back(offset);
 						offset.material.materialId = materialIndex;
 						offset.polygonCount = 0;
