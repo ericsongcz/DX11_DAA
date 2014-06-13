@@ -38,8 +38,11 @@ private:
 	Geometry* mGeometry;
 	float mScreenWidth;
 	float mScreenHeight;
-    float mMenuBarHeight;
-	float mToolBarHeight;
+    int mMenuBarHeight;
+	int mToolBarHeight;
+	int mStatusBarHeight;
+	int mRenderWidgetTopOffset;
+	int mRenderWidgetBottomOffset;
 	GameTimer mTimer;
 	FBXImporter* mFBXImporter;
 	bool mRenderModel;

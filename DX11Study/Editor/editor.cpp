@@ -17,7 +17,10 @@ Editor::Editor(QWidget *parent)
 	mScreenWidth(0.0f),
 	mScreenHeight(0.0f),
 	mMenuBarHeight(0.0f),
-	mToolBarHeight(0.0f)
+	mToolBarHeight(0.0f),
+	mStatusBarHeight(0.0f),
+	mRenderWidgetTopOffset(0.0f),
+	mRenderWidgetBottomOffset(0.0f)
 {
 	AllocConsole();
 	FILE* file;
@@ -26,16 +29,25 @@ Editor::Editor(QWidget *parent)
 
 	ui.setupUi(this);
 	resize(QSize(900, 600));
-
+	// 设置焦点，接受输入事件。
 	setFocusPolicy(Qt::StrongFocus);
 
 	mMenuBarHeight = menuBar()->height();
+	QStatusBar* sb = statusBar();
+	QLabel* locationLabel = new QLabel(" W999 ");
+	locationLabel->setAlignment(Qt::AlignHCenter);
+	locationLabel->setMinimumSize(locationLabel->sizeHint());
+
+	statusBar()->addWidget(locationLabel);
 
 	mScreenWidth = width() - 200.0f;
-	mScreenHeight = height() - mMenuBarHeight - mToolBarHeight;
+	mStatusBarHeight = statusBar()->height();
+	mRenderWidgetTopOffset = mMenuBarHeight + mToolBarHeight;
+	mRenderWidgetBottomOffset = mStatusBarHeight;
+	mScreenHeight = height();
 
 	d3dWidget = new D3DRenderingWidget(mScreenWidth, mScreenHeight, this);
-	d3dWidget->setGeometry(QRect(0, mMenuBarHeight + mToolBarHeight, mScreenWidth, mScreenHeight));
+	d3dWidget->setGeometry(QRect(0, mRenderWidgetTopOffset, mScreenWidth, mScreenHeight));
 
 	setWindowTitle(tr("Qt D3D Demo"));
 
@@ -144,16 +156,17 @@ void Editor::keyPressEvent(QKeyEvent *event)
 
 void Editor::resizeEvent(QResizeEvent* event)
 {
-	mScreenWidth = width() - 200.0f;
-	mScreenHeight = height() - mMenuBarHeight - mToolBarHeight;
-
 	QMainWindow::resizeEvent(event);
+
+	int border = geometry().x() - x();
+
+	mScreenWidth = width() - 200.0f;
+	mScreenHeight = height() - (mRenderWidgetTopOffset + mRenderWidgetBottomOffset) + border;
+
 	d3dWidget->resize(mScreenWidth, mScreenHeight);
 
 	mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
-
-	ui.verticalLayoutWidget->resize(size());
 }
 
 void Editor::paintEvent(QPaintEvent* event)
@@ -272,9 +285,9 @@ void Editor::createPropertyBrowser()
 	variantEditor->setPropertiesWithoutValueMarked(true);
 	variantEditor->setRootIsDecorated(false);
 
-	variantEditor->show();
-
 	QDockWidget *dock = new QDockWidget(this);
 	addDockWidget(Qt::RightDockWidgetArea, dock);
 	dock->setWidget(variantEditor);
+
+	variantEditor->show();
 }
