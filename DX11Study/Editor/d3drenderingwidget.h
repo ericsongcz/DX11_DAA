@@ -18,19 +18,12 @@ public:
 	~D3DRenderingWidget();
 	virtual QPaintEngine* paintEngine() const { return NULL; }
 	HWND getHWND();
-	void drawScene();
-protected:
-	virtual void resizeEvent(QResizeEvent* event);
-	virtual void paintEvent(QPaintEvent* event);
-	virtual void keyPressEvent(QKeyEvent *event);
+
 private:
 	Ui::D3DRenderingWidget ui;
-	Direct3DRenderer* mRenderer;
-	Camera* mCamera;
-	Geometry* mGeometry;
+
 	float mScreenWidth;
 	float mScreenHeight;
-	GameTimer mTimer;
 };
 
 #endif // D3DRENDERINGWIDGET_H

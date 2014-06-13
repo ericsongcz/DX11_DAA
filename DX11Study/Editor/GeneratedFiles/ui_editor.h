@@ -30,6 +30,7 @@ public:
     QWidget *centralWidget;
     QMenuBar *menuBar;
     QMenu *menuFile;
+    QMenu *shit;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -48,6 +49,8 @@ public:
         menuBar->setGeometry(QRect(0, 0, 600, 23));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
+        shit = new QMenu(menuBar);
+        shit->setObjectName(QStringLiteral("shit"));
         EditorClass->setMenuBar(menuBar);
         mainToolBar = new QToolBar(EditorClass);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -57,6 +60,7 @@ public:
         EditorClass->setStatusBar(statusBar);
 
         menuBar->addAction(menuFile->menuAction());
+        menuBar->addAction(shit->menuAction());
         menuFile->addAction(actionLoad_Model);
 
         retranslateUi(EditorClass);
@@ -69,6 +73,7 @@ public:
         EditorClass->setWindowTitle(QApplication::translate("EditorClass", "Editor", 0));
         actionLoad_Model->setText(QApplication::translate("EditorClass", "Load Model", 0));
         menuFile->setTitle(QApplication::translate("EditorClass", "File", 0));
+        shit->setTitle(QApplication::translate("EditorClass", "Shit", 0));
     } // retranslateUi
 
 };

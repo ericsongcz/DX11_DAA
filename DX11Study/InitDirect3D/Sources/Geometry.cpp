@@ -12,11 +12,23 @@ using namespace DirectX;
 using namespace std;
 
 Geometry::Geometry()
+	: mDevice(nullptr),
+	mDeviceContext(nullptr),
+	mVertexBuffer(nullptr),
+	mIndexBuffer(nullptr),
+	mInputLayout(nullptr),
+	mVerticesCount(0),
+	mIndicesCount(0),
+	mVertices(nullptr),
+	mIndices(nullptr),
+	mMeshdata(nullptr)
 {
 }
 
 void Geometry::FillMeshData(MeshData* meshData)
 {
+	clear();
+
 	mMeshdata = meshData;
 
 	mVertices = new Vertex[mMeshdata->verticesCount];
@@ -87,6 +99,9 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	mDevice = device;
 	mDeviceContext = deviceContext;
 
+	SafeRelease(mVertexBuffer);
+	SafeRelease(mIndexBuffer);
+
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	vertexBufferDesc.Usage = D3D11_USAGE_IMMUTABLE;
@@ -133,10 +148,18 @@ void Geometry::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVe
 	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
-	//mDeviceContext->Draw(mVerticesCount, 0);
 }
 
 MeshData* Geometry::GetMeshData() const
 {
 	return mMeshdata;
+}
+
+void Geometry::clear()
+{
+	mVerticesCount = 0;
+	mIndicesCount = 0;
+	SafeDelete(mVertices);
+	SafeDelete(mIndices);
+	SafeDelete(mMeshdata);
 }

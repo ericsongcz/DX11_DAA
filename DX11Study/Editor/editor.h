@@ -8,6 +8,7 @@
 #include "Geometry.h"
 #include "Camera.h"
 #include "GameTimer.h"
+#include "FBXImporter.h"
 
 class Editor : public QMainWindow
 {
@@ -26,6 +27,9 @@ protected:
 	virtual void paintEvent(QPaintEvent* event);
 	virtual QPaintEngine* paintEngine() const { return NULL; }
 
+private slots:
+	void loadModel();
+
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -35,6 +39,8 @@ private:
 	float mScreenWidth;
 	float mScreenHeight;
 	GameTimer mTimer;
+	FBXImporter* mFBXImporter;
+	bool mRenderModel;
 };
 
 #endif // EDITOR_H

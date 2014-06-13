@@ -29,7 +29,13 @@
     </property>
     <addaction name="actionLoad_Model"/>
    </widget>
+   <widget class="QMenu" name="shit">
+    <property name="title">
+     <string>Shit</string>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="shit"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">

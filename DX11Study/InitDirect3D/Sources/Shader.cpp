@@ -151,8 +151,6 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	testBufferDesc.MiscFlags = 0;
 	testBufferDesc.StructureByteStride = 0;
 
-	Log("ByteWidth:%d", sizeof(TestBuffer));
-
 	HR(mDevice->CreateBuffer(&testBufferDesc, nullptr, &mTestBuffer));
 
 	D3D11_SAMPLER_DESC samplerDesc;

@@ -135,6 +135,7 @@ public:
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 	MeshData* GetMeshData() const;
+	void clear();
 private:
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;

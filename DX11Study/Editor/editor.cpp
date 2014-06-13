@@ -2,13 +2,23 @@
 #include "editor.h"
 #include <QLayout>
 #include <QPushButton>
+#include <QMessageBox>
+#include <QFileDialog>
 #include "D3DUtils.h"
-#include "FBXImporter.h"
 #include "SharedParameters.h"
+#include <iostream>
+
+using namespace std;
 
 Editor::Editor(QWidget *parent)
-	: QMainWindow(parent)
+	: QMainWindow(parent),
+	mRenderModel(false)
 {
+	AllocConsole();
+	FILE* file;
+	freopen_s(&file, "CONOUT$", "w+t", stdout);
+	freopen_s(&file, "CONIN$", "r+t", stdin);
+
 	ui.setupUi(this);
 	resize(QSize(1024, 768));
 
@@ -23,13 +33,8 @@ Editor::Editor(QWidget *parent)
 
 	setWindowTitle(tr("Qt D3D Demo"));
 
-	QPushButton* button = new QPushButton(this);
-	button->setText(tr("fuck me"));
-	button->setGeometry(90, 10, 60, 20);
-
 	QHBoxLayout* mainLayout = new QHBoxLayout(this);
 	mainLayout->addWidget(d3dWidget);
-	mainLayout->addWidget(button);
 
 	setLayout(mainLayout);
 
@@ -41,27 +46,23 @@ Editor::Editor(QWidget *parent)
 	mRenderer->initD3D(getHWND());
 	mRenderer->setViewport(mScreenWidth, mScreenHeight, 0.0f, 1.0f, 0.0f, 0.0f);
 
-	FBXImporter* fbxImporter = new FBXImporter();
-	fbxImporter->Init();
-	fbxImporter->LoadScene("teapotTextured.fbx");
-	fbxImporter->WalkHierarchy();
-
+	mFBXImporter = new FBXImporter();
+	mFBXImporter->Init();
 	mGeometry = new Geometry();
-	mGeometry->FillMeshData(fbxImporter->GetMeshInfo());
-
-	if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
-	{
-		return;
-	}
 
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 
 	mTimer.Reset();
+	QMenu* menu = menuBar()->actions().at(0)->menu();
+	QAction* loadModel = menu->actions().at(0);
+
+	connect(loadModel, SIGNAL(triggered()), this, SLOT(loadModel()));
 }
 
 Editor::~Editor()
 {
+	FreeConsole();
 	SafeDelete(mRenderer);
 }
 
@@ -178,35 +179,62 @@ void Editor::drawScene()
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
 
-	MeshData* meshData = mGeometry->GetMeshData();
-	vector<RenderPackage> renderPackages = meshData->renderPackages;
-	int renderPackageSize = renderPackages.size();
-
-	for (int i = 0; i < renderPackageSize; i++)
+	if (mRenderModel)
 	{
-		RenderParameters renderParameters;
+		MeshData* meshData = mGeometry->GetMeshData();
+		vector<RenderPackage> renderPackages = meshData->renderPackages;
+		int renderPackageSize = renderPackages.size();
 
-		worldMatrix = renderPackages[i].globalTransform;
-
-		if (renderPackages[i].hasDiffuseTexture)
+		for (int i = 0; i < renderPackageSize; i++)
 		{
-			renderParameters.hasDiffuseTexture = true;
+			RenderParameters renderParameters;
+
+			worldMatrix = renderPackages[i].globalTransform;
+
+			if (renderPackages[i].hasDiffuseTexture)
+			{
+				renderParameters.hasDiffuseTexture = true;
+			}
+
+			if (renderPackages[i].hasNormalMapTexture)
+			{
+				renderParameters.hasNormalMapTexture = true;
+			}
+
+			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+			if (renderPackages[i].textures.size() > 0)
+			{
+				mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			}
+
+			mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 		}
-
-		if (renderPackages[i].hasNormalMapTexture)
-		{
-			renderParameters.hasNormalMapTexture = true;
-		}
-
-		mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-		if (renderPackages[i].textures.size() > 0)
-		{
-			mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
-		}
-
-		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
 
 	mRenderer->endScene();
+}
+
+void Editor::loadModel()
+{
+	QString fileName = QFileDialog::getOpenFileName(this, tr("Open 3D Model"), tr("."), tr("Model Files(*.fbx)"));
+
+	if (fileName.length() == 0)
+	{
+		QMessageBox::information(this, tr("Path"), tr("You didn's select any files!"));
+	}
+	else
+	{
+		mFBXImporter->LoadScene(fileName.toStdString().c_str());
+		mFBXImporter->WalkHierarchy();
+
+		mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
+
+		if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
+		{
+			return;
+		}
+
+		mRenderModel = true;
+	}
 }

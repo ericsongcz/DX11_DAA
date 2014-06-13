@@ -325,6 +325,8 @@ MeshData* FBXImporter::GetMeshInfo()
 		mMeshData->materialIdOffsets.clear();
 	}
 
+	mFBXMeshDatas.clear();
+
 	return mMeshData;
 }
 
