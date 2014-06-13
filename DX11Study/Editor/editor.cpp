@@ -32,14 +32,14 @@ Editor::Editor(QWidget *parent)
 	// 设置焦点，接受输入事件。
 	setFocusPolicy(Qt::StrongFocus);
 
-	mMenuBarHeight = menuBar()->height();
-	QStatusBar* sb = statusBar();
 	QLabel* locationLabel = new QLabel(" W999 ");
 	locationLabel->setAlignment(Qt::AlignHCenter);
 	locationLabel->setMinimumSize(locationLabel->sizeHint());
 
+	// 即便在Qt Designer里移除了statusBar，在调用statusBar()的时候就会重新创建。
 	statusBar()->addWidget(locationLabel);
 
+	mMenuBarHeight = menuBar()->height();
 	mScreenWidth = width() - 200.0f;
 	mStatusBarHeight = statusBar()->height();
 	mRenderWidgetTopOffset = mMenuBarHeight + mToolBarHeight;
@@ -295,5 +295,6 @@ void Editor::createPropertyBrowser()
 
 	variantEditor->show();
 
+	// 可以获得QDockWidget添加QWidget之后的实际尺寸。
 	int width = dock->sizeHint().width();
 }
