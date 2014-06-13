@@ -38,6 +38,8 @@ private:
 	Geometry* mGeometry;
 	float mScreenWidth;
 	float mScreenHeight;
+    float mMenuBarHeight;
+	float mToolBarHeight;
 	GameTimer mTimer;
 	FBXImporter* mFBXImporter;
 	bool mRenderModel;

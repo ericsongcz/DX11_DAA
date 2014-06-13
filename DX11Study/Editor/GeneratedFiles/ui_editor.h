@@ -19,6 +19,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
+#include <QtWidgets/QTreeView>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -28,6 +29,7 @@ class Ui_EditorClass
 public:
     QAction *actionLoad_Model;
     QWidget *centralWidget;
+    QTreeView *treeView;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *shit;
@@ -43,6 +45,9 @@ public:
         actionLoad_Model->setObjectName(QStringLiteral("actionLoad_Model"));
         centralWidget = new QWidget(EditorClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
+        treeView = new QTreeView(centralWidget);
+        treeView->setObjectName(QStringLiteral("treeView"));
+        treeView->setGeometry(QRect(310, 40, 261, 281));
         EditorClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EditorClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));

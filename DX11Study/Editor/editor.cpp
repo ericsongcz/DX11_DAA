@@ -12,7 +12,11 @@ using namespace std;
 
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent),
-	mRenderModel(false)
+	mRenderModel(false),
+	mScreenWidth(0.0f),
+	mScreenHeight(0.0f),
+	mMenuBarHeight(0.0f),
+	mToolBarHeight(0.0f)
 {
 	AllocConsole();
 	FILE* file;
@@ -20,16 +24,17 @@ Editor::Editor(QWidget *parent)
 	freopen_s(&file, "CONIN$", "r+t", stdin);
 
 	ui.setupUi(this);
-	resize(QSize(1024, 768));
+	resize(QSize(900, 600));
 
 	setFocusPolicy(Qt::StrongFocus);
 
-	int menuBarHeight = menuBar()->height();
-	mScreenWidth = width();
-	mScreenHeight = height() - menuBarHeight;
+	mMenuBarHeight = menuBar()->height();
+
+	mScreenWidth = width() - 200.0f;
+	mScreenHeight = height() - mMenuBarHeight - mToolBarHeight;
 
 	d3dWidget = new D3DRenderingWidget(mScreenWidth, mScreenHeight, this);
-	d3dWidget->setGeometry(QRect(0, menuBarHeight, mScreenWidth, mScreenHeight));
+	d3dWidget->setGeometry(QRect(0, mMenuBarHeight + mToolBarHeight, mScreenWidth, mScreenHeight));
 
 	setWindowTitle(tr("Qt D3D Demo"));
 
@@ -131,8 +136,8 @@ void Editor::keyPressEvent(QKeyEvent *event)
 
 void Editor::resizeEvent(QResizeEvent* event)
 {
-	mScreenWidth = width();
-	mScreenHeight = height() - menuBar()->height();
+	mScreenWidth = width() - 200.0f;
+	mScreenHeight = height() - mMenuBarHeight - mToolBarHeight;
 
 	QMainWindow::resizeEvent(event);
 	d3dWidget->resize(mScreenWidth, mScreenHeight);
