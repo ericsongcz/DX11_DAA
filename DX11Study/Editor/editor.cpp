@@ -49,6 +49,10 @@ Editor::Editor(QWidget *parent)
 	d3dWidget = new D3DRenderingWidget(mScreenWidth, mScreenHeight, this);
 	d3dWidget->setGeometry(QRect(0, mRenderWidgetTopOffset, mScreenWidth, mScreenHeight));
 
+	//QDockWidget* dock = new QDockWidget(this);
+	//addDockWidget(Qt::LeftDockWidgetArea, dock);
+	//dock->setWidget(d3dWidget);
+
 	setWindowTitle(tr("Qt D3D Demo"));
 
 	QHBoxLayout* mainLayout = new QHBoxLayout();
@@ -290,4 +294,6 @@ void Editor::createPropertyBrowser()
 	dock->setWidget(variantEditor);
 
 	variantEditor->show();
+
+	int width = dock->sizeHint().width();
 }
