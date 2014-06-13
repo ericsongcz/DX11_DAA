@@ -59,7 +59,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("teapot.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();

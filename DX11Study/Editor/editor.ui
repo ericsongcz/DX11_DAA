@@ -6,23 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>400</height>
+    <width>900</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <widget class="QTreeView" name="treeView">
+   <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>40</y>
-      <width>261</width>
-      <height>281</height>
+      <x>659</x>
+      <y>0</y>
+      <width>231</width>
+      <height>551</height>
      </rect>
     </property>
+    <layout class="QVBoxLayout" name="verticalLayout"/>
    </widget>
   </widget>
   <widget class="QMenuBar" name="menuBar">
@@ -30,7 +31,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>900</width>
      <height>23</height>
     </rect>
    </property>

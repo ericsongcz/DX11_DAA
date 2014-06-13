@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "editor.h"
-#include <QLayout>
-#include <QPushButton>
 #include <QMessageBox>
 #include <QFileDialog>
+#include "qtpropertybrower/qtpropertymanager.h"
+#include "qtpropertybrower/qtvariantproperty.h"
+#include "qtpropertybrower/qttreepropertybrowser.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
 #include <iostream>
@@ -38,8 +39,13 @@ Editor::Editor(QWidget *parent)
 
 	setWindowTitle(tr("Qt D3D Demo"));
 
-	QHBoxLayout* mainLayout = new QHBoxLayout(this);
-	mainLayout->addWidget(d3dWidget);
+	QHBoxLayout* mainLayout = new QHBoxLayout();
+	mLeftLayout = new QHBoxLayout();
+	mRightLayout = new QHBoxLayout();
+
+	mLeftLayout->addWidget(d3dWidget);
+	mainLayout->addLayout(mLeftLayout);
+	mainLayout->addLayout(mRightLayout);
 
 	setLayout(mainLayout);
 
@@ -63,6 +69,8 @@ Editor::Editor(QWidget *parent)
 	QAction* loadModel = menu->actions().at(0);
 
 	connect(loadModel, SIGNAL(triggered()), this, SLOT(loadModel()));
+
+	createPropertyBrowser();
 }
 
 Editor::~Editor()
@@ -144,6 +152,8 @@ void Editor::resizeEvent(QResizeEvent* event)
 
 	mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+
+	ui.verticalLayoutWidget->resize(size());
 }
 
 void Editor::paintEvent(QPaintEvent* event)
@@ -242,4 +252,29 @@ void Editor::loadModel()
 
 		mRenderModel = true;
 	}
+}
+
+void Editor::createPropertyBrowser()
+{
+	QtVariantPropertyManager* variantManager = new QtVariantPropertyManager();
+	int i = 0;
+	QtProperty* topItem = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(), QString::number(i++) + QLatin1String(" Group Property"));
+
+	QtVariantProperty* item = variantManager->addProperty(QVariant::Bool, QString::number(i++) + QLatin1String(" Bool Property"));
+	item->setValue(true);
+	topItem->addSubProperty(item);
+
+	QtVariantEditorFactory* variantFactory = new QtVariantEditorFactory();
+	QtTreePropertyBrowser* variantEditor = new QtTreePropertyBrowser();
+
+	variantEditor->setFactoryForManager(variantManager, variantFactory);
+	variantEditor->addProperty(topItem);
+	variantEditor->setPropertiesWithoutValueMarked(true);
+	variantEditor->setRootIsDecorated(false);
+
+	variantEditor->show();
+
+	QDockWidget *dock = new QDockWidget(this);
+	addDockWidget(Qt::RightDockWidgetArea, dock);
+	dock->setWidget(variantEditor);
 }

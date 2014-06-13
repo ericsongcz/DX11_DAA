@@ -19,7 +19,7 @@
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QToolBar>
-#include <QtWidgets/QTreeView>
+#include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -29,7 +29,8 @@ class Ui_EditorClass
 public:
     QAction *actionLoad_Model;
     QWidget *centralWidget;
-    QTreeView *treeView;
+    QWidget *verticalLayoutWidget;
+    QVBoxLayout *verticalLayout;
     QMenuBar *menuBar;
     QMenu *menuFile;
     QMenu *shit;
@@ -40,18 +41,23 @@ public:
     {
         if (EditorClass->objectName().isEmpty())
             EditorClass->setObjectName(QStringLiteral("EditorClass"));
-        EditorClass->resize(600, 400);
+        EditorClass->resize(900, 600);
         actionLoad_Model = new QAction(EditorClass);
         actionLoad_Model->setObjectName(QStringLiteral("actionLoad_Model"));
         centralWidget = new QWidget(EditorClass);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
-        treeView = new QTreeView(centralWidget);
-        treeView->setObjectName(QStringLiteral("treeView"));
-        treeView->setGeometry(QRect(310, 40, 261, 281));
+        verticalLayoutWidget = new QWidget(centralWidget);
+        verticalLayoutWidget->setObjectName(QStringLiteral("verticalLayoutWidget"));
+        verticalLayoutWidget->setGeometry(QRect(659, 0, 231, 551));
+        verticalLayout = new QVBoxLayout(verticalLayoutWidget);
+        verticalLayout->setSpacing(6);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
+        verticalLayout->setObjectName(QStringLiteral("verticalLayout"));
+        verticalLayout->setContentsMargins(0, 0, 0, 0);
         EditorClass->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(EditorClass);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 600, 23));
+        menuBar->setGeometry(QRect(0, 0, 900, 23));
         menuFile = new QMenu(menuBar);
         menuFile->setObjectName(QStringLiteral("menuFile"));
         shit = new QMenu(menuBar);

@@ -20,7 +20,7 @@ public:
 
 	HWND getHWND();
 	void drawScene();
-
+	void createPropertyBrowser();
 protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 	virtual void resizeEvent(QResizeEvent* event);
@@ -43,6 +43,8 @@ private:
 	GameTimer mTimer;
 	FBXImporter* mFBXImporter;
 	bool mRenderModel;
+	QHBoxLayout* mLeftLayout;
+	QHBoxLayout* mRightLayout;
 };
 
 #endif // EDITOR_H
