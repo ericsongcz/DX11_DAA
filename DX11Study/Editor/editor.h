@@ -23,6 +23,8 @@ class Editor : public QMainWindow
 	const QString WIREFRAME_MODE = tr("Wireframe Mode");
 	const QString SHOW_TEXTURE = tr("Show Texture");
 	const QString CLEAR_COLOR = tr("Clear Color");
+	const QString AMBIENT_COLOR = tr("Ambient Color");
+	CONST QString AMBIENT_INTENSITY = tr("Ambient Intensity");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -44,6 +46,7 @@ private slots:
 	void fillModeChanged(QtProperty* property, bool value);
 	void showTextureChanged(QtProperty* property, bool value);
 	void clearColorChanged(QtProperty* property, const QColor& value);
+	void ambientColorChanged(QtProperty* property, const QColor& value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -70,6 +73,9 @@ private:
 	QtBoolPropertyManager* mFillModePropertyManager;
 	QtBoolPropertyManager* mShowTexturePropertyManager;
 	QtColorPropertyManager* mClearColorPropertyManager;
+	QtColorPropertyManager* mAmbientColorPropertyManager;
+	QtIntPropertyManager* mAmbientIntensitySpinBoxPropertManager;
+	QtIntPropertyManager* mAmbientIntensitySliderPropertyManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;

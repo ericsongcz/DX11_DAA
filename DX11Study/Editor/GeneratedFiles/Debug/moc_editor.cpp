@@ -20,8 +20,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Editor_t {
-    QByteArrayData data[9];
-    char stringdata[98];
+    QByteArrayData data[10];
+    char stringdata[118];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,11 +38,13 @@ QT_MOC_LITERAL(4, 34, 11),
 QT_MOC_LITERAL(5, 46, 8),
 QT_MOC_LITERAL(6, 55, 5),
 QT_MOC_LITERAL(7, 61, 18),
-QT_MOC_LITERAL(8, 80, 17)
+QT_MOC_LITERAL(8, 80, 17),
+QT_MOC_LITERAL(9, 98, 19)
     },
     "Editor\0loadModel\0\0fillModeChanged\0"
     "QtProperty*\0property\0value\0"
-    "showTextureChanged\0clearColorChanged"
+    "showTextureChanged\0clearColorChanged\0"
+    "ambientColorChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -52,7 +54,7 @@ static const uint qt_meta_data_Editor[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -60,15 +62,17 @@ static const uint qt_meta_data_Editor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   34,    2, 0x08 /* Private */,
-       3,    2,   35,    2, 0x08 /* Private */,
-       7,    2,   40,    2, 0x08 /* Private */,
-       8,    2,   45,    2, 0x08 /* Private */,
+       1,    0,   39,    2, 0x08 /* Private */,
+       3,    2,   40,    2, 0x08 /* Private */,
+       7,    2,   45,    2, 0x08 /* Private */,
+       8,    2,   50,    2, 0x08 /* Private */,
+       9,    2,   55,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Bool,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Bool,    5,    6,
+    QMetaType::Void, 0x80000000 | 4, QMetaType::QColor,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::QColor,    5,    6,
 
        0        // eod
@@ -83,6 +87,7 @@ void Editor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 1: _t->fillModeChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         case 2: _t->showTextureChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         case 3: _t->clearColorChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< const QColor(*)>(_a[2]))); break;
+        case 4: _t->ambientColorChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< const QColor(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -113,13 +118,13 @@ int Editor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 5)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }

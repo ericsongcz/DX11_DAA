@@ -295,6 +295,9 @@ void Editor::createPropertyBrowser()
 	QtTreePropertyBrowser* variantEditor = new QtTreePropertyBrowser(dock);
 	dock->setWidget(variantEditor);
 
+	QtGroupPropertyManager* commonGroupPropertyManager = new QtGroupPropertyManager(this);
+	QtProperty* group = commonGroupPropertyManager->addProperty("Common");
+
 	mFillModePropertyManager = new QtBoolPropertyManager(this);
 	connect(mFillModePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(fillModeChanged(QtProperty*, bool)));
 
@@ -305,7 +308,7 @@ void Editor::createPropertyBrowser()
 	mFillModePropertyManager->setValue(property, false);
 	mPropertys[WIREFRAME_MODE] = property;
 
-	variantEditor->addProperty(property);
+	group->addSubProperty(property);
 
 	mShowTexturePropertyManager = new QtBoolPropertyManager(this);
 	connect(mShowTexturePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showTextureChanged(QtProperty*, bool)));
@@ -315,22 +318,64 @@ void Editor::createPropertyBrowser()
 	mShowTexturePropertyManager->setValue(property, true);
 	mPropertys[SHOW_TEXTURE] = property;
 
-	variantEditor->addProperty(property);
+	group->addSubProperty(property);
 
 	mClearColorPropertyManager = new QtColorPropertyManager(this);
-
+	QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
 	QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
 	connect(mClearColorPropertyManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(clearColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mClearColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
 	variantEditor->setFactoryForManager(mClearColorPropertyManager, colorEditorFactory);
 
 	property = mClearColorPropertyManager->addProperty(CLEAR_COLOR);
 	mClearColorPropertyManager->setValue(property, QColor(100, 149, 237));
 	mPropertys[CLEAR_COLOR] = property;
 
-	variantEditor->addProperty(property);
+	group->addSubProperty(property);
+	variantEditor->addProperty(group);
 
+	QtGroupPropertyManager* lightingGroupProperyManager = new QtGroupPropertyManager(this);
+	group = lightingGroupProperyManager->addProperty("Lighting");
+
+	mAmbientColorPropertyManager = new QtColorPropertyManager(this);
+	property = mAmbientColorPropertyManager->addProperty(AMBIENT_COLOR);
+	mAmbientColorPropertyManager->setValue(property, QColor(255, 255, 255));
+	mPropertys[AMBIENT_COLOR] = property;
+
+	group->addSubProperty(property);
+
+	connect(mAmbientColorPropertyManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(ambientColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mAmbientColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
+	variantEditor->setFactoryForManager(mAmbientColorPropertyManager, colorEditorFactory);
+
+	mAmbientIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
+	variantEditor->setFactoryForManager(mAmbientIntensitySpinBoxPropertManager, spinBoxFactory);
+
+	property = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
+	mAmbientIntensitySpinBoxPropertManager->setValue(property, 50);
+	mAmbientIntensitySpinBoxPropertManager->setMinimum(property, 0);
+	mAmbientIntensitySpinBoxPropertManager->setMaximum(property, 100);
+	mPropertys[AMBIENT_INTENSITY] = property;
+
+	group->addSubProperty(property);
+
+	mAmbientIntensitySliderPropertyManager = new QtIntPropertyManager(this);
+	QtSliderFactory* sliderFactory = new QtSliderFactory(this);
+	variantEditor->setFactoryForManager(mAmbientIntensitySliderPropertyManager, sliderFactory);
+
+	property = mAmbientIntensitySliderPropertyManager->addProperty(AMBIENT_INTENSITY);
+	mAmbientIntensitySliderPropertyManager->setValue(property, 50);
+	mAmbientIntensitySliderPropertyManager->setMinimum(property, 0);
+	mAmbientIntensitySliderPropertyManager->setMaximum(property, 100);
+	mPropertys[AMBIENT_INTENSITY] = property;
+
+	group->addSubProperty(property);
+
+	variantEditor->addProperty(group);
+
+	// 设置是否显示属性前面的折叠小箭头。
 	variantEditor->setPropertiesWithoutValueMarked(true);
-	variantEditor->setRootIsDecorated(false);
+	//variantEditor->setRootIsDecorated(false);
 
 	variantEditor->show();
 
@@ -411,4 +456,9 @@ void Editor::mouseReleaseEvent(QMouseEvent* event)
 void Editor::clearColorChanged(QtProperty* property, const QColor& value)
 {
 	mRenderer->setClearColor(value.red(), value.green(), value.blue());
+}
+
+void Editor::ambientColorChanged(QtProperty* property, const QColor& value)
+{
+
 }
