@@ -317,6 +317,21 @@ void Editor::createPropertyBrowser()
 
 	variantEditor->addProperty(property);
 
+	mClearColorPropertyManager = new QtColorPropertyManager(this);
+
+	QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
+	connect(mClearColorPropertyManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(clearColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mClearColorPropertyManager, colorEditorFactory);
+
+	property = mClearColorPropertyManager->addProperty(CLEAR_COLOR);
+	mClearColorPropertyManager->setValue(property, QColor(100, 149, 237));
+	mPropertys[CLEAR_COLOR] = property;
+
+	variantEditor->addProperty(property);
+
+	variantEditor->setPropertiesWithoutValueMarked(true);
+	variantEditor->setRootIsDecorated(false);
+
 	variantEditor->show();
 
 	// 可以获得QDockWidget添加QWidget之后的实际尺寸。
@@ -391,4 +406,9 @@ void Editor::mouseReleaseEvent(QMouseEvent* event)
 
 		Log("Mouse right button up.\n");
 	}
+}
+
+void Editor::clearColorChanged(QtProperty* property, const QColor& value)
+{
+	mRenderer->setClearColor(value.red(), value.green(), value.blue());
 }

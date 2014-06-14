@@ -22,6 +22,7 @@ public:
 	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
+	void setClearColor(int r, int g, int b);
 private:
 	// D3D11 stuffs.
 	float mScreenWidth;
@@ -48,4 +49,5 @@ private:
 	D3D11_VIEWPORT mScreenViewport;
 	ID3D11RasterizerState* mSolidState;
 	ID3D11RasterizerState* mWireframeState;
+	float mClearColor[3];
 };

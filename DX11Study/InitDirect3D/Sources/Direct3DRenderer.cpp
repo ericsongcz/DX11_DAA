@@ -138,6 +138,8 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 		return false;
 	}
 
+	setClearColor(100, 149, 237);
+
 	return true;
 }
 
@@ -206,9 +208,7 @@ ID3D11Device* Direct3DRenderer::getDevice() const
 
 void Direct3DRenderer::beginScene()
 {
-	float clearColor[] = { RGB256(100), RGB256(149), RGB256(237) };
-
-	mDeviceContext->ClearRenderTargetView(mRenderTargetView, clearColor);
+	mDeviceContext->ClearRenderTargetView(mRenderTargetView, mClearColor);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 }
 
@@ -265,4 +265,11 @@ void Direct3DRenderer::setViewport(float width, float height, float topLeftX, fl
 	viewport.TopLeftY = topLeftY;
 
 	mDeviceContext->RSSetViewports(1, &viewport);
+}
+
+void Direct3DRenderer::setClearColor(int r, int g, int b)
+{
+	mClearColor[0] = RGB256(r);
+	mClearColor[1] = RGB256(g);
+	mClearColor[2] = RGB256(b);
 }
