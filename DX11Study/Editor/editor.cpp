@@ -2,9 +2,9 @@
 #include "editor.h"
 #include <QMessageBox>
 #include <QFileDialog>
-#include "qtpropertybrower/qtpropertymanager.h"
-#include "qtpropertybrower/qtvariantproperty.h"
-#include "qtpropertybrower/qttreepropertybrowser.h"
+#include "qtpropertybrowser/qtpropertymanager.h"
+#include "qtpropertybrowser/qtvariantproperty.h"
+#include "qtpropertybrowser/qttreepropertybrowser.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
 #include <iostream>
