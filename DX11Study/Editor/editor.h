@@ -24,7 +24,8 @@ class Editor : public QMainWindow
 	const QString SHOW_TEXTURE = tr("Show Texture");
 	const QString CLEAR_COLOR = tr("Clear Color");
 	const QString AMBIENT_COLOR = tr("Ambient Color");
-	CONST QString AMBIENT_INTENSITY = tr("Ambient Intensity");
+	const QString AMBIENT_INTENSITY = tr("Intensity");
+	const QString AMBIENT_INTENSITY_SLIDER = tr("Intensity Slider");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -47,6 +48,7 @@ private slots:
 	void showTextureChanged(QtProperty* property, bool value);
 	void clearColorChanged(QtProperty* property, const QColor& value);
 	void ambientColorChanged(QtProperty* property, const QColor& value);
+	void setValue(QtProperty *property, int value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;

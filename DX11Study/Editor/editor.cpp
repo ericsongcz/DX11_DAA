@@ -351,31 +351,37 @@ void Editor::createPropertyBrowser()
 	mAmbientIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
 	variantEditor->setFactoryForManager(mAmbientIntensitySpinBoxPropertManager, spinBoxFactory);
 
-	property = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
-	mAmbientIntensitySpinBoxPropertManager->setValue(property, 50);
-	mAmbientIntensitySpinBoxPropertManager->setMinimum(property, 0);
-	mAmbientIntensitySpinBoxPropertManager->setMaximum(property, 100);
-	mPropertys[AMBIENT_INTENSITY] = property;
+	QtProperty* property1 = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
+	mAmbientIntensitySpinBoxPropertManager->setValue(property1, 50);
+	mAmbientIntensitySpinBoxPropertManager->setMinimum(property1, 0);
+	mAmbientIntensitySpinBoxPropertManager->setMaximum(property1, 100);
+	mPropertys[AMBIENT_INTENSITY] = property1;
 
-	group->addSubProperty(property);
+	group->addSubProperty(property1);
 
 	mAmbientIntensitySliderPropertyManager = new QtIntPropertyManager(this);
+
 	QtSliderFactory* sliderFactory = new QtSliderFactory(this);
 	variantEditor->setFactoryForManager(mAmbientIntensitySliderPropertyManager, sliderFactory);
 
-	property = mAmbientIntensitySliderPropertyManager->addProperty(AMBIENT_INTENSITY);
-	mAmbientIntensitySliderPropertyManager->setValue(property, 50);
-	mAmbientIntensitySliderPropertyManager->setMinimum(property, 0);
-	mAmbientIntensitySliderPropertyManager->setMaximum(property, 100);
-	mPropertys[AMBIENT_INTENSITY] = property;
+	QtProperty* property2 = mAmbientIntensitySliderPropertyManager->addProperty(AMBIENT_INTENSITY_SLIDER);
+	mAmbientIntensitySliderPropertyManager->setValue(property2, 0);
+	mAmbientIntensitySliderPropertyManager->setMinimum(property2, 0);
+	mAmbientIntensitySliderPropertyManager->setMaximum(property2, 100);
+	mPropertys[AMBIENT_INTENSITY_SLIDER] = property2;
 
-	group->addSubProperty(property);
+	//connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), mAmbientIntensitySliderPropertyManager, SLOT(setValue(QtProperty*, int)));
+	//connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), mAmbientIntensitySpinBoxPropertManager, SLOT(setValue(QtProperty*, int)));
+	connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(setValue(QtProperty*, int)));
+	connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(setValue(QtProperty*, int)));
+
+	group->addSubProperty(property2);
 
 	variantEditor->addProperty(group);
 
 	// 设置是否显示属性前面的折叠小箭头。
 	variantEditor->setPropertiesWithoutValueMarked(true);
-	//variantEditor->setRootIsDecorated(false);
+	variantEditor->setRootIsDecorated(false);
 
 	variantEditor->show();
 
@@ -461,4 +467,16 @@ void Editor::clearColorChanged(QtProperty* property, const QColor& value)
 void Editor::ambientColorChanged(QtProperty* property, const QColor& value)
 {
 
+}
+
+void Editor::setValue(QtProperty *property, int value)
+{
+	if (property->propertyName() == AMBIENT_INTENSITY)
+	{
+		mAmbientIntensitySliderPropertyManager->setValue(mPropertys[AMBIENT_INTENSITY_SLIDER], value);
+	}
+	else
+	{
+		mAmbientIntensitySpinBoxPropertManager->setValue(mPropertys[AMBIENT_INTENSITY], value);
+	}
 }
