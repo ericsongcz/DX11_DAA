@@ -1,10 +1,5 @@
 #include "stdafx.h"
 #include "editor.h"
-#include <QMessageBox>
-#include <QFileDialog>
-#include "qtpropertybrowser/qtpropertymanager.h"
-#include "qtpropertybrowser/qtvariantproperty.h"
-#include "qtpropertybrowser/qttreepropertybrowser.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
 #include <iostream>
@@ -14,13 +9,21 @@ using namespace std;
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent),
 	mRenderModel(false),
+	mWireframe(false),
+	mShowTexture(false),
+	mMouseRightButtonDown(false),
 	mScreenWidth(0.0f),
 	mScreenHeight(0.0f),
 	mMenuBarHeight(0.0f),
 	mToolBarHeight(0.0f),
 	mStatusBarHeight(0.0f),
 	mRenderWidgetTopOffset(0.0f),
-	mRenderWidgetBottomOffset(0.0f)
+	mRenderWidgetBottomOffset(0.0f),
+	mLastMousePositionX(0),
+	mLastMousePositionY(0),
+	mRotateAxisX(XMMatrixIdentity()),
+	mRotateAxisY(XMMatrixIdentity()),
+	mRotate(XMMatrixIdentity())
 {
 	AllocConsole();
 	FILE* file;
@@ -32,12 +35,12 @@ Editor::Editor(QWidget *parent)
 	// 设置焦点，接受输入事件。
 	setFocusPolicy(Qt::StrongFocus);
 
-	QLabel* locationLabel = new QLabel(" W999 ");
-	locationLabel->setAlignment(Qt::AlignHCenter);
-	locationLabel->setMinimumSize(locationLabel->sizeHint());
+	mLocationLabel = new QLabel(" W999 ");
+	mLocationLabel->setAlignment(Qt::AlignHCenter);
+	mLocationLabel->setMinimumSize(mLocationLabel->sizeHint());
 
 	// 即便在Qt Designer里移除了statusBar，在调用statusBar()的时候就会重新创建。
-	statusBar()->addWidget(locationLabel);
+	statusBar()->addWidget(mLocationLabel);
 
 	mMenuBarHeight = menuBar()->height();
 	mScreenWidth = width() - 200.0f;
@@ -49,21 +52,14 @@ Editor::Editor(QWidget *parent)
 	d3dWidget = new D3DRenderingWidget(mScreenWidth, mScreenHeight, this);
 	d3dWidget->setGeometry(QRect(0, mRenderWidgetTopOffset, mScreenWidth, mScreenHeight));
 
-	//QDockWidget* dock = new QDockWidget(this);
-	//addDockWidget(Qt::LeftDockWidgetArea, dock);
-	//dock->setWidget(d3dWidget);
+	// setCentralWidget可以使QWidget根据其他的QDockWidget来自适应缩放。
+	setCentralWidget(d3dWidget);
 
 	setWindowTitle(tr("Qt D3D Demo"));
 
-	QHBoxLayout* mainLayout = new QHBoxLayout();
-	mLeftLayout = new QHBoxLayout();
-	mRightLayout = new QHBoxLayout();
-
-	mLeftLayout->addWidget(d3dWidget);
-	mainLayout->addLayout(mLeftLayout);
-	mainLayout->addLayout(mRightLayout);
-
-	setLayout(mainLayout);
+	//QDockWidget* dock = new QDockWidget(this);
+	//addDockWidget(Qt::LeftDockWidgetArea, dock);
+	//dock->setWidget(d3dWidget);
 
 	QTimer* timer = new QTimer(this);
 	connect(timer, SIGNAL(timeout()), this, SLOT(update()));
@@ -85,6 +81,8 @@ Editor::Editor(QWidget *parent)
 	QAction* loadModel = menu->actions().at(0);
 
 	connect(loadModel, SIGNAL(triggered()), this, SLOT(loadModel()));
+
+	setMouseTracking(true);
 
 	createPropertyBrowser();
 }
@@ -129,6 +127,17 @@ void Editor::keyPressEvent(QKeyEvent *event)
 		break;
 	case Qt::Key_F:
 		mRenderer->switchFillMode();
+		
+		mWireframe = !mWireframe;
+
+		mFillModePropertyManager->setValue(mPropertys[WIREFRAME_MODE], mWireframe);
+
+		break;
+
+	case Qt::Key_T:
+		mShowTexture = !mShowTexture;
+
+		mShowTexturePropertyManager->setValue(mPropertys[SHOW_TEXTURE], mShowTexture);
 
 		break;
 	case Qt::Key_Up:
@@ -223,9 +232,14 @@ void Editor::drawScene()
 
 			worldMatrix = renderPackages[i].globalTransform;
 
-			if (renderPackages[i].hasDiffuseTexture)
+			worldMatrix = XMMatrixMultiply(worldMatrix, mRotate);
+
+			if (mShowTexture)
 			{
-				renderParameters.hasDiffuseTexture = true;
+				if (renderPackages[i].hasDiffuseTexture)
+				{
+					renderParameters.hasDiffuseTexture = true;
+				}
 			}
 
 			if (renderPackages[i].hasNormalMapTexture)
@@ -233,12 +247,14 @@ void Editor::drawScene()
 				renderParameters.hasNormalMapTexture = true;
 			}
 
-			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
 			if (renderPackages[i].textures.size() > 0)
 			{
 				mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 			}
+
+			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+
+
 
 			mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 		}
@@ -273,28 +289,106 @@ void Editor::loadModel()
 
 void Editor::createPropertyBrowser()
 {
-	QtVariantPropertyManager* variantManager = new QtVariantPropertyManager();
-	int i = 0;
-	QtProperty* topItem = variantManager->addProperty(QtVariantPropertyManager::groupTypeId(), QString::number(i++) + QLatin1String(" Group Property"));
-
-	QtVariantProperty* item = variantManager->addProperty(QVariant::Bool, QString::number(i++) + QLatin1String(" Bool Property"));
-	item->setValue(true);
-	topItem->addSubProperty(item);
-
-	QtVariantEditorFactory* variantFactory = new QtVariantEditorFactory();
-	QtTreePropertyBrowser* variantEditor = new QtTreePropertyBrowser();
-
-	variantEditor->setFactoryForManager(variantManager, variantFactory);
-	variantEditor->addProperty(topItem);
-	variantEditor->setPropertiesWithoutValueMarked(true);
-	variantEditor->setRootIsDecorated(false);
-
 	QDockWidget *dock = new QDockWidget(this);
 	addDockWidget(Qt::RightDockWidgetArea, dock);
+
+	QtTreePropertyBrowser* variantEditor = new QtTreePropertyBrowser(dock);
 	dock->setWidget(variantEditor);
+
+	mFillModePropertyManager = new QtBoolPropertyManager(this);
+	connect(mFillModePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(fillModeChanged(QtProperty*, bool)));
+
+	QtCheckBoxFactory* checkBoxFactory = new QtCheckBoxFactory(this);
+	variantEditor->setFactoryForManager(mFillModePropertyManager, checkBoxFactory);
+
+	QtProperty* property = mFillModePropertyManager->addProperty(WIREFRAME_MODE);
+	mFillModePropertyManager->setValue(property, false);
+	mPropertys[WIREFRAME_MODE] = property;
+
+	variantEditor->addProperty(property);
+
+	mShowTexturePropertyManager = new QtBoolPropertyManager(this);
+	connect(mShowTexturePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showTextureChanged(QtProperty*, bool)));
+	variantEditor->setFactoryForManager(mShowTexturePropertyManager, checkBoxFactory);
+
+	property = mShowTexturePropertyManager->addProperty(SHOW_TEXTURE);
+	mShowTexturePropertyManager->setValue(property, true);
+	mPropertys[SHOW_TEXTURE] = property;
+
+	variantEditor->addProperty(property);
 
 	variantEditor->show();
 
 	// 可以获得QDockWidget添加QWidget之后的实际尺寸。
 	int width = dock->sizeHint().width();
+}
+
+void Editor::fillModeChanged(QtProperty* property, bool value)
+{
+	mWireframe = value;
+
+	if (mWireframe)
+	{
+		mRenderer->changeFillMode(D3D11_FILL_WIREFRAME);
+	}
+	else
+	{
+		mRenderer->changeFillMode(D3D11_FILL_SOLID);
+	}
+}
+
+void Editor::showTextureChanged(QtProperty* property, bool value)
+{
+	mShowTexture = value;
+}
+
+void Editor::mouseMoveEvent(QMouseEvent* event)
+{
+	int deltaX = event->x() - mLastMousePositionX;
+	int deltaY = event->y() - mLastMousePositionY;
+
+	if (event->buttons() & Qt::LeftButton)
+	{
+		mRotateAxisX = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), (float)deltaX / 100.0f);
+		mRotateAxisY = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), (float)deltaY / 100.0f);
+
+		mRotate *= mRotateAxisX * mRotateAxisY;
+
+		Log("Mouse left button drag.\n");
+	}
+
+	if (event->buttons() & Qt::RightButton)
+	{
+		mCamera->yaw(-(float)deltaX / 1000.0f);
+		mCamera->pitch(-(float)deltaY / 1000.0f);
+	}
+
+	mLastMousePositionX = event->x();
+	mLastMousePositionY = event->y();
+
+	// 这里需要减去QMenuBar的高度才能得到正确的y坐标位置，因为我们是在QMainWindow而不是QWidget里追踪鼠标位置。
+	mLocationLabel->setText(tr("x = ") + QString::number(event->x()) + ", y = " + QString::number(event->y() - mMenuBarHeight));
+}
+
+void Editor::mousePressEvent(QMouseEvent* event)
+{
+	mLastMousePositionX = event->x();
+	mLastMousePositionY = event->y();
+
+	if (event->button() == Qt::RightButton)
+	{
+		mMouseRightButtonDown = true;
+
+		Log("Mouse right button down.\n");
+	}
+}
+
+void Editor::mouseReleaseEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::RightButton)
+	{
+		mMouseRightButtonDown = false;
+
+		Log("Mouse right button up.\n");
+	}
 }

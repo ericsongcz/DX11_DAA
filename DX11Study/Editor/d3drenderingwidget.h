@@ -19,6 +19,9 @@ public:
 	virtual QPaintEngine* paintEngine() const { return NULL; }
 	HWND getHWND();
 
+protected:
+	virtual void mouseMoveEvent(QMouseEvent* event);
+
 private:
 	Ui::D3DRenderingWidget ui;
 

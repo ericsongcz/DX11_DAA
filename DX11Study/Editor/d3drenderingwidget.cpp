@@ -21,6 +21,8 @@ D3DRenderingWidget::D3DRenderingWidget(int width, int height, QWidget* parent)
 
 	setAttribute(Qt::WA_PaintOnScreen, true);
 	setAttribute(Qt::WA_NativeWindow, true);
+
+	setMouseTracking(true);
 }
 
 D3DRenderingWidget::~D3DRenderingWidget()
@@ -31,4 +33,9 @@ D3DRenderingWidget::~D3DRenderingWidget()
 HWND D3DRenderingWidget::getHWND()
 {
 	return (HWND)winId();
+}
+
+void D3DRenderingWidget::mouseMoveEvent(QMouseEvent* event)
+{
+	event->ignore();
 }

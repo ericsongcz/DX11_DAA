@@ -185,12 +185,27 @@ void Camera::pitch(float angle)
 	XMVECTOR right = XMLoadFloat3(&mRight);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
+
+	// 保持view局部坐标系各轴的彼此正交。
+	lookAt = XMVector3Normalize(lookAt);
+
+	// look x right
+	up = XMVector3Cross(lookAt, right);
+	up = XMVector3Normalize(up);
+
+	right = XMVector3Cross(up, lookAt);
+	right = XMVector3Normalize(right);
+	XMStoreFloat3(&mRight, right);
+
+	right = XMVector3Normalize(right);
 	rotate = XMMatrixRotationAxis(right, angle);
 
 	// 绕right向量，旋转up和look。
+	up = XMVector3Normalize(up);
 	up = XMVector3TransformCoord(up, rotate);
 	XMStoreFloat3(&mUp, up);
 
+	lookAt = XMVector3Normalize(lookAt);
 	lookAt = XMVector3TransformCoord(lookAt, rotate);
 	XMStoreFloat3(&mLookAt, lookAt);
 }
@@ -210,6 +225,17 @@ void Camera::yaw(float angle)
 	// 对于AIRCRAFT，绕着up向量旋转。
 	else
 	{
+		// 保持view局部坐标系各轴的彼此正交。
+		lookAt = XMVector3Normalize(lookAt);
+
+		// look x right
+		up = XMVector3Cross(lookAt, right);
+		up = XMVector3Normalize(up);
+		XMStoreFloat3(&mUp, up);
+
+		right = XMVector3Cross(up, lookAt);
+		right = XMVector3Normalize(right);
+
 		XMVECTOR up = XMLoadFloat3(&mUp);
 		rotate = XMMatrixRotationAxis(up, angle);
 
