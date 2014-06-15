@@ -4,7 +4,12 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
 	float4 lightPosition;
+	float4 ambientColor;
 	float4 diffuseColor;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float pad1;
+	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
 	float4x4 worldViewProjection;
@@ -76,8 +81,7 @@ float4 main(PixelInput input) : SV_TARGET
 		float3 normal = normalize(input.normal.xyz);
 	}
 
-	float diffuseIntensity = saturate(dot(lightDir, normal));
-	float4 diffuse = diffuseColor * diffuseIntensity;
+	float diffuse = saturate(dot(lightDir, normal));
 
 	// Calculate Phong components per-pixel.
 	float3 reflectionVector = normalize(reflect(-lightDir, normal));
@@ -91,8 +95,6 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 50.0f);
 
 	// All color components are summed in the pixel shader.
-	float4 ambientLightColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
-
 	float4 color;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -100,7 +102,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
-	color = (ambientLightColor * 0.3f + diffuse * 0.7f) * textureColor/* + specular * 0.5f*/;
+	color = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity) * textureColor/* + specular * 0.5f*/;
 
 	return color;
 }

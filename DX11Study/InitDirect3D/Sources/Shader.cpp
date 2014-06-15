@@ -219,14 +219,16 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 #else
 	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
 #endif
+	matrixData->ambientColor = renderParameters.ambientColor;
+	matrixData->diffuseColor = renderParameters.diffuseColor;
+	matrixData->ambientIntensity = renderParameters.ambientIntensity;
+	matrixData->diffuseIntensity = renderParameters.diffuseIntensity;
+	matrixData->pad1 = 0.0f;
+	matrixData->pad2 = 0.0f;
 
-	matrixData->diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-#if USE_RIGHT_HAND
 	XMFLOAT3 cameraPosition = SharedParameters::camera->getPosition();
-	matrixData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.y, 1.0f);
-#else
-	matrixData->cameraPositon = XMFLOAT4(0.0f, 0.0f, -10.0f, 1.0f);
-#endif
+	matrixData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
+
 	matrixData->specularColor = XMFLOAT4(Colors::White);
 
 	XMStoreFloat4x4(&matrixData->worldViewProjection, worldViewProjection);

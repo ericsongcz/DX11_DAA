@@ -11,7 +11,12 @@ struct MatrixBuffer
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT4 lightPosition;
+	XMFLOAT4 ambientColor;
 	XMFLOAT4 diffuseColor;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float pad1;
+	float pad2;
 	XMFLOAT4 cameraPositon;
 	XMFLOAT4 specularColor;
 	XMFLOAT4X4 worldViewProjection;

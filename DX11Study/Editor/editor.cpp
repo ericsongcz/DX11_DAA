@@ -23,7 +23,11 @@ Editor::Editor(QWidget *parent)
 	mLastMousePositionY(0),
 	mRotateAxisX(XMMatrixIdentity()),
 	mRotateAxisY(XMMatrixIdentity()),
-	mRotate(XMMatrixIdentity())
+	mRotate(XMMatrixIdentity()),
+	mAmbientColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
+	mAmbientIntensity(0.5f),
+	mDiffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
+	mDiffuseIntensity(0.5f)
 {
 	AllocConsole();
 	FILE* file;
@@ -202,24 +206,6 @@ void Editor::drawScene()
 
 	XMMATRIX worldMatrix = XMMatrixIdentity();
 
-#if USE_RIGHT_HAND
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 10.0f));
-#else
-	XMVECTOR eye = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, -10.0f));
-#endif
-	XMVECTOR lookAt = XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 0.0f));
-	XMVECTOR up = XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f));
-
-#if USE_RIGHT_HAND
-	XMMATRIX viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
-
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovRH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
-#else
-	XMMATRIX viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
-
-	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
-#endif
-
 	if (mRenderModel)
 	{
 		MeshData* meshData = mGeometry->GetMeshData();
@@ -229,6 +215,10 @@ void Editor::drawScene()
 		for (int i = 0; i < renderPackageSize; i++)
 		{
 			RenderParameters renderParameters;
+			renderParameters.ambientColor = mAmbientColor;
+			renderParameters.diffuseColor = mDiffuseColor;
+			renderParameters.ambientIntensity = mAmbientIntensity;
+			renderParameters.diffuseIntensity = mDiffuseIntensity;
 
 			worldMatrix = renderPackages[i].globalTransform;
 
@@ -253,8 +243,6 @@ void Editor::drawScene()
 			}
 
 			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-
 
 			mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 		}
@@ -298,6 +286,7 @@ void Editor::createPropertyBrowser()
 	QtGroupPropertyManager* commonGroupPropertyManager = new QtGroupPropertyManager(this);
 	QtProperty* group = commonGroupPropertyManager->addProperty("Common");
 
+	// 填充模式属性。
 	mFillModePropertyManager = new QtBoolPropertyManager(this);
 	connect(mFillModePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(fillModeChanged(QtProperty*, bool)));
 
@@ -310,6 +299,7 @@ void Editor::createPropertyBrowser()
 
 	group->addSubProperty(property);
 
+	// 纹理显示属性。
 	mShowTexturePropertyManager = new QtBoolPropertyManager(this);
 	connect(mShowTexturePropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showTextureChanged(QtProperty*, bool)));
 	variantEditor->setFactoryForManager(mShowTexturePropertyManager, checkBoxFactory);
@@ -320,6 +310,7 @@ void Editor::createPropertyBrowser()
 
 	group->addSubProperty(property);
 
+	// 清除背景色属性。
 	mClearColorPropertyManager = new QtColorPropertyManager(this);
 	QtSpinBoxFactory* spinBoxFactory = new QtSpinBoxFactory(this);
 	QtColorEditorFactory* colorEditorFactory = new QtColorEditorFactory(this);
@@ -337,6 +328,7 @@ void Editor::createPropertyBrowser()
 	QtGroupPropertyManager* lightingGroupProperyManager = new QtGroupPropertyManager(this);
 	group = lightingGroupProperyManager->addProperty("Lighting");
 
+	// 环境光属性。
 	mAmbientColorPropertyManager = new QtColorPropertyManager(this);
 	property = mAmbientColorPropertyManager->addProperty(AMBIENT_COLOR);
 	mAmbientColorPropertyManager->setValue(property, QColor(255, 255, 255));
@@ -351,31 +343,67 @@ void Editor::createPropertyBrowser()
 	mAmbientIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
 	variantEditor->setFactoryForManager(mAmbientIntensitySpinBoxPropertManager, spinBoxFactory);
 
-	QtProperty* property1 = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
-	mAmbientIntensitySpinBoxPropertManager->setValue(property1, 50);
-	mAmbientIntensitySpinBoxPropertManager->setMinimum(property1, 0);
-	mAmbientIntensitySpinBoxPropertManager->setMaximum(property1, 100);
-	mPropertys[AMBIENT_INTENSITY] = property1;
+	property = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
+	mAmbientIntensitySpinBoxPropertManager->setValue(property, 50);
+	mAmbientIntensitySpinBoxPropertManager->setMinimum(property, 0);
+	mAmbientIntensitySpinBoxPropertManager->setMaximum(property, 100);
+	mPropertys[AMBIENT_INTENSITY] = property;
 
-	group->addSubProperty(property1);
+	group->addSubProperty(property);
 
 	mAmbientIntensitySliderPropertyManager = new QtIntPropertyManager(this);
 
 	QtSliderFactory* sliderFactory = new QtSliderFactory(this);
 	variantEditor->setFactoryForManager(mAmbientIntensitySliderPropertyManager, sliderFactory);
 
-	QtProperty* property2 = mAmbientIntensitySliderPropertyManager->addProperty(AMBIENT_INTENSITY_SLIDER);
-	mAmbientIntensitySliderPropertyManager->setValue(property2, 0);
-	mAmbientIntensitySliderPropertyManager->setMinimum(property2, 0);
-	mAmbientIntensitySliderPropertyManager->setMaximum(property2, 100);
-	mPropertys[AMBIENT_INTENSITY_SLIDER] = property2;
+	property = mAmbientIntensitySliderPropertyManager->addProperty(AMBIENT_INTENSITY_SLIDER);
+	mAmbientIntensitySliderPropertyManager->setValue(property, 50);
+	mAmbientIntensitySliderPropertyManager->setMinimum(property, 0);
+	mAmbientIntensitySliderPropertyManager->setMaximum(property, 100);
+	mPropertys[AMBIENT_INTENSITY_SLIDER] = property;
 
-	//connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), mAmbientIntensitySliderPropertyManager, SLOT(setValue(QtProperty*, int)));
-	//connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), mAmbientIntensitySpinBoxPropertManager, SLOT(setValue(QtProperty*, int)));
-	connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(setValue(QtProperty*, int)));
-	connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(setValue(QtProperty*, int)));
+	connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(ambientIntensityChanged(QtProperty*, int)));
+	connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(ambientIntensityChanged(QtProperty*, int)));
 
-	group->addSubProperty(property2);
+	group->addSubProperty(property);
+
+	// 漫反射光属性。
+	mDiffuseColorPropertyManager = new QtColorPropertyManager(this);
+	property = mDiffuseColorPropertyManager->addProperty(DIFFUSE_COLOR);
+	mDiffuseColorPropertyManager->setValue(property, QColor(255, 255, 255));
+	mPropertys[DIFFUSE_COLOR] = property;
+
+	group->addSubProperty(property);
+
+	connect(mDiffuseColorPropertyManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(diffuseColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mDiffuseColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
+	variantEditor->setFactoryForManager(mDiffuseColorPropertyManager, colorEditorFactory);
+
+	mDiffuseIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
+	variantEditor->setFactoryForManager(mDiffuseIntensitySpinBoxPropertManager, spinBoxFactory);
+
+	property = mDiffuseIntensitySpinBoxPropertManager->addProperty(DIFFUSE_INTENSITY);
+	mDiffuseIntensitySpinBoxPropertManager->setValue(property, 50);
+	mDiffuseIntensitySpinBoxPropertManager->setMinimum(property, 0);
+	mDiffuseIntensitySpinBoxPropertManager->setMaximum(property, 100);
+	mPropertys[DIFFUSE_INTENSITY] = property;
+
+	group->addSubProperty(property);
+
+	mDiffuseIntensitySliderPropertyManager = new QtIntPropertyManager(this);
+
+	variantEditor->setFactoryForManager(mDiffuseIntensitySliderPropertyManager, sliderFactory);
+
+	property = mDiffuseIntensitySliderPropertyManager->addProperty(DIFFUSE_INTENSITY_SLIDER);
+	mDiffuseIntensitySliderPropertyManager->setValue(property, 50);
+	mDiffuseIntensitySliderPropertyManager->setMinimum(property, 0);
+	mDiffuseIntensitySliderPropertyManager->setMaximum(property, 100);
+	mPropertys[DIFFUSE_INTENSITY_SLIDER] = property;
+
+	connect(mDiffuseIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(diffuseIntensityChanged(QtProperty*, int)));
+	connect(mDiffuseIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(diffuseIntensityChanged(QtProperty*, int)));
+
+	group->addSubProperty(property);
 
 	variantEditor->addProperty(group);
 
@@ -466,10 +494,13 @@ void Editor::clearColorChanged(QtProperty* property, const QColor& value)
 
 void Editor::ambientColorChanged(QtProperty* property, const QColor& value)
 {
-
+	mAmbientColor.x = RGB256(value.red());
+	mAmbientColor.y = RGB256(value.green());
+	mAmbientColor.z = RGB256(value.blue());
+	mAmbientColor.w = RGB256(value.alpha());
 }
 
-void Editor::setValue(QtProperty *property, int value)
+void Editor::ambientIntensityChanged(QtProperty *property, int value)
 {
 	if (property->propertyName() == AMBIENT_INTENSITY)
 	{
@@ -479,4 +510,28 @@ void Editor::setValue(QtProperty *property, int value)
 	{
 		mAmbientIntensitySpinBoxPropertManager->setValue(mPropertys[AMBIENT_INTENSITY], value);
 	}
+
+	mAmbientIntensity = 1.0f / 100.0f * (float)value;
+}
+
+void Editor::diffuseColorChanged(QtProperty* property, const QColor& value)
+{
+	mDiffuseColor.x = RGB256(value.red());
+	mDiffuseColor.y = RGB256(value.green());
+	mDiffuseColor.z = RGB256(value.blue());
+	mDiffuseColor.w = RGB256(value.alpha());
+}
+
+void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
+{
+	if (property->propertyName() == DIFFUSE_INTENSITY)
+	{
+		mDiffuseIntensitySliderPropertyManager->setValue(mPropertys[DIFFUSE_INTENSITY_SLIDER], value);
+	}
+	else
+	{
+		mDiffuseIntensitySpinBoxPropertManager->setValue(mPropertys[DIFFUSE_INTENSITY], value);
+	}
+
+	mDiffuseIntensity = 1.0f / 100.0f * (float)value;
 }

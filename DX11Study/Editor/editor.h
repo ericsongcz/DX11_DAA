@@ -24,8 +24,11 @@ class Editor : public QMainWindow
 	const QString SHOW_TEXTURE = tr("Show Texture");
 	const QString CLEAR_COLOR = tr("Clear Color");
 	const QString AMBIENT_COLOR = tr("Ambient Color");
-	const QString AMBIENT_INTENSITY = tr("Intensity");
-	const QString AMBIENT_INTENSITY_SLIDER = tr("Intensity Slider");
+	const QString AMBIENT_INTENSITY = tr("Ambient Intensity");
+	const QString AMBIENT_INTENSITY_SLIDER = tr("Ambient Intensity Slider");
+	const QString DIFFUSE_COLOR = tr("Diffuse Color");
+	const QString DIFFUSE_INTENSITY = tr("Diffuse Intensity");
+	const QString DIFFUSE_INTENSITY_SLIDER = tr("Diffuse Intensity Slider");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -48,7 +51,9 @@ private slots:
 	void showTextureChanged(QtProperty* property, bool value);
 	void clearColorChanged(QtProperty* property, const QColor& value);
 	void ambientColorChanged(QtProperty* property, const QColor& value);
-	void setValue(QtProperty *property, int value);
+	void ambientIntensityChanged(QtProperty *property, int value);
+	void diffuseColorChanged(QtProperty* property, const QColor& value);
+	void diffuseIntensityChanged(QtProperty* property, const int& value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -72,18 +77,26 @@ private:
 	QHBoxLayout* mRightLayout;
 	QMap<QString, QtProperty*> mPropertys;
 	QMap<QString, bool> mPropertyValues;
+	QMap<QString, int> mPropertyIndices;
 	QtBoolPropertyManager* mFillModePropertyManager;
 	QtBoolPropertyManager* mShowTexturePropertyManager;
 	QtColorPropertyManager* mClearColorPropertyManager;
 	QtColorPropertyManager* mAmbientColorPropertyManager;
+	QtColorPropertyManager* mDiffuseColorPropertyManager;
 	QtIntPropertyManager* mAmbientIntensitySpinBoxPropertManager;
 	QtIntPropertyManager* mAmbientIntensitySliderPropertyManager;
+	QtIntPropertyManager* mDiffuseIntensitySpinBoxPropertManager;
+	QtIntPropertyManager* mDiffuseIntensitySliderPropertyManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;
 	XMMATRIX mRotateAxisX;
 	XMMATRIX mRotateAxisY;
 	XMMATRIX mRotate;
+	XMFLOAT4 mAmbientColor;
+	float mAmbientIntensity;
+	XMFLOAT4 mDiffuseColor;
+	float mDiffuseIntensity;
 };
 
 #endif // EDITOR_H

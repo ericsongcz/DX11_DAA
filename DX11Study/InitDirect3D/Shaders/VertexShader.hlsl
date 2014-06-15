@@ -8,7 +8,12 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
 	float4 lightPosition;
+	float4 ambientColor;
 	float4 diffuseColor;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float pad1;
+	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
 	float4x4 worldViewProjection;

@@ -95,6 +95,10 @@ struct RenderParameters
 
 	bool hasDiffuseTexture;
 	bool hasNormalMapTexture;
+	XMFLOAT4 ambientColor;
+	float ambientIntensity;
+	XMFLOAT4 diffuseColor;
+	float diffuseIntensity;
 };
 
 struct MeshData
