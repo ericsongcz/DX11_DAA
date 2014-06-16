@@ -152,6 +152,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DApp.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DUtils.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\DeferredBuffers.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\FBXImporter.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\GameTimer.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\Camera.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DApp.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DUtils.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FBXImporter.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GameTimer.h" />

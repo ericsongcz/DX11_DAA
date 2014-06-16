@@ -104,6 +104,9 @@
     <ClCompile Include="..\InitDirect3D\Sources\Direct3DRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\DeferredBuffers.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -155,6 +158,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
