@@ -2,7 +2,9 @@
 #include <DirectXMath.h>
 #include "Shader.h"
 #include "Camera.h"
+#include <vector>
 
+using std::vector;
 using namespace DirectX;
 
 class SharedParameters
@@ -13,5 +15,6 @@ public:
 	static Camera* camera;
 	static ID3D11Device* device;
 	static ID3D11DeviceContext* deviceContext;
+	static vector<RenderPackage> renderPackages;
 private:
 };

@@ -1,10 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;cxx;c;def</Extensions>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h</Extensions>
@@ -35,6 +31,10 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{9615e011-a542-48bc-aab0-7137fc24088b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;cxx;c;def</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -107,6 +107,15 @@
     <ClCompile Include="..\InitDirect3D\Sources\DeferredBuffers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\SharedInputLayouts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\DeferredShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\ShaderUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -163,6 +172,15 @@
     <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\DeferredShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Sources\ShaderUntils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.h">
@@ -191,6 +209,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\VertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\LightShaderVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\LightShaderPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

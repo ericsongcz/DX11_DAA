@@ -255,6 +255,13 @@ void Direct3DRenderer::render(const RenderParameters& renderParameters, FXMMATRI
 	mShader->render(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
 }
 
+void Direct3DRenderer::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
+{
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
+}
+
 void Direct3DRenderer::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
 {
 	mShader->setShaderResource(ppShaderResourceViews, numViews);
@@ -279,4 +286,9 @@ void Direct3DRenderer::setClearColor(int r, int g, int b)
 	mClearColor[0] = RGB256(r);
 	mClearColor[1] = RGB256(g);
 	mClearColor[2] = RGB256(b);
+}
+
+void Direct3DRenderer::renderToTexture()
+{
+
 }

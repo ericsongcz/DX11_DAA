@@ -137,7 +137,6 @@ public:
 
 	void FillMeshData(MeshData* meshData);
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
-	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 	MeshData* GetMeshData() const;
 	void clear();
 private:

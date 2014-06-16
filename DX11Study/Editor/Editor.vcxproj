@@ -153,6 +153,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\D3DApp.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DUtils.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\DeferredBuffers.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\DeferredShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\FBXImporter.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\GameTimer.cpp" />
@@ -162,6 +163,8 @@
     <ClCompile Include="..\InitDirect3D\Sources\Log.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\MathHelper.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Shader.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\ShaderUtils.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\SharedInputLayouts.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedParameters.cpp" />
     <ClCompile Include="d3drenderingwidget.cpp" />
     <ClCompile Include="editor.cpp" />
@@ -204,6 +207,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\D3DApp.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DUtils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\DeferredShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FBXImporter.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GameTimer.h" />
@@ -213,8 +217,10 @@
     <ClInclude Include="..\InitDirect3D\Includes\Log.h" />
     <ClInclude Include="..\InitDirect3D\Includes\MathHelper.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedParameters.h" />
     <ClInclude Include="..\InitDirect3D\Includes\stdafx.h" />
+    <ClInclude Include="..\InitDirect3D\Sources\ShaderUntils.h" />
     <ClInclude Include="GeneratedFiles\ui_d3drenderingwidget.h" />
     <CustomBuild Include="d3drenderingwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
@@ -319,6 +325,44 @@
     <None Include="..\InitDirect3D\Shaders\LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\LightShaderPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\LightShaderVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+    </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\PixelShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>

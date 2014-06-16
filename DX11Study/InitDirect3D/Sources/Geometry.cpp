@@ -92,6 +92,8 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 		meshData->renderPackages[i].RefreshTextures();
 	}
+
+	SharedParameters::renderPackages = meshData->renderPackages;
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -141,13 +143,6 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	mDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 
 	return true;
-}
-
-void Geometry::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
-{
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
 }
 
 MeshData* Geometry::GetMeshData() const

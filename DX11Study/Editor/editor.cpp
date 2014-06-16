@@ -208,8 +208,7 @@ void Editor::drawScene()
 
 	if (mRenderModel)
 	{
-		MeshData* meshData = mGeometry->GetMeshData();
-		vector<RenderPackage> renderPackages = meshData->renderPackages;
+		vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
 		int renderPackageSize = renderPackages.size();
 
 		for (int i = 0; i < renderPackageSize; i++)
@@ -244,7 +243,7 @@ void Editor::drawScene()
 
 			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 
-			mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+			mRenderer->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 		}
 	}
 

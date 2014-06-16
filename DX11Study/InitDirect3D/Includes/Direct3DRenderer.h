@@ -3,6 +3,7 @@
 #include <string>
 #include "GameTimer.h"
 #include "Shader.h"
+#include "DeferredShader.h"
 
 using std::wstring;
 
@@ -19,10 +20,12 @@ public:
 	void changeFillMode(D3D11_FILL_MODE fillMode);
 	void switchFillMode();
 	void render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
 	void setClearColor(int r, int g, int b);
+	void renderToTexture();
 private:
 	// D3D11 stuffs.
 	float mScreenWidth;
@@ -50,4 +53,5 @@ private:
 	ID3D11RasterizerState* mSolidState;
 	ID3D11RasterizerState* mWireframeState;
 	float mClearColor[3];
+
 };
