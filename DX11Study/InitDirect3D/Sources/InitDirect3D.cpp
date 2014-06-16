@@ -26,7 +26,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
-	InitDirect3D* app = new InitDirect3D(800, 600, TEXT("D3DApp Demo"));
+	InitDirect3D* app = new InitDirect3D(700, 555, TEXT("D3DApp Demo"));
 	if (app->Init())
 	{
 		app->Run();
@@ -59,7 +59,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("sponza.fbx");
+	fbxImporter->LoadScene("sphere.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();
@@ -117,36 +117,13 @@ void InitDirect3D::DrawScene()
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
 
-	MeshData* meshData = mGeometry->GetMeshData();
-	vector<RenderPackage> renderPackages = meshData->renderPackages;
-	int renderPackageSize = renderPackages.size();
+	RenderParameters renderParameters;
+	renderParameters.ambientColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0);
+	renderParameters.diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0);;
+	renderParameters.ambientIntensity = 0.5f;
+	renderParameters.diffuseIntensity = 0.5f;
 
-	for (int i = 0; i < renderPackageSize; i++)
-	{
-		RenderParameters renderParameters;
-
-		worldMatrix = renderPackages[i].globalTransform;
-		worldMatrix = XMMatrixMultiply(worldMatrix, mRotateMatrix);
-
-		if (renderPackages[i].hasDiffuseTexture)
-		{
-			renderParameters.hasDiffuseTexture = true;
-		}
-
-		if (renderPackages[i].hasNormalMapTexture)
-		{
-			renderParameters.hasNormalMapTexture = true;
-		}
-
-		mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-		if (renderPackages[i].textures.size() > 0)
-		{
-			mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
-		}
-
-		mGeometry->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
-	}
+	mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 
 	mRenderer->endScene();
 }

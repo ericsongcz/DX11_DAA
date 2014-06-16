@@ -19,7 +19,7 @@ public:
 	void endScene();
 	void changeFillMode(D3D11_FILL_MODE fillMode);
 	void switchFillMode();
-	void render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	void render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
 	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	ID3D11Device* getDevice() const;

@@ -39,3 +39,11 @@ void D3DRenderingWidget::mouseMoveEvent(QMouseEvent* event)
 {
 	event->ignore();
 }
+
+void D3DRenderingWidget::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+
+	SharedParameters::camera->setAspectRatio((float)event->size().width() / (float)event->size().height());
+	SharedParameters::render->resizeBackBuffer((float)event->size().width(), (float)event->size().height());
+}

@@ -69,6 +69,18 @@
     <ClInclude Include="Includes\Direct3DRenderer.h">
       <Filter>Includes</Filter>
     </ClInclude>
+    <ClInclude Include="Includes\ShaderUntils.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\DeferredShader.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\SharedInputLayouts.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\DeferredBuffers.h">
+      <Filter>Includes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Sources\D3DApp.cpp">
@@ -114,6 +126,18 @@
       <Filter>Sources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Direct3DRenderer.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\ShaderUtils.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\DeferredShader.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\SharedInputLayouts.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\DeferredBuffers.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
   </ItemGroup>

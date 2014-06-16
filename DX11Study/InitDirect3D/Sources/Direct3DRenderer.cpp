@@ -26,6 +26,8 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 	mWireframeState(nullptr)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
+
+	SharedParameters::render = this;
 }
 
 Direct3DRenderer::~Direct3DRenderer()
@@ -250,16 +252,38 @@ void Direct3DRenderer::switchFillMode()
 	}
 }
 
-void Direct3DRenderer::render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix)
+void Direct3DRenderer::render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix)
 {
-	mShader->render(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
-}
+	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
 
-void Direct3DRenderer::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
-{
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
-	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
+		if (SharedParameters::showTexture)
+		{
+			if (renderPackages[i].hasDiffuseTexture)
+			{
+				renderParameters.hasDiffuseTexture = true;
+			}
+		}
+
+		if (renderPackages[i].hasNormalMapTexture)
+		{
+			renderParameters.hasNormalMapTexture = true;
+		}
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+		}
+
+		mShader->render(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
+
+		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+	}
 }
 
 void Direct3DRenderer::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
@@ -291,4 +315,11 @@ void Direct3DRenderer::setClearColor(int r, int g, int b)
 void Direct3DRenderer::renderToTexture()
 {
 
+}
+
+void Direct3DRenderer::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
+{
+	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
 }

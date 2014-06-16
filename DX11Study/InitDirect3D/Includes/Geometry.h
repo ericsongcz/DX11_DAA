@@ -90,7 +90,8 @@ struct RenderParameters
 {
 	RenderParameters()
 	: hasDiffuseTexture(false),
-      hasNormalMapTexture(false)
+      hasNormalMapTexture(false),
+	  showTexture(false)
 	{}
 
 	bool hasDiffuseTexture;
@@ -99,6 +100,8 @@ struct RenderParameters
 	float ambientIntensity;
 	XMFLOAT4 diffuseColor;
 	float diffuseIntensity;
+	XMMATRIX rotate;
+	bool showTexture;
 };
 
 struct MeshData

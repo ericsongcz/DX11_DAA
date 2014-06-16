@@ -174,16 +174,6 @@ void Editor::keyPressEvent(QKeyEvent *event)
 void Editor::resizeEvent(QResizeEvent* event)
 {
 	QMainWindow::resizeEvent(event);
-
-	int border = geometry().x() - x();
-
-	mScreenWidth = width() - 200.0f;
-	mScreenHeight = height() - (mRenderWidgetTopOffset + mRenderWidgetBottomOffset) + border;
-
-	d3dWidget->resize(mScreenWidth, mScreenHeight);
-
-	mRenderer->resizeBackBuffer(mScreenWidth, mScreenHeight);
-	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 }
 
 void Editor::paintEvent(QPaintEvent* event)
@@ -208,43 +198,13 @@ void Editor::drawScene()
 
 	if (mRenderModel)
 	{
-		vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
-		int renderPackageSize = renderPackages.size();
+		RenderParameters renderParameters;
+		renderParameters.ambientColor = mAmbientColor;
+		renderParameters.diffuseColor = mDiffuseColor;
+		renderParameters.ambientIntensity = mAmbientIntensity;
+		renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-		for (int i = 0; i < renderPackageSize; i++)
-		{
-			RenderParameters renderParameters;
-			renderParameters.ambientColor = mAmbientColor;
-			renderParameters.diffuseColor = mDiffuseColor;
-			renderParameters.ambientIntensity = mAmbientIntensity;
-			renderParameters.diffuseIntensity = mDiffuseIntensity;
-
-			worldMatrix = renderPackages[i].globalTransform;
-
-			worldMatrix = XMMatrixMultiply(worldMatrix, mRotate);
-
-			if (mShowTexture)
-			{
-				if (renderPackages[i].hasDiffuseTexture)
-				{
-					renderParameters.hasDiffuseTexture = true;
-				}
-			}
-
-			if (renderPackages[i].hasNormalMapTexture)
-			{
-				renderParameters.hasNormalMapTexture = true;
-			}
-
-			if (renderPackages[i].textures.size() > 0)
-			{
-				mRenderer->setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
-			}
-
-			mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
-
-			mRenderer->renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
-		}
+		mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
 	}
 
 	mRenderer->endScene();
@@ -433,6 +393,7 @@ void Editor::fillModeChanged(QtProperty* property, bool value)
 void Editor::showTextureChanged(QtProperty* property, bool value)
 {
 	mShowTexture = value;
+	SharedParameters::showTexture = mShowTexture;
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* event)
@@ -446,6 +407,7 @@ void Editor::mouseMoveEvent(QMouseEvent* event)
 		mRotateAxisY = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), (float)deltaY / 100.0f);
 
 		mRotate *= mRotateAxisX * mRotateAxisY;
+		SharedParameters::rotate = mRotate;
 
 		Log("Mouse left button drag.\n");
 	}

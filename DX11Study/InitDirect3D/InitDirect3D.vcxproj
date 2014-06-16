@@ -22,6 +22,8 @@
     <ClInclude Include="Includes\Camera.h" />
     <ClInclude Include="Includes\D3DApp.h" />
     <ClInclude Include="Includes\D3DUtils.h" />
+    <ClInclude Include="Includes\DeferredBuffers.h" />
+    <ClInclude Include="Includes\DeferredShader.h" />
     <ClInclude Include="Includes\Direct3DRenderer.h" />
     <ClInclude Include="Includes\FBXImporter.h" />
     <ClInclude Include="Includes\GameTimer.h" />
@@ -32,6 +34,8 @@
     <ClInclude Include="Includes\Log.h" />
     <ClInclude Include="Includes\MathHelper.h" />
     <ClInclude Include="Includes\Shader.h" />
+    <ClInclude Include="Includes\ShaderUntils.h" />
+    <ClInclude Include="Includes\SharedInputLayouts.h" />
     <ClInclude Include="Includes\SharedParameters.h" />
     <ClInclude Include="Includes\stdafx.h" />
     <ClInclude Include="Resource.h" />
@@ -41,6 +45,8 @@
     <ClCompile Include="Sources\Camera.cpp" />
     <ClCompile Include="Sources\D3DApp.cpp" />
     <ClCompile Include="Sources\D3DUtils.cpp" />
+    <ClCompile Include="Sources\DeferredBuffers.cpp" />
+    <ClCompile Include="Sources\DeferredShader.cpp" />
     <ClCompile Include="Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />
     <ClCompile Include="Sources\GameTimer.cpp" />
@@ -51,6 +57,8 @@
     <ClCompile Include="Sources\Log.cpp" />
     <ClCompile Include="Sources\MathHelper.cpp" />
     <ClCompile Include="Sources\Shader.cpp" />
+    <ClCompile Include="Sources\ShaderUtils.cpp" />
+    <ClCompile Include="Sources\SharedInputLayouts.cpp" />
     <ClCompile Include="Sources\SharedParameters.cpp" />
     <ClCompile Include="Sources\stdafx.cpp" />
   </ItemGroup>
