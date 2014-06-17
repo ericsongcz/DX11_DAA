@@ -182,6 +182,9 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	mFullScreenQuad = new FullScreenQuad();
 
+	mLightShader = new LightShader();
+	mLightShader->initialize(mDevice, mDeviceContext, TEXT("LightShaderVS.cso"), TEXT("LightShaderPS.cso"));
+
 	setClearColor(100, 149, 237);
 
 	return true;
@@ -424,4 +427,13 @@ void Direct3DRenderer::turnOnZTest(bool on)
 	{
 		mDeviceContext->OMSetDepthStencilState(mDisableDepthStencilState, 1);
 	}
+}
+
+void Direct3DRenderer::renderLight()
+{
+	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
+	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
+
+	RenderParameters rp;
+	mLightShader->render(rp, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
 }

@@ -6,6 +6,7 @@
 #include "DeferredShader.h"
 #include "DeferredBuffers.h"
 #include "FullScreenQuad.h"
+#include "LightShader.h"
 
 using std::wstring;
 
@@ -29,6 +30,7 @@ public:
 	void setClearColor(int r, int g, int b);
 	void renderToTexture(RenderParameters& renderParameters);
 	void renderQuad(RenderParameters& renderParameters);
+	void renderLight();
 	void resetRenderTarget();
 	void turnOnZTest(bool on);
 private:
@@ -63,4 +65,5 @@ private:
 	DeferredBuffers* mDeferredBuffers;
 	DeferredShader* mDeferredShader;
 	FullScreenQuad* mFullScreenQuad;
+	LightShader* mLightShader;
 };
