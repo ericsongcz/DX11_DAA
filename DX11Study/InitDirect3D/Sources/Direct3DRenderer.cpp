@@ -435,7 +435,10 @@ void Direct3DRenderer::turnOnZTest(bool on)
 
 void Direct3DRenderer::renderLight()
 {
-	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
+	//ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
+	ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("Dont-understand.dds", mDevice);
+	ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("Dont-understand.dds", mDevice);
+	ID3D11ShaderResourceView* shaderResourceViews[] = { color, normal };
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 
 	RenderParameters rp;

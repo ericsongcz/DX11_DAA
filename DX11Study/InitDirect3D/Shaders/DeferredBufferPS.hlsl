@@ -28,9 +28,11 @@ PixelOutput main(PixelInput input)
 
 	// Sample the color from the texture and store it for output to the render target.
 	output.color = colorTexture.Sample(samplerState, input.texcoord);
+	output.color.w = 1.0f;
 
 	// Store the normal for output to the render target.
 	output.normal = input.normal;
+	output.normal.w = 0.0f;
 
 	return output;
 }
