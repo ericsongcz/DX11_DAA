@@ -1,3 +1,11 @@
+cbuffer MatrixBuffer : register(b0)
+{
+	float4x4 worldMatrix;
+	float4x4 viewMatrix;
+	float4x4 projectionMatrix;
+	float4 lightDirection;
+};
+
 Texture2D colorTexture : register(t0);
 Texture2D normalTexture : register(t1);
 
@@ -8,11 +16,6 @@ SamplerState samplerState : register(s0)
 	MagFilter = POINT;
 	AddressU = Wrap;
 	AddressV = Wrap;
-};
-
-cbuffer LightBuffer
-{
-	float4 lightDirection;
 };
 
 struct PixelInput
@@ -29,7 +32,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float4 lightDir = -lightDirection;
 
-	float lightIntensity = saturate(dot(lightDirection, normal));
+	float lightIntensity = saturate(dot(lightDir, normal));
 
 	float4 outputColor = textureColor * lightIntensity;
 

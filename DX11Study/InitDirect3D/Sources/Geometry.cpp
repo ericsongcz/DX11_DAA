@@ -136,7 +136,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 
 	HR(mDevice->CreateBuffer(&indexBufferDesc, &indexData, &mIndexBuffer));
 
-	setupBuffers();
+	setupBuffers(mDeviceContext);
 
 	return true;
 }
@@ -155,12 +155,12 @@ void Geometry::clear()
 	SafeDelete(mMeshdata);
 }
 
-void Geometry::setupBuffers()
+void Geometry::setupBuffers(ID3D11DeviceContext* deviceContext)
 {
 	UINT strides = sizeof(Vertex);
 	UINT offset = 0;
 
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	mDeviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &strides, &offset);
-	mDeviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
+	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	deviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &strides, &offset);
+	deviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
 }

@@ -32,6 +32,7 @@ public:
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight();
 	void resetRenderTarget();
+	void resetShaderResources();
 	void turnOnZTest(bool on);
 private:
 	// D3D11 stuffs.

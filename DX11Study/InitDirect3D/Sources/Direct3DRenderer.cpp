@@ -315,11 +315,11 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			//ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
+			ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
 			//ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
-			//setShaderResource(&color, 1);
+			setShaderResource(&color, 1);
 			//setShaderResource(&normal, 1);
-			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			//setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
 		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
@@ -418,7 +418,7 @@ void Direct3DRenderer::renderQuad(RenderParameters& renderParameters)
 
 	vector<RenderPackage> renderPackages = mFullScreenQuad->getRenderpackge();
 
-	mShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+	//mLightShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getOrthogonalMatrix());
 
 	renderBuffer(renderPackages[0].indicesCount, renderPackages[0].indicesOffset, 0);
 }
@@ -441,8 +441,11 @@ void Direct3DRenderer::renderLight()
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 
 	RenderParameters rp;
-	mLightShader->render(rp, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+	mLightShader->render(rp, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getOrthogonalMatrix());
+}
 
+void Direct3DRenderer::resetShaderResources()
+{
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
 	// Resource being set to OM RenderTarget slot 0 is still bound on input
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr };
