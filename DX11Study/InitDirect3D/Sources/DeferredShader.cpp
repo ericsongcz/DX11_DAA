@@ -100,22 +100,18 @@ bool DeferredShader::initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	// 创建纹理采样状态。
 	HR(mDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
-	renderShader();
-
 	return true;
 }
 
-bool DeferredShader::render(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool DeferredShader::render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	if (!setShaderParameters(worldMatrix, viewMatrix, projectionMatrix))
-	{
-		return false;
-	}
+	renderShader();
+	setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
 
 	return true;
 }
 
-bool DeferredShader::setShaderParameters(FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
 	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);

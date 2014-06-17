@@ -12,7 +12,7 @@ SamplerState samplerState : register(s0)
 struct PixelInput
 {
 	float4 position : SV_POSITION;
-	float2 texcoord : TEXCOORD0;
+	float2 texcoord : TEXCOORD;
 	float4 normal : NORMAL;
 };
 

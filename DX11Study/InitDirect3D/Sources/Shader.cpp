@@ -128,17 +128,13 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	// 创建纹理采样状态。
 	HR(mDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
-	renderShader();
-
 	return true;
 }
 
 bool Shader::render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	if (!setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix))
-	{
-		return false;
-	}
+	renderShader();
+	setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
 
 	return true;
 }

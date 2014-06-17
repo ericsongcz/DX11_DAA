@@ -44,7 +44,7 @@ protected:
 	virtual void mousePressEvent(QMouseEvent* event);
 	virtual void mouseReleaseEvent(QMouseEvent* event);
 	virtual QPaintEngine* paintEngine() const { return NULL; }
-
+	virtual void wheelEvent(QWheelEvent* event);
 private slots:
 	void loadModel();
 	void fillModeChanged(QtProperty* property, bool value);

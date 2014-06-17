@@ -156,10 +156,12 @@
     <ClCompile Include="..\InitDirect3D\Sources\DeferredShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\FBXImporter.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\FullScreenQuad.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\GameTimer.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Geometry.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\GeometryGenerator.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\IRenderable.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\LightShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Log.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\MathHelper.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Shader.cpp" />
@@ -210,10 +212,12 @@
     <ClInclude Include="..\InitDirect3D\Includes\DeferredShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FBXImporter.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\FullScreenQuad.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GameTimer.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Geometry.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GeometryGenerator.h" />
     <ClInclude Include="..\InitDirect3D\Includes\IRenderable.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\LightShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Log.h" />
     <ClInclude Include="..\InitDirect3D\Includes\MathHelper.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />

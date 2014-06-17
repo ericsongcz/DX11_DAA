@@ -17,10 +17,13 @@ DeferredBuffers::DeferredBuffers()
 
 DeferredBuffers::~DeferredBuffers()
 {
+	shutdown();
 }
 
 bool DeferredBuffers::initialize(ID3D11Device* device, int textureWidth, int textureHeight, float depth, float nearZ)
 {
+	shutdown();
+
 	mTextureWidth = textureWidth;
 	mTextureHeight = textureHeight;
 

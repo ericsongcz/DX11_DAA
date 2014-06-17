@@ -194,7 +194,9 @@ void Editor::drawScene()
 {
 	mRenderer->beginScene();
 
-	XMMATRIX worldMatrix = XMMatrixIdentity();
+	RenderParameters rp;
+
+	//mRenderer->renderQuad(rp);
 
 	if (mRenderModel)
 	{
@@ -204,7 +206,7 @@ void Editor::drawScene()
 		renderParameters.ambientIntensity = mAmbientIntensity;
 		renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-		mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+		mRenderer->render(renderParameters);
 	}
 
 	mRenderer->endScene();
@@ -495,4 +497,22 @@ void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
 	}
 
 	mDiffuseIntensity = 1.0f / 100.0f * (float)value;
+}
+
+void Editor::wheelEvent(QWheelEvent* event)
+{
+	QMainWindow::wheelEvent(event);
+
+	// 大多数鼠标工作在单步15度的情况下。
+	// 此时鼠标转轮滑动一圈是360度，
+	// 鼠标滚轮转动一圈是24步，计算后就是15度一步。
+	// 你可以滚动一下自己的鼠标滚轮，感受一下滚动过程中的停顿，
+	// 24个停顿就是24步，一般的鼠标都是24步的。
+	// 而鼠标转轮滑动的角度对应于窗口界面单位尺度的8倍，
+	// 也就是滚动一度，鼠标滚轮在界面上滑动的距离（比如滚动条等）是8个unit单位，
+	// 在这种情况下，delta的返回值是120（8 * 15）的倍数。
+	int degree = event->delta() / 8;
+	int step = degree / 15;
+
+	mCamera->walk(-step * 0.1f);
 }

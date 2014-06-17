@@ -7,7 +7,7 @@ Camera::Camera()
 {
 	XMStoreFloat4x4(&mWorldMatrix, XMMatrixIdentity());
 #if USE_RIGHT_HAND
-	mPosition = XMFLOAT3(0.0f, 5.0f, 20.0f);
+	mPosition = XMFLOAT3(0.0f, 0.0f, 20.0f);
 #else
 	mPosition = XMFLOAT3(0.0f, 0.0f, -10.0f);
 #endif
@@ -38,7 +38,7 @@ XMMATRIX Camera::getOrthogonalWorldMatrix() const
 {
 	XMMATRIX worldMatrx = XMMatrixIdentity();
 
-	worldMatrx.r[3] = XMVectorSet(-400.0f, 300.0f, 0.0f, 1.0f);
+	worldMatrx.r[3] = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
 
 	return worldMatrx;
 }
@@ -102,7 +102,11 @@ XMMATRIX Camera::getProjectionMatrix() const
 
 XMMATRIX Camera::getOrthogonalMatrix() const
 {
-	return XMMatrixOrthographicLH(800, 600, 1.0f, 1000.0f);
+#if USE_RIGHT_HAND
+	return XMMatrixOrthographicRH(640.0f, 555.0f, 1.0f, 1000.0f);
+#else
+	return XMMatrixOrthographicLH(800.0f, 600.0f, 1.0f, 1000.0f);
+#endif
 }
 
 void Camera::setAspectRatio(float aspectRatio)

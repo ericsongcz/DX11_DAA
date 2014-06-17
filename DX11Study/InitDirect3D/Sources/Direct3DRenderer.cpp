@@ -23,7 +23,8 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 	mDepthStencilBuffer(nullptr),
 	mDepthStencilView(nullptr),
 	mSolidState(nullptr),
-	mWireframeState(nullptr)
+	mWireframeState(nullptr),
+	mDeferredBuffers(nullptr)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 
@@ -32,6 +33,9 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 
 Direct3DRenderer::~Direct3DRenderer()
 {
+	SafeDelete(mFullScreenQuad);
+	SafeDelete(mDeferredShader);
+	SafeDelete(mDeferredBuffers);
 	SafeRelease(mDepthStencilView);
 	SafeRelease(mDepthStencilBuffer);
 	SafeRelease(mRenderTargetView);
@@ -88,35 +92,59 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	backBuffer->Release();
 
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 
-	depthStencilDesc.Width = (UINT)mScreenWidth;
-	depthStencilDesc.Height = (UINT)mScreenHeight;
-	depthStencilDesc.MipLevels = 1;
-	depthStencilDesc.ArraySize = 1;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilDesc.SampleDesc.Count = 1;
-	depthStencilDesc.SampleDesc.Quality = 0;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0;
-	depthStencilDesc.MiscFlags = 0;
+	// Initialize the description of the stencil state.
+	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 
-	HR(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
+	// Set up the description of the stencil state.
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	depthStencilDesc.StencilEnable = true;
+	depthStencilDesc.StencilReadMask = 0xFF;
+	depthStencilDesc.StencilWriteMask = 0xFF;
 
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	// Stencil operations if pixel is front-facing.
+	depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	HR(mDevice->CreateDepthStencilView(mDepthStencilBuffer, &depthStencilViewDesc, &mDepthStencilView));
+	// Stencil operations if pixel is back-facing.
+	depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	HR(mDevice->CreateDepthStencilState(&depthStencilDesc, &mDepthStencilState));
 
-	setViewport(mScreenWidth, mScreenHeight, 0.0f, 0.0f);
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
+
+	D3D11_DEPTH_STENCIL_DESC disabledDepthStencilDesc;
+
+	// Clear the second depth stencil state before setting the parameters.
+	ZeroMemory(&disabledDepthStencilDesc, sizeof(disabledDepthStencilDesc));
+
+	// Now create a second depth stencil state which turns off the Z buffer for 2D rendering.  The only difference is 
+	// that DepthEnable is set to false, all other parameters are the same as the other depth stencil state.
+	disabledDepthStencilDesc.DepthEnable = false;
+	disabledDepthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	disabledDepthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	disabledDepthStencilDesc.StencilEnable = true;
+	disabledDepthStencilDesc.StencilReadMask = 0xFF;
+	disabledDepthStencilDesc.StencilWriteMask = 0xFF;
+	disabledDepthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	disabledDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	disabledDepthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	disabledDepthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	disabledDepthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	disabledDepthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	disabledDepthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	disabledDepthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	HR(mDevice->CreateDepthStencilState(&disabledDepthStencilDesc, &mDisableDepthStencilState));
 
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
@@ -146,6 +174,13 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	{
 		return false;
 	}
+
+	mDeferredBuffers = new DeferredBuffers();
+
+	mDeferredShader = new DeferredShader();
+	mDeferredShader->initialize(mDevice, mDeviceContext, TEXT("DeferredBufferVS.cso"), TEXT("DeferredBufferPS.cso"));
+
+	mFullScreenQuad = new FullScreenQuad();
 
 	setClearColor(100, 149, 237);
 
@@ -204,10 +239,10 @@ void Direct3DRenderer::resizeBackBuffer(UINT width, UINT height)
 	HR(mDevice->CreateTexture2D(&depthStencilDesc, 0, &mDepthStencilBuffer));
 	HR(mDevice->CreateDepthStencilView(mDepthStencilBuffer, 0, &mDepthStencilView));
 
-	// Bind the render target view and depth/stencil view to the pipeline.
-	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+	resetRenderTarget();
 
-	setViewport(mScreenWidth, mScreenHeight);
+	mDeferredBuffers->initialize(mDevice, mScreenWidth, mScreenHeight, 1.0f, 0.0f);
+	mFullScreenQuad->initialize(mDevice, mScreenWidth, mScreenHeight);
 }
 
 ID3D11Device* Direct3DRenderer::getDevice() const
@@ -252,7 +287,7 @@ void Direct3DRenderer::switchFillMode()
 	}
 }
 
-void Direct3DRenderer::render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix)
+void Direct3DRenderer::render(RenderParameters& renderParameters)
 {
 	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
 	int renderPackageSize = renderPackages.size();
@@ -280,9 +315,12 @@ void Direct3DRenderer::render(RenderParameters& renderParameters, FXMMATRIX& wor
 			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
-		mShader->render(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
+		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+
+		renderParameters.hasDiffuseTexture = false;
+		renderParameters.hasNormalMapTexture = false;
 	}
 }
 
@@ -312,14 +350,78 @@ void Direct3DRenderer::setClearColor(int r, int g, int b)
 	mClearColor[2] = RGB256(b);
 }
 
-void Direct3DRenderer::renderToTexture()
+void Direct3DRenderer::renderToTexture(RenderParameters& renderParameters)
 {
+	mDeferredBuffers->setRenderTargets(mDeviceContext);
+	mDeferredBuffers->clearRenderTargets(mDeviceContext, mClearColor);
 
+	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
+
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
+
+		if (SharedParameters::showTexture)
+		{
+			if (renderPackages[i].hasDiffuseTexture)
+			{
+				renderParameters.hasDiffuseTexture = true;
+			}
+		}
+
+		if (renderPackages[i].hasNormalMapTexture)
+		{
+			renderParameters.hasNormalMapTexture = true;
+		}
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+		}
+
+		mDeferredShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+
+		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+
+		renderParameters.hasDiffuseTexture = false;
+		renderParameters.hasNormalMapTexture = false;
+	}
+
+	resetRenderTarget();
 }
 
 void Direct3DRenderer::renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation)
 {
-	mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	mDeviceContext->DrawIndexed(IndexCount, StartIndexLocation, BaseVertexLocation);
+}
+
+void Direct3DRenderer::resetRenderTarget()
+{
+	// Bind the render target view and depth/stencil view to the pipeline.
+	mDeviceContext->OMSetRenderTargets(1, &mRenderTargetView, mDepthStencilView);
+
+	setViewport(mScreenWidth, mScreenHeight);
+}
+
+void Direct3DRenderer::renderQuad(RenderParameters& renderParameters)
+{
+	mFullScreenQuad->setupBuffers(mDeviceContext);
+
+	SharedParameters::renderPackages = mFullScreenQuad->getRenderpackge();
+
+	render(renderParameters);
+}
+
+void Direct3DRenderer::turnOnZTest(bool on)
+{
+	if (on)
+	{
+		mDeviceContext->OMSetDepthStencilState(mDepthStencilState, 1);
+	}
+	else
+	{
+		mDeviceContext->OMSetDepthStencilState(mDisableDepthStencilState, 1);
+	}
 }

@@ -52,7 +52,8 @@ struct RenderPackage
 	  diffuseTexture(nullptr),
 	  normalMapTexture(nullptr),
 	  specularTexture(nullptr),
-	  maskTexture(nullptr)
+	  maskTexture(nullptr),
+	  globalTransform(XMMatrixIdentity())
 	{}
 
 	void RefreshTextures()
@@ -91,6 +92,11 @@ struct RenderParameters
 	RenderParameters()
 	: hasDiffuseTexture(false),
       hasNormalMapTexture(false),
+	  ambientColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
+	  ambientIntensity(0.5f),
+	  diffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0)),
+	  diffuseIntensity(0.5f),
+	  rotate(XMMatrixIdentity()),
 	  showTexture(false)
 	{}
 
@@ -140,6 +146,7 @@ public:
 
 	void FillMeshData(MeshData* meshData);
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
+	void setupBuffers();
 	MeshData* GetMeshData() const;
 	void clear();
 private:

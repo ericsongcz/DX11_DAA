@@ -4,6 +4,8 @@
 #include "GameTimer.h"
 #include "Shader.h"
 #include "DeferredShader.h"
+#include "DeferredBuffers.h"
+#include "FullScreenQuad.h"
 
 using std::wstring;
 
@@ -19,13 +21,16 @@ public:
 	void endScene();
 	void changeFillMode(D3D11_FILL_MODE fillMode);
 	void switchFillMode();
-	void render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
+	void render(RenderParameters& renderParameters);
 	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
 	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
 	void setClearColor(int r, int g, int b);
-	void renderToTexture();
+	void renderToTexture(RenderParameters& renderParameters);
+	void renderQuad(RenderParameters& renderParameters);
+	void resetRenderTarget();
+	void turnOnZTest(bool on);
 private:
 	// D3D11 stuffs.
 	float mScreenWidth;
@@ -52,6 +57,10 @@ private:
 	D3D11_VIEWPORT mScreenViewport;
 	ID3D11RasterizerState* mSolidState;
 	ID3D11RasterizerState* mWireframeState;
+	ID3D11DepthStencilState* mDepthStencilState;
+	ID3D11DepthStencilState* mDisableDepthStencilState;
 	float mClearColor[3];
-
+	DeferredBuffers* mDeferredBuffers;
+	DeferredShader* mDeferredShader;
+	FullScreenQuad* mFullScreenQuad;
 };
