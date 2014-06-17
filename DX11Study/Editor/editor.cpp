@@ -192,30 +192,28 @@ HWND Editor::getHWND()
 
 void Editor::drawScene()
 {
-	RenderParameters rp;
-
-	mRenderer->renderToTexture(rp);
-
 	mRenderer->beginScene();
 
-	mRenderer->turnOnZTest(false);
+	if (mRenderModel)
+	{
+		RenderParameters renderParameters;
+		renderParameters.ambientColor = mAmbientColor;
+		renderParameters.diffuseColor = mDiffuseColor;
+		renderParameters.ambientIntensity = mAmbientIntensity;
+		renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-	mRenderer->renderQuad(rp);
+		//mRenderer->renderToTexture(renderParameters);
 
-	mRenderer->renderLight();
+		//mRenderer->turnOnZTest(false);
 
-	mRenderer->turnOnZTest(true);
+		//mRenderer->renderQuad(renderParameters);
 
-	//if (mRenderModel)
-	//{
-	//	RenderParameters renderParameters;
-	//	renderParameters.ambientColor = mAmbientColor;
-	//	renderParameters.diffuseColor = mDiffuseColor;
-	//	renderParameters.ambientIntensity = mAmbientIntensity;
-	//	renderParameters.diffuseIntensity = mDiffuseIntensity;
+		//mRenderer->renderLight();
 
-	//	mRenderer->render(renderParameters);
-	//}
+		//mRenderer->turnOnZTest(true);
+
+		mRenderer->render(renderParameters);
+	}
 
 	mRenderer->endScene();
 }

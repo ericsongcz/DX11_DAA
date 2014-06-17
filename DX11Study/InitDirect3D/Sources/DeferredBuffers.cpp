@@ -61,18 +61,18 @@ bool DeferredBuffers::initialize(ID3D11Device* device, int textureWidth, int tex
 		HR(device->CreateRenderTargetView(mRenderTargetTextureArray[i], &renderTargetViewDesc, &mRenderTargetViewArray[i]));
 	}
 
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceDesc;
-	ZeroMemory(&shaderResourceDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 
-	shaderResourceDesc.Format = textureDesc.Format;
-	shaderResourceDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceDesc.Texture2D.MostDetailedMip = 0;
-	shaderResourceDesc.Texture2D.MipLevels = 1;
+	shaderResourceViewDesc.Format = textureDesc.Format;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
 	// Create the shader resource views.
 	for (int i = 0; i < BUFFER_COUNT; i++)
 	{
-		HR(device->CreateShaderResourceView(mRenderTargetTextureArray[i], &shaderResourceDesc, &mShaderResourceViewArray[i]));
+		HR(device->CreateShaderResourceView(mRenderTargetTextureArray[i], &shaderResourceViewDesc, &mShaderResourceViewArray[i]));
 	}
 
 	D3D11_TEXTURE2D_DESC depthBufferDesc;

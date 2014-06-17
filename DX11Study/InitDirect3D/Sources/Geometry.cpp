@@ -41,10 +41,10 @@ void Geometry::FillMeshData(MeshData* meshData)
 	for (int i = 0; i < mVerticesCount; i++)
 	{
 		mVertices[i].position = mMeshdata->vertices[i];
-		mVertices[i].color = XMFLOAT4(Colors::White);
+		//mVertices[i].color = XMFLOAT4(Colors::White);
 		mVertices[i].normal = mMeshdata->normals[i];
 		mVertices[i].texcoord = mMeshdata->uvs[i];
-		mVertices[i].tangent = mMeshdata->tangents[i];
+		//mVertices[i].tangent = mMeshdata->tangents[i];
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);

@@ -46,18 +46,6 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 	vertices[3].position = XMFLOAT4(left, bottom, 0.0f, 1.0f);
 	vertices[3].texcoord = XMFLOAT2(0.0f, 1.0f);
 
-	//vertices[0].position = XMFLOAT4(-50.0f, 50.0f, 0.0f, 1.0f);
-	//vertices[0].texcoord = XMFLOAT2(0.0f, 0.0f);
-
-	//vertices[1].position = XMFLOAT4(50.0f, 50.0f, 0.0f, 1.0f);
-	//vertices[1].texcoord = XMFLOAT2(1.0f, 0.0f);
-
-	//vertices[2].position = XMFLOAT4(50.0f, -50.0f, 0.0f, 1.0f);
-	//vertices[2].texcoord = XMFLOAT2(1.0f, 1.0f);
-
-	//vertices[3].position = XMFLOAT4(-50.0f, -50.0f, 0.0f, 1.0f);
-	//vertices[3].texcoord = XMFLOAT2(0.0f, 1.0f);
-
 	D3D11_BUFFER_DESC vertexBufferDesc;
 	ZeroMemory(&vertexBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
@@ -103,7 +91,6 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 	RenderPackage rp;
 	rp.indicesCount = 6;
 	rp.indicesOffset = 0;
-	rp.hasDiffuseTexture = true;
 
 	mRenderpackage.push_back(rp);
 
