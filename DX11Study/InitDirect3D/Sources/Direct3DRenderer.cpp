@@ -418,8 +418,6 @@ void Direct3DRenderer::renderQuad(RenderParameters& renderParameters)
 
 	vector<RenderPackage> renderPackages = mFullScreenQuad->getRenderpackge();
 
-	//mLightShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getOrthogonalMatrix());
-
 	renderBuffer(renderPackages[0].indicesCount, renderPackages[0].indicesOffset, 0);
 }
 

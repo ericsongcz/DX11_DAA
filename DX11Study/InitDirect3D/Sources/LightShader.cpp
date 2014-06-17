@@ -71,6 +71,18 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&lightBufferDesc, nullptr, &mLightBuffer));
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
@@ -113,34 +125,45 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
 
-	MatrixBuffer* matrixData;
+	MatrixBuffer* matrixBufferData = nullptr;
 
 	D3D11_MAPPED_SUBRESOURCE matrixBufferResource;
+	ZeroMemory(&matrixBufferResource, sizeof(D3D11_MAPPED_SUBRESOURCE));
 
 	// 锁定常量缓冲，以便能够写入。
 	HR(mDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &matrixBufferResource));
 
 	// 得到const buffer指针。
-	matrixData = (MatrixBuffer*)matrixBufferResource.pData;
+	matrixBufferData = (MatrixBuffer*)matrixBufferResource.pData;
 
 	// 设置world，view和projection矩阵。
-	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
-	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
-	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
-	XMStoreFloat4x4(&matrixData->worldViewProjection, worldViewProjection);
-
-	matrixData->lightDirection = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
+	XMStoreFloat4x4(&matrixBufferData->worldMatrix, worldMatrixTemp);
+	XMStoreFloat4x4(&matrixBufferData->viewMatrix, viewMatrixTemp);
+	XMStoreFloat4x4(&matrixBufferData->projectionMatrix, projectionMatrixTemp);
+	XMStoreFloat4x4(&matrixBufferData->worldViewProjection, worldViewProjection);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
+
+	LightBuffer* lightBufferData = nullptr;
+	D3D11_MAPPED_SUBRESOURCE lightBufferResource;
+	ZeroMemory(&lightBufferData, sizeof(D3D11_MAPPED_SUBRESOURCE));
+
+	HR(mDeviceContext->Map(mLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &lightBufferResource));
+
+	lightBufferData = (LightBuffer*)lightBufferResource.pData;
+
+	lightBufferData->lightDirection = XMFLOAT4(0.0f, -1.0f, 0.0f, 0.0f);
+
+	mDeviceContext->Unmap(mLightBuffer, 0);
 
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer };
-	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
-	mDeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
+	ID3D11Buffer* constantBuffers[] = { mMatrixBuffer, mLightBuffer };
+	mDeviceContext->VSSetConstantBuffers(startSlot, ARRAYSIZE(constantBuffers), constantBuffers);
+	mDeviceContext->PSSetConstantBuffers(startSlot, ARRAYSIZE(constantBuffers), constantBuffers);
 
 	return true;
 }

@@ -3,8 +3,12 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
-	float4 lightDirection;
 };
+
+cbuffer LightBuffer : register(b1)
+{
+	float4 lightDirection;
+}
 
 Texture2D colorTexture : register(t0);
 Texture2D normalTexture : register(t1);

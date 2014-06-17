@@ -208,13 +208,13 @@ void Editor::drawScene()
 
 	//if (mRenderModel)
 	//{
-		//mRenderer->turnOnZTest(false);
+		mRenderer->turnOnZTest(false);
 
 		mRenderer->renderLight();
 
 		mRenderer->renderQuad(renderParameters);
 
-		//mRenderer->turnOnZTest(true);
+		mRenderer->turnOnZTest(true);
 
 		//mRenderer->render(renderParameters);
 	//}
