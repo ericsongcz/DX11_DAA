@@ -20,6 +20,7 @@ private:
 
 	struct LightBuffer
 	{
+		XMFLOAT4 lightPosition;
 		XMFLOAT4 lightDirection;
 	};
 

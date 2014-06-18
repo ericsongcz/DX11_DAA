@@ -83,7 +83,7 @@ float4 main(PixelInput input) : SV_TARGET
 		float3 normal = normalize(input.normal.xyz);
 	}
 
-	float diffuse = saturate(dot(-lightDir, normal));
+	float diffuse = saturate(dot(lightDir, normal));
 
 	// Calculate Phong components per-pixel.
 	float3 reflectionVector = normalize(reflect(-lightDir, normal));
@@ -105,6 +105,8 @@ float4 main(PixelInput input) : SV_TARGET
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
 	color = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity) * textureColor/* + specular * 0.5f*/;
+
+	//color = float4(normal, 1.0f);
 
 	return color;
 }

@@ -315,11 +315,11 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
-			ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
-			ID3D11ShaderResourceView* srvs[] = { color, normal };
-			mShader->setShaderResource(srvs, 2);
-			//setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			//ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
+			//ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
+			//ID3D11ShaderResourceView* srvs[] = { color, normal };
+			//mShader->setShaderResource(srvs, 2);
+			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
 		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
@@ -435,7 +435,7 @@ void Direct3DRenderer::turnOnZTest(bool on)
 
 void Direct3DRenderer::renderLight()
 {
-	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
+	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1), mDeferredBuffers->getShaderResourceView(2) };
 	//ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("puss.dds", mDevice);
 	//ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("puss.dds", mDevice);
 	//ID3D11ShaderResourceView* shaderResourceViews[] = { color, normal };
@@ -449,6 +449,6 @@ void Direct3DRenderer::resetShaderResources()
 {
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
 	// Resource being set to OM RenderTarget slot 0 is still bound on input.
-	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr };
+	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr, nullptr };
 	mLightShader->setShaderResource(srvs, ARRAYSIZE(srvs));
 }

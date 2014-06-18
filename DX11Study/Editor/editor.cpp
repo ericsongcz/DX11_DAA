@@ -200,12 +200,12 @@ void Editor::drawScene()
 
 	mRenderer->resetShaderResources();
 
-	float delta = mTimer.DeltaTime();
+	//float delta = mTimer.DeltaTime();
 
-	mRotateAxisX = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), delta);
+	//mRotateAxisX = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), delta);
 
-	mRotate *= mRotateAxisX;
-	SharedParameters::rotate = mRotate;
+	//mRotate *= mRotateAxisX;
+	//SharedParameters::rotate = mRotate;
 
 	mRenderer->renderToTexture(renderParameters);
 

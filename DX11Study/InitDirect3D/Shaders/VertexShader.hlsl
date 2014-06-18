@@ -67,8 +67,8 @@ PixelInput main(VertexInput input)
 	// 使用查表法移除if语句。
 
 	// 如果在这里归一化向量会导致不正确的渲染结果(?)。
-	//float3 lightDirWorldSpace = /*normalize*/(pointLight.lightPosition - output.worldPosition).xyz;
-	float3 lightDirWorldSpace = lightDirection.xyz;
+	float3 lightDirWorldSpace = /*normalize*/(pointLight.lightPosition - output.worldPosition).xyz;
+	//float3 lightDirWorldSpace = lightDirection.xyz;
 	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
 
 	float4x4 worldToTangentSpace;
