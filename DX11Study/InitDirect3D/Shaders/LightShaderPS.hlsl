@@ -16,11 +16,11 @@ Texture2D normalTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
-	MipFilter = Point;
-	MinFilter = Point;
-	MagFilter = Point;
-	AddressU = Clamp;
-	AddressV = Clamp;
+	MipFilter = ANISOTROPIC;
+	MinFilter = ANISOTROPIC;
+	MagFilter = ANISOTROPIC;
+	AddressU = Wrap;
+	AddressV = Wrap;
 };
 
 struct PixelInput
@@ -37,9 +37,11 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float4 lightDir = -lightDirection;
 
-	float lightIntensity = saturate(dot(lightDir, normal));
+	float4 ambientColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
+	float4 diffuseColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 
-	float4 outputColor = textureColor * lightIntensity;
+	float lightIntensity = saturate(dot(normal, lightDir));
 
+	float4 outputColor = (ambientColor + diffuseColor * lightIntensity) * textureColor;
 	return outputColor;
 }

@@ -435,10 +435,10 @@ void Direct3DRenderer::turnOnZTest(bool on)
 
 void Direct3DRenderer::renderLight()
 {
-	//ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
-	ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("puss.dds", mDevice);
-	ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("puss.dds", mDevice);
-	ID3D11ShaderResourceView* shaderResourceViews[] = { color, normal };
+	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
+	//ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("puss.dds", mDevice);
+	//ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("puss.dds", mDevice);
+	//ID3D11ShaderResourceView* shaderResourceViews[] = { color, normal };
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 
 	RenderParameters rp;
@@ -448,7 +448,7 @@ void Direct3DRenderer::renderLight()
 void Direct3DRenderer::resetShaderResources()
 {
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
-	// Resource being set to OM RenderTarget slot 0 is still bound on input
+	// Resource being set to OM RenderTarget slot 0 is still bound on input.
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr };
 	mLightShader->setShaderResource(srvs, ARRAYSIZE(srvs));
 }

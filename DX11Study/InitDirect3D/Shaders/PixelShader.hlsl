@@ -4,6 +4,7 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
 	float4 lightPosition;
+	float4 lightDirection;
 	float4 ambientColor;
 	float4 diffuseColor;
 	float ambientIntensity;
@@ -75,13 +76,14 @@ float4 main(PixelInput input) : SV_TARGET
 	if (hasNormalMapTexture)
 	{
 		normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+		//normal = normalMapTexture.Sample(samplerState, input.texcoord).xyz;
 	}
 	else
 	{
 		float3 normal = normalize(input.normal.xyz);
 	}
 
-	float diffuse = saturate(dot(lightDir, normal));
+	float diffuse = saturate(dot(-lightDir, normal));
 
 	// Calculate Phong components per-pixel.
 	float3 reflectionVector = normalize(reflect(-lightDir, normal));

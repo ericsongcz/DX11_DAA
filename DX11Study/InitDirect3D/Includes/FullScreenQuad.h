@@ -7,7 +7,7 @@ class FullScreenQuad
 private:
 	struct Vertex
 	{
-		XMFLOAT4 position;
+		XMFLOAT3 position;
 		XMFLOAT2 texcoord;
 	};
 public:

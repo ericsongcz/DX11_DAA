@@ -206,17 +206,17 @@ void Editor::drawScene()
 
 	if (mRenderModel)
 	{
-		mGeometry->setupBuffers(SharedParameters::deviceContext);
-
 		mRenderer->turnOnZTest(false);
 
-		//mRenderer->renderLight();
+		mRenderer->renderLight();
 
-		//mRenderer->renderQuad(renderParameters);
+		mRenderer->renderQuad(renderParameters);
 
 		mRenderer->turnOnZTest(true);
 
-		mRenderer->render(renderParameters);
+		mGeometry->setupBuffers(SharedParameters::deviceContext);
+
+		//mRenderer->render(renderParameters);
 	}
 
 	mRenderer->endScene();

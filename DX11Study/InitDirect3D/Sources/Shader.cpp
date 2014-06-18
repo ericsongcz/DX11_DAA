@@ -166,7 +166,8 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 
 #if USE_RIGHT_HAND
-	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+	matrixData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
+	matrixData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 #else
 	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
 #endif

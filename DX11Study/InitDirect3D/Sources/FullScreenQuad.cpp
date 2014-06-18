@@ -34,16 +34,16 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 
 	Vertex* vertices = new Vertex[mVerticesCount];
 
-	vertices[0].position = XMFLOAT4(left, top, 0.0f, 1.0f);
+	vertices[0].position = XMFLOAT3(left, top, 0.0f);
 	vertices[0].texcoord = XMFLOAT2(0.0f, 0.0f);
 
-	vertices[1].position = XMFLOAT4(right, top, 0.0f, 1.0f);
+	vertices[1].position = XMFLOAT3(right, top, 0.0f);
 	vertices[1].texcoord = XMFLOAT2(1.0f, 0.0f);
 
-	vertices[2].position = XMFLOAT4(right, bottom, 0.0f, 1.0f);
+	vertices[2].position = XMFLOAT3(right, bottom, 0.0f);
 	vertices[2].texcoord = XMFLOAT2(1.0f, 1.0f);
 
-	vertices[3].position = XMFLOAT4(left, bottom, 0.0f, 1.0f);
+	vertices[3].position = XMFLOAT3(left, bottom, 0.0f);
 	vertices[3].texcoord = XMFLOAT2(0.0f, 1.0f);
 
 	D3D11_BUFFER_DESC vertexBufferDesc;

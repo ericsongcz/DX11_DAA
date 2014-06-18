@@ -34,6 +34,7 @@ public:
 		XMFLOAT4X4 viewMatrix;
 		XMFLOAT4X4 projectionMatrix;
 		XMFLOAT4 lightPosition;
+		XMFLOAT4 lightDirection;
 		XMFLOAT4 ambientColor;
 		XMFLOAT4 diffuseColor;
 		float ambientIntensity;
