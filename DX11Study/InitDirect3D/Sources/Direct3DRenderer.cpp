@@ -318,11 +318,11 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 			ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
 			ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
 			ID3D11ShaderResourceView* srvs[] = { color, normal };
-			mLightShader->setShaderResource(srvs, 2);
+			mShader->setShaderResource(srvs, 2);
 			//setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
-		mLightShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 

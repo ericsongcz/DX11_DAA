@@ -198,6 +198,8 @@ void Editor::drawScene()
 	renderParameters.ambientIntensity = mAmbientIntensity;
 	renderParameters.diffuseIntensity = mDiffuseIntensity;
 
+	mRenderer->resetShaderResources();
+
 	mRenderer->renderToTexture(renderParameters);
 
 	mRenderer->beginScene();
@@ -205,8 +207,6 @@ void Editor::drawScene()
 	if (mRenderModel)
 	{
 		mGeometry->setupBuffers(SharedParameters::deviceContext);
-
-		mRenderer->resetShaderResources();
 
 		mRenderer->turnOnZTest(false);
 
