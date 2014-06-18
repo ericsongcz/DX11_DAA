@@ -24,7 +24,11 @@ PixelInput main(VertexInput input)
 {
 	PixelInput output;
 
+	// 顶点坐标扩展成四个分量，并设置为1，以便矩阵运算。
 	input.position.w = 1.0f;
+
+	// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
+	// 切记切记，血泪的教训啊！
 	input.normal.w = 0.0f;
 	
 	output.worldPosition = mul(input.position, worldMatrix);
