@@ -15,7 +15,7 @@ struct PixelInput
 	float4 position : SV_POSITION;
 	float4 worldPosition : POSITION;
 	float2 texcoord : TEXCOORD;
-	float3 normal : NORMAL;
+	float4 normal : NORMAL;
 };
 
 struct PixelOutput
@@ -25,7 +25,7 @@ struct PixelOutput
 	float4 normal : SV_TARGET2;
 };
 
-PixelOutput main(PixelInput input) : SV_TARGET
+PixelOutput main(PixelInput input)
 {
 	PixelOutput output;
 
@@ -33,11 +33,9 @@ PixelOutput main(PixelInput input) : SV_TARGET
 
 	// Sample the color from the texture and store it for output to the render target.
 	output.color = colorTexture.Sample(samplerState, input.texcoord);
-	output.color.w = 1.0f;
 
 	// Store the normal for output to the render target.
-	output.normal = float4(input.normal, 1.0f);
-	output.normal.w = 0.0f;
+	output.normal = input.normal;
 
 	return output;
 }

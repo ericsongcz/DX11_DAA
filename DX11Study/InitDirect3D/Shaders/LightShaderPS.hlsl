@@ -36,13 +36,16 @@ float4 main(PixelInput input) : SV_TARGET
 {
 	float4 position = positionTexture.Sample(samplerState, input.texcoord);
 
+	// Point light.
 	//float3 lightDir = normalize(lightPosition - position).xyz;
-	float3 lightDir = -lightDirection.xyz;
+
+	// Directional light.
+	float4 lightDir = -lightDirection;
 
 	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
 	textureColor.w = 1.0f;
 
-	float3 normal = normalTexture.Sample(samplerState, input.texcoord).xyz;
+	float4 normal = normalTexture.Sample(samplerState, input.texcoord);
 
 	float4 ambientColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
 	float4 diffuseColor = float4(0.5f, 0.5f, 0.5f, 1.0f);
