@@ -15,7 +15,7 @@ private:
 		XMFLOAT4X4 worldMatrix;
 		XMFLOAT4X4 viewMatrix;
 		XMFLOAT4X4 projectionMatrix;
-		XMFLOAT4X4 worldViewProjection;
+		XMFLOAT4X4 worldViewProjectionMatrix;
 	};
 
 	struct LightBuffer

@@ -30,11 +30,36 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	mVertexShader = shaderData->vertexShader;
 	mPixelShader = shaderData->pixelShader;
 
+	//// 设置数据布局，以便在Shader中使用。
+	//// 定义要和顶点结构一致。
+	//D3D11_INPUT_ELEMENT_DESC poloygonLayout[2];
+	//ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	//ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
+
+	//poloygonLayout[0].SemanticName = "POSITION";	// VS中的输入参数。
+	//poloygonLayout[0].SemanticIndex = 0;
+	//poloygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	//poloygonLayout[0].InputSlot = 0;
+	//poloygonLayout[0].AlignedByteOffset = 0;
+	//poloygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	//poloygonLayout[0].InstanceDataStepRate = 0;
+
+	//poloygonLayout[1].SemanticName = "TEXCOORD";
+	//poloygonLayout[1].SemanticIndex = 0;
+	//poloygonLayout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	//poloygonLayout[1].InputSlot = 0;
+	//poloygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	//poloygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	//poloygonLayout[1].InstanceDataStepRate = 0;
+
 	// 设置数据布局，以便在Shader中使用。
 	// 定义要和顶点结构一致。
-	D3D11_INPUT_ELEMENT_DESC poloygonLayout[2];
+	D3D11_INPUT_ELEMENT_DESC poloygonLayout[5];
 	ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	ZeroMemory(&poloygonLayout[2], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	ZeroMemory(&poloygonLayout[3], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	ZeroMemory(&poloygonLayout[4], sizeof(D3D11_INPUT_ELEMENT_DESC));
 
 	poloygonLayout[0].SemanticName = "POSITION";	// VS中的输入参数。
 	poloygonLayout[0].SemanticIndex = 0;
@@ -44,13 +69,37 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	poloygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[0].InstanceDataStepRate = 0;
 
-	poloygonLayout[1].SemanticName = "TEXCOORD";
+	poloygonLayout[1].SemanticName = "COLOR";
 	poloygonLayout[1].SemanticIndex = 0;
-	poloygonLayout[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	poloygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
 	poloygonLayout[1].InputSlot = 0;
 	poloygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	poloygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[1].InstanceDataStepRate = 0;
+
+	poloygonLayout[2].SemanticName = "NORMAL";
+	poloygonLayout[2].SemanticIndex = 0;
+	poloygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	poloygonLayout[2].InputSlot = 0;
+	poloygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	poloygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	poloygonLayout[2].InstanceDataStepRate = 0;
+
+	poloygonLayout[3].SemanticName = "TANGENT";
+	poloygonLayout[3].SemanticIndex = 0;
+	poloygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	poloygonLayout[3].InputSlot = 0;
+	poloygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	poloygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	poloygonLayout[3].InstanceDataStepRate = 0;
+
+	poloygonLayout[4].SemanticName = "TEXCOORD";
+	poloygonLayout[4].SemanticIndex = 0;
+	poloygonLayout[4].Format = DXGI_FORMAT_R32G32_FLOAT;
+	poloygonLayout[4].InputSlot = 0;
+	poloygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	poloygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	poloygonLayout[4].InstanceDataStepRate = 0;
 
 	UINT numElements = sizeof(poloygonLayout) / sizeof(poloygonLayout[0]);
 
@@ -86,7 +135,7 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
 	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -140,7 +189,7 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 	XMStoreFloat4x4(&matrixBufferData->worldMatrix, worldMatrixTemp);
 	XMStoreFloat4x4(&matrixBufferData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixBufferData->projectionMatrix, projectionMatrixTemp);
-	XMStoreFloat4x4(&matrixBufferData->worldViewProjection, worldViewProjection);
+	XMStoreFloat4x4(&matrixBufferData->worldViewProjectionMatrix, worldViewProjection);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);

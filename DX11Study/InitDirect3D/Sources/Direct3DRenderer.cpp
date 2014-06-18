@@ -316,13 +316,13 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 		if (renderPackages[i].textures.size() > 0)
 		{
 			ID3D11ShaderResourceView* color = mDeferredBuffers->getShaderResourceView(0);
-			//ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
-			setShaderResource(&color, 1);
-			//setShaderResource(&normal, 1);
+			ID3D11ShaderResourceView* normal = mDeferredBuffers->getShaderResourceView(1);
+			ID3D11ShaderResourceView* srvs[] = { color, normal };
+			mLightShader->setShaderResource(srvs, 2);
 			//setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
-		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+		mLightShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 
@@ -436,8 +436,8 @@ void Direct3DRenderer::turnOnZTest(bool on)
 void Direct3DRenderer::renderLight()
 {
 	//ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1) };
-	ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("Dont-understand.dds", mDevice);
-	ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("Dont-understand.dds", mDevice);
+	ID3D11ShaderResourceView* color = CreateShaderResourceViewFromFile("puss.dds", mDevice);
+	ID3D11ShaderResourceView* normal = CreateShaderResourceViewFromFile("puss.dds", mDevice);
 	ID3D11ShaderResourceView* shaderResourceViews[] = { color, normal };
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 

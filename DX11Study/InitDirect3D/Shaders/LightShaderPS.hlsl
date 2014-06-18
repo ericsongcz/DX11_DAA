@@ -3,6 +3,7 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
+	float4x4 worldViewProjectionMatrix;
 };
 
 cbuffer LightBuffer : register(b1)
@@ -15,9 +16,9 @@ Texture2D normalTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
-	MipFilter = POINT;
-	MinFilter = POINT;
-	MagFilter = POINT;
+	MipFilter = Anisotropic;
+	MinFilter = Anisotropic;
+	MagFilter = Anisotropic;
 	AddressU = Wrap;
 	AddressV = Wrap;
 };

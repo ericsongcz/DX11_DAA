@@ -30,7 +30,7 @@ PixelInput main(VertexInput input)
 	output.position = mul(output.position, viewMatrix);
 	output.position = mul(output.position, projectionMatrix);
 
-	output.normal = mul(input.normal, worldMatrix);
+	output.normal = normalize(mul(input.normal, worldMatrix));
 	output.texcoord = input.texcoord;
 
 	return output;

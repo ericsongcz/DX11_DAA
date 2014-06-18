@@ -210,13 +210,13 @@ void Editor::drawScene()
 
 		mRenderer->turnOnZTest(false);
 
-		mRenderer->renderLight();
+		//mRenderer->renderLight();
 
-		mRenderer->renderQuad(renderParameters);
+		//mRenderer->renderQuad(renderParameters);
 
 		mRenderer->turnOnZTest(true);
 
-		//mRenderer->render(renderParameters);
+		mRenderer->render(renderParameters);
 	}
 
 	mRenderer->endScene();
