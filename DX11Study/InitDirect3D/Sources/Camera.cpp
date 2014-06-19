@@ -146,6 +146,7 @@ void Camera::strafe(float units)
 	}
 
 	XMStoreFloat3(&mPosition, position);
+	mWorldMatrix._41 += units;
 }
 
 void Camera::fly(float units)
@@ -162,6 +163,8 @@ void Camera::fly(float units)
 		position += up * units;
 		XMStoreFloat3(&mPosition, position);
 	}
+
+	mWorldMatrix._42 += units;
 }
 
 void Camera::walk(float units)
@@ -185,7 +188,8 @@ void Camera::walk(float units)
 
 void Camera::pitch(float angle)
 {
-	XMMATRIX rotate;
+	XMMATRIX rotationMatrix;
+	XMVECTOR rotationQuaternion;
 	XMVECTOR right = XMLoadFloat3(&mRight);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
@@ -202,21 +206,28 @@ void Camera::pitch(float angle)
 	XMStoreFloat3(&mRight, right);
 
 	right = XMVector3Normalize(right);
-	rotate = XMMatrixRotationAxis(right, angle);
+	rotationQuaternion = XMQuaternionRotationAxis(right, angle);
+	rotationMatrix = XMMatrixRotationQuaternion(rotationQuaternion);
 
 	// 绕right向量，旋转up和look。
 	up = XMVector3Normalize(up);
-	up = XMVector3TransformCoord(up, rotate);
+	up = XMVector3TransformCoord(up, rotationMatrix);
 	XMStoreFloat3(&mUp, up);
 
 	lookAt = XMVector3Normalize(lookAt);
-	lookAt = XMVector3TransformCoord(lookAt, rotate);
+	lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
 	XMStoreFloat3(&mLookAt, lookAt);
+
+	XMMATRIX world = XMLoadFloat4x4(&mWorldMatrix);
+	XMVECTOR worldQuaternion = XMQuaternionRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), angle);
+	world *= XMMatrixRotationQuaternion(worldQuaternion);
+	XMStoreFloat4x4(&mWorldMatrix, world);
 }
 
 void Camera::yaw(float angle)
 {
-	XMMATRIX rotate;
+	XMMATRIX rotationMatrix;
+	XMVECTOR rotationQuaternion;
 	XMVECTOR right = XMLoadFloat3(&mRight);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
@@ -224,7 +235,7 @@ void Camera::yaw(float angle)
 	// 对于LANDOBJECT总是绕(0, 1, 0)旋转。
 	if (mCameraType == LANDOBJECT)
 	{
-		rotate = XMMatrixRotationY(angle);
+		rotationMatrix = XMMatrixRotationY(angle);
 	}
 	// 对于AIRCRAFT，绕着up向量旋转。
 	else
@@ -241,15 +252,21 @@ void Camera::yaw(float angle)
 		right = XMVector3Normalize(right);
 
 		XMVECTOR up = XMLoadFloat3(&mUp);
-		rotate = XMMatrixRotationAxis(up, angle);
+		rotationQuaternion = XMQuaternionRotationAxis(up, angle);
+		rotationMatrix = XMMatrixRotationQuaternion(rotationQuaternion);
 
 		// 绕up向量，旋转right和look。
-		right = XMVector3TransformCoord(right, rotate);
+		right = XMVector3TransformCoord(right, rotationMatrix);
 		XMStoreFloat3(&mRight, right);
 
-		lookAt = XMVector3TransformCoord(lookAt, rotate);
+		lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
 		XMStoreFloat3(&mLookAt, lookAt);
 	}
+
+	XMMATRIX world = XMLoadFloat4x4(&mWorldMatrix);
+	XMVECTOR worldQuaternion = XMQuaternionRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), angle);
+	world *= XMMatrixRotationQuaternion(worldQuaternion);
+	XMStoreFloat4x4(&mWorldMatrix, world);
 }
 
 void Camera::roll(float angle)
