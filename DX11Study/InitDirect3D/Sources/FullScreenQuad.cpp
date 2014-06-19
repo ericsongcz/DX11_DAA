@@ -30,6 +30,11 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 	float top = (float)height / 2;
 	float bottom = top - (float)height;
 
+	left /= 2;
+	right /= 2;
+	top /= 2;
+	bottom /= 2;
+
 	mVerticesCount = 4;
 
 	Vertex* vertices = new Vertex[mVerticesCount];

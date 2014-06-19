@@ -35,7 +35,7 @@ Editor::Editor(QWidget *parent)
 	freopen_s(&file, "CONIN$", "r+t", stdin);
 
 	ui.setupUi(this);
-	resize(QSize(900, 600));
+	resize(QSize(1200, 800));
 	// 设置焦点，接受输入事件。
 	setFocusPolicy(Qt::StrongFocus);
 
@@ -79,6 +79,7 @@ Editor::Editor(QWidget *parent)
 
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
+	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 10.0f)));
 
 	mTimer.Reset();
 	QMenu* menu = menuBar()->actions().at(0)->menu();

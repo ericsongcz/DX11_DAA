@@ -64,6 +64,10 @@ namespace Colors
 	const XMVECTORF32 Corn_Flower = { 0.39f, 0.58f, 0.93f, 1.0f };
 }
 
+const XMVECTOR AXISX = XMLoadFloat4(&XMFLOAT4(1.0f, 0.0f,  0.0f, 0.0f));
+const XMVECTOR AXISY = XMLoadFloat4(&XMFLOAT4(0.0f, 1.0f,  0.0f, 0.0f));
+const XMVECTOR AXISZ = XMLoadFloat4(&XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f));
+
 float RGB256(UINT c);
 
 template<typename T>
