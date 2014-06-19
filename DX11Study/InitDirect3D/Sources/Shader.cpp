@@ -97,16 +97,16 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
-	D3D11_BUFFER_DESC testBufferDesc;
-	ZeroMemory(&testBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	testBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	testBufferDesc.ByteWidth = sizeof(TestBuffer);
-	testBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	testBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	testBufferDesc.MiscFlags = 0;
-	testBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC commonBufferDesc;
+	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	commonBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	commonBufferDesc.ByteWidth = sizeof(CommonBuffer);
+	commonBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	commonBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	commonBufferDesc.MiscFlags = 0;
+	commonBufferDesc.StructureByteStride = 0;
 
-	HR(mDevice->CreateBuffer(&testBufferDesc, nullptr, &mTestBuffer));
+	HR(mDevice->CreateBuffer(&commonBufferDesc, nullptr, &mCommonBuffer));
 
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -190,46 +190,46 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	D3D11_MAPPED_SUBRESOURCE testBufferResource;
 
-	TestBuffer* testData;
+	CommonBuffer* commonBufferData;
 
-	HR(mDeviceContext->Map(mTestBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &testBufferResource));
+	HR(mDeviceContext->Map(mCommonBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &testBufferResource));
 
-	testData = (TestBuffer*)testBufferResource.pData;
+	commonBufferData = (CommonBuffer*)testBufferResource.pData;
 
-	testData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
-	testData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
+	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
 	
 	// 是否有漫反射纹理。
 	if (renderParameters.hasDiffuseTexture)
 	{
-		testData->factor = 1.0f;
+		commonBufferData->factor = 1.0f;
 	}
 	else
 	{
-		testData->factor = 0.0f;
+		commonBufferData->factor = 0.0f;
 	}
 
 	// 是否有法线贴图。
 	if (renderParameters.hasNormalMapTexture)
 	{
-		testData->index = 1;
+		commonBufferData->index = 1;
 	}
 	else
 	{
-		testData->index = 0;
+		commonBufferData->index = 0;
 	}
 
 	PointLight pointLight;
 	pointLight.lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
-	testData->pointLight = pointLight;
+	commonBufferData->pointLight = pointLight;
 
-	mDeviceContext->Unmap(mTestBuffer, 0);
+	mDeviceContext->Unmap(mCommonBuffer, 0);
 
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mTestBuffer };
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mCommonBuffer };
 	mDeviceContext->VSSetConstantBuffers(0, 2, buffers);
 	mDeviceContext->PSSetConstantBuffers(0, 2, buffers);
 

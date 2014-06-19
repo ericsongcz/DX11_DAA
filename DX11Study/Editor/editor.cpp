@@ -215,7 +215,7 @@ void Editor::drawScene()
 	{
 		mRenderer->turnOnZTest(false);
 
-		mRenderer->renderLight();
+		mRenderer->renderLight(renderParameters);
 
 		mRenderer->renderQuad(renderParameters);
 

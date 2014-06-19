@@ -5,12 +5,13 @@
 
 DeferredShader::DeferredShader()
 	: mMatrixBuffer(nullptr),
-	mInputLayout(nullptr),
-	mVertexShader(nullptr),
-	mPixelShader(nullptr),
-	mSamplerState(nullptr),
-	mDeviceContext(nullptr),
-	mShaderResourceView(nullptr)
+	  mCommonBuffer(nullptr),
+	  mInputLayout(nullptr),
+	  mVertexShader(nullptr),
+	  mPixelShader(nullptr),
+	  mSamplerState(nullptr),
+	  mDeviceContext(nullptr),
+	  mShaderResourceView(nullptr)
 {
 
 }
@@ -99,6 +100,17 @@ bool DeferredShader::initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
+	D3D11_BUFFER_DESC commonBufferDesc;
+	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	commonBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	commonBufferDesc.ByteWidth = sizeof(CommonBuffer);
+	commonBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	commonBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	commonBufferDesc.MiscFlags = 0;
+	commonBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&commonBufferDesc, nullptr, &mCommonBuffer));
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
@@ -161,13 +173,46 @@ bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXM
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
+	D3D11_MAPPED_SUBRESOURCE commonBufferResource;
+
+	CommonBuffer* commonBufferData;
+
+	HR(mDeviceContext->Map(mCommonBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &commonBufferResource));
+
+	commonBufferData = (CommonBuffer*)commonBufferResource.pData;
+
+	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
+	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+
+	// 是否有漫反射纹理。
+	if (renderParameters.hasDiffuseTexture)
+	{
+		commonBufferData->factor = 1.0f;
+	}
+	else
+	{
+		commonBufferData->factor = 0.0f;
+	}
+
+	// 是否有法线贴图。
+	if (renderParameters.hasNormalMapTexture)
+	{
+		commonBufferData->index = 1;
+	}
+	else
+	{
+		commonBufferData->index = 0;
+	}
+
+	mDeviceContext->Unmap(mCommonBuffer, 0);
+
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer};
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mCommonBuffer};
 	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
-	mDeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
+	mDeviceContext->PSSetConstantBuffers(0, 1, &mCommonBuffer);
 
 	return true;
 }

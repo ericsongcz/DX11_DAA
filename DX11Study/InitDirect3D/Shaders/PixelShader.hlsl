@@ -48,18 +48,6 @@ SamplerState samplerState : register(s0)
 	AddressV = Wrap;
 };
 
-bool float4Equal(float4 lhs, float4 rhs)
-{
-	if ((lhs.x == rhs.x) && (lhs.y == rhs.y) && (lhs.z == rhs.z) && (lhs.w == rhs.w))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
 float4 main(PixelInput input) : SV_TARGET
 {
 	// Calculate per-pixel diffuse.

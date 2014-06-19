@@ -16,7 +16,7 @@ struct PointLight
 	float attenuation2;
 };
 
-struct TestBuffer
+struct CommonBuffer
 {
 	int hasDiffuseTexture;
 	int hasNormalMapTexture;
@@ -57,7 +57,7 @@ public:
 	void shutdown();
 private:
 	ID3D11Buffer* mMatrixBuffer;
-	ID3D11Buffer* mTestBuffer;
+	ID3D11Buffer* mCommonBuffer;
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;

@@ -3,7 +3,17 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
+	float4x4 worldViewProjectionMatrix;
 };
+
+cbuffer CommonBuffer : register(b1)
+{
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
+	float factor;
+	int index;
+};
+
 
 struct VertexInput
 {

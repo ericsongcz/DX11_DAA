@@ -86,12 +86,12 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;
@@ -153,6 +153,23 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 
 	lightBufferData = (LightBuffer*)lightBufferResource.pData;
 
+#if USE_RIGHT_HAND
+	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
+	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+#else
+	lightBufferData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
+#endif
+	lightBufferData->ambientColor = renderParameters.ambientColor;
+	lightBufferData->diffuseColor = renderParameters.diffuseColor;
+	lightBufferData->ambientIntensity = renderParameters.ambientIntensity;
+	lightBufferData->diffuseIntensity = renderParameters.diffuseIntensity;
+	lightBufferData->pad1 = 0.0f;
+	lightBufferData->pad2 = 0.0f;
+
+	XMFLOAT3 cameraPosition = SharedParameters::camera->getPosition();
+	lightBufferData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
+
+	lightBufferData->specularColor = XMFLOAT4(Colors::White);
 	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 0.0f, 1.0f);
 	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 
@@ -164,7 +181,7 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* constantBuffers[] = { mMatrixBuffer, mLightBuffer };
 	mDeviceContext->VSSetConstantBuffers(startSlot, ARRAYSIZE(constantBuffers), constantBuffers);
-	mDeviceContext->PSSetConstantBuffers(startSlot, ARRAYSIZE(constantBuffers), constantBuffers);
+	mDeviceContext->PSSetConstantBuffers(startSlot, 1, &mLightBuffer);
 
 	return true;
 }

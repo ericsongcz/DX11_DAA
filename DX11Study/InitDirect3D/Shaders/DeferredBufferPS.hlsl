@@ -1,4 +1,13 @@
+cbuffer CommonBuffer : register(b0)
+{
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
+	float factor;
+	int index;
+};
+
 Texture2D colorTexture : register(t0);
+Texture2D normalMapTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
@@ -31,11 +40,19 @@ PixelOutput main(PixelInput input)
 
 	output.position = input.worldPosition;
 
-	// Sample the color from the texture and store it for output to the render target.
-	output.color = colorTexture.Sample(samplerState, input.texcoord);
+	float4 normalWorldSpace = input.normal;
+	float4 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)) - 1.0f;
 
-	// Store the normal for output to the render target.
-	output.normal = input.normal;
+	float4 normals[2] = { normalWorldSpace, normalTangentSpace };
+
+	output.normal = normals[index];
+
+	// All color components are summed in the pixel shader.
+	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+
+	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
+
+	output.color = (textureColor * factor + baseColor * (1.0f - factor));;
 
 	return output;
 }

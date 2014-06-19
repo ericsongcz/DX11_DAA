@@ -18,6 +18,15 @@ private:
 		XMFLOAT4X4 worldViewProjection;
 	};
 
+	struct CommonBuffer
+	{
+		int hasDiffuseTexture;
+		int hasNormalMapTexture;
+		float factor;
+		int index;
+	};
+
+
 public:
 	DeferredShader();
 	~DeferredShader();
@@ -30,6 +39,7 @@ public:
 	void shutdown();
 private:
 	ID3D11Buffer* mMatrixBuffer;
+	ID3D11Buffer* mCommonBuffer;
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;

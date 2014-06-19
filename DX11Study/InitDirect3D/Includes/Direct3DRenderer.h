@@ -30,7 +30,7 @@ public:
 	void setClearColor(int r, int g, int b);
 	void renderToTexture(RenderParameters& renderParameters);
 	void renderQuad(RenderParameters& renderParameters);
-	void renderLight();
+	void renderLight(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void turnOnZTest(bool on);

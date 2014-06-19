@@ -18,10 +18,27 @@ private:
 		XMFLOAT4X4 worldViewProjectionMatrix;
 	};
 
+	struct PointLight
+	{
+		XMFLOAT4 lightPosition;
+		float range;
+		float attenuation0;
+		float attenuation1;
+		float attenuation2;
+	};
+
 	struct LightBuffer
 	{
 		XMFLOAT4 lightPosition;
 		XMFLOAT4 lightDirection;
+		XMFLOAT4 ambientColor;
+		XMFLOAT4 diffuseColor;
+		float ambientIntensity;
+		float diffuseIntensity;
+		float pad1;
+		float pad2;
+		XMFLOAT4 cameraPositon;
+		XMFLOAT4 specularColor;
 	};
 
 public:
