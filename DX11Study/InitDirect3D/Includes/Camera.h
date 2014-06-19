@@ -18,7 +18,8 @@ public:
 	XMMATRIX getWolrdMatrix() const;
 	XMMATRIX getOrthogonalWorldMatrix() const;
 	XMMATRIX getBaseViewMatrix() const;
-	XMMATRIX getViewMatrix() const;
+	XMMATRIX getViewMatrix();
+	XMMATRIX getInverseViewMatrix() const;
 	XMMATRIX getProjectionMatrix() const;
 	XMMATRIX getOrthogonalMatrix() const;
 	void setAspectRatio(float aspectRatio);
@@ -38,6 +39,7 @@ private:
 	XMFLOAT4X4 mWorldMatrix;
 	XMFLOAT4X4 mBaseViewMatrix;
 	XMFLOAT4X4 mViewMatrix;
+	XMFLOAT4X4 mInverViewMatrix;
 	XMFLOAT4X4 mProjectionMatrix;
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mLookAt;

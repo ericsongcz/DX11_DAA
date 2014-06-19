@@ -43,7 +43,7 @@ XMMATRIX Camera::getOrthogonalWorldMatrix() const
 	return worldMatrx;
 }
 
-XMMATRIX Camera::getViewMatrix() const
+XMMATRIX Camera::getViewMatrix()
 {
 	XMVECTOR eye = XMLoadFloat3(&mPosition);
 	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);

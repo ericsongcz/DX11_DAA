@@ -80,6 +80,7 @@ Editor::Editor(QWidget *parent)
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 0.0f, 10.0f)));
+	//mCamera->yaw(-0.1f);
 
 	mTimer.Reset();
 	QMenu* menu = menuBar()->actions().at(0)->menu();
