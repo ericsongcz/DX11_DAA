@@ -23,6 +23,7 @@ public:
 	XMMATRIX getProjectionMatrix() const;
 	XMMATRIX getOrthogonalMatrix() const;
 	void setAspectRatio(float aspectRatio);
+	void setOrthogonalMatrix(float width, float height, float nearZ = 1.0f, float farZ = 1000.0f);
 	void setPosition(FXMVECTOR position);
 	XMFLOAT3 getPosition() const;
 	void lookAt(FXMVECTOR lookAt);
@@ -38,6 +39,7 @@ private:
 
 	XMFLOAT4X4 mWorldMatrix;
 	XMFLOAT4X4 mBaseViewMatrix;
+	XMMATRIX mOrthogonalMatrix;
 	XMFLOAT4X4 mViewMatrix;
 	XMFLOAT4X4 mInverViewMatrix;
 	XMFLOAT4X4 mProjectionMatrix;

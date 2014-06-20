@@ -59,7 +59,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("sphere.fbx");
+	fbxImporter->LoadScene("sponza.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();
@@ -123,7 +123,7 @@ void InitDirect3D::DrawScene()
 	renderParameters.ambientIntensity = 0.5f;
 	renderParameters.diffuseIntensity = 0.5f;
 
-	mRenderer->render(renderParameters, worldMatrix, mCamera->getViewMatrix(), mCamera->getProjectionMatrix());
+	mRenderer->render(renderParameters);
 
 	mRenderer->endScene();
 }

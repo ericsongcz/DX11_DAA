@@ -49,11 +49,13 @@
     <ClCompile Include="Sources\DeferredShader.cpp" />
     <ClCompile Include="Sources\Direct3DRenderer.cpp" />
     <ClCompile Include="Sources\FBXImporter.cpp" />
+    <ClCompile Include="Sources\FullScreenQuad.cpp" />
     <ClCompile Include="Sources\GameTimer.cpp" />
     <ClCompile Include="Sources\Geometry.cpp" />
     <ClCompile Include="Sources\GeometryGenerator.cpp" />
     <ClCompile Include="Sources\InitDirect3D.cpp" />
     <ClCompile Include="Sources\IRenderable.cpp" />
+    <ClCompile Include="Sources\LightShader.cpp" />
     <ClCompile Include="Sources\Log.cpp" />
     <ClCompile Include="Sources\MathHelper.cpp" />
     <ClCompile Include="Sources\Shader.cpp" />
@@ -214,7 +216,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_STLP_USE_OWN_NAMESPACE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>./Includes;$(FBX_SDK)/Include;../../../DXSDK/Include</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

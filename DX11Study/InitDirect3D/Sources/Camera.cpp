@@ -53,13 +53,12 @@ XMMATRIX Camera::getViewMatrix()
 	// 保持view局部坐标系各轴的彼此正交。
 	lookAt = XMVector3Normalize(lookAt);
 
-	// look x right
-	up = XMVector3Cross(lookAt, right);
-	up = XMVector3Normalize(up);
-
 	right = XMVector3Cross(up, lookAt);
 	right = XMVector3Normalize(right);
 
+	// look x right
+	up = XMVector3Cross(lookAt, right);
+	up = XMVector3Normalize(up);
 
 	// 理解有误，XMMatrixLookAtLH是生成朝向始终为观察点的视图矩阵。
 	XMMATRIX viewMatrix;
@@ -71,16 +70,17 @@ XMMATRIX Camera::getViewMatrix()
 	XMVECTOR row3 = XMVectorSet(XMVectorGetZ(right), XMVectorGetZ(up), XMVectorGetZ(lookAt), 0.0f);
 
 	// 将eye转换到view space。
-	float x = -XMVectorGetX(XMVector3Dot(right, eye));
-	float y = -XMVectorGetX(XMVector3Dot(up, eye));
-	float z = -XMVectorGetX(XMVector3Dot(lookAt, eye));
+	float x = -XMVectorGetX(XMVector3Dot(eye, right));
+	float y = -XMVectorGetX(XMVector3Dot(eye, up));
+	float z = -XMVectorGetX(XMVector3Dot(eye, lookAt));
 
 	XMVECTOR row4 = XMVectorSet(x, y, z, 1.0f);
 
 	viewMatrix = XMMATRIX(row1, row2, row3, row4);
 
 #if USE_RIGHT_HAND
-	//viewMatrix = XMMatrixLookAtRH(eye, lookAt, up);
+	XMVECTOR target = XMVectorSet(XMVectorGetX(lookAt), XMVectorGetY(lookAt), 0.0f, 1.0f);
+	XMMATRIX viewMatrixTemp = XMMatrixLookAtRH(eye, target, up);
 #else
 	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
 #endif
@@ -100,13 +100,18 @@ XMMATRIX Camera::getProjectionMatrix() const
 #endif
 }
 
-XMMATRIX Camera::getOrthogonalMatrix() const
+void Camera::setOrthogonalMatrix(float width, float height, float nearZ, float farZ)
 {
 #if USE_RIGHT_HAND
-	return XMMatrixOrthographicRH(640.0f, 555.0f, 1.0f, 1000.0f);
+	mOrthogonalMatrix = XMMatrixOrthographicRH(width, height, nearZ, farZ);
 #else
-	return XMMatrixOrthographicLH(800.0f, 600.0f, 1.0f, 1000.0f);
+	mOrthogonalMatrix = XMMatrixOrthographicLH(width, height, nearZ, farZ);
 #endif
+}
+
+XMMATRIX Camera::getOrthogonalMatrix() const
+{
+	return mOrthogonalMatrix;
 }
 
 void Camera::setAspectRatio(float aspectRatio)
@@ -117,6 +122,9 @@ void Camera::setAspectRatio(float aspectRatio)
 void Camera::setPosition(FXMVECTOR position)
 {
 	XMStoreFloat3(&mPosition, position);
+
+	mWorldMatrix._41 += mPosition.x;
+	mWorldMatrix._42 += mPosition.y;
 }
 
 XMFLOAT3 Camera::getPosition() const
@@ -184,6 +192,8 @@ void Camera::walk(float units)
 	}
 
 	XMStoreFloat3(&mPosition, position);
+
+	mWorldMatrix._43 += units;
 }
 
 void Camera::pitch(float angle)
@@ -258,20 +268,27 @@ void Camera::yaw(float angle)
 	// 保持view局部坐标系各轴的彼此正交。
 	lookAt = XMVector3Normalize(lookAt);
 
+	right = XMVector3Cross(up, lookAt);
+	right = XMVector3Normalize(right);
+
 	// look x right
 	up = XMVector3Cross(lookAt, right);
 	up = XMVector3Normalize(up);
 	XMStoreFloat3(&mUp, up);
 
-	right = XMVector3Cross(up, lookAt);
-	right = XMVector3Normalize(right);
-
 	// 绕up向量，旋转right和look。
-	right = XMVector3TransformCoord(right, rotationMatrix);
+	right = XMVector3TransformNormal(right, rotationMatrix);
 	XMStoreFloat3(&mRight, right);
 
-	lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
+	lookAt = XMVector3TransformNormal(lookAt, rotationMatrix);
 	XMStoreFloat3(&mLookAt, lookAt);
+
+	XMVECTOR eye = XMLoadFloat3(&mPosition);
+	float x = -XMVectorGetX(XMVector3Dot(eye, right));
+	float y = -XMVectorGetX(XMVector3Dot(eye, up));
+
+	mWorldMatrix._41 = -x;
+	mWorldMatrix._42 = -y;
 }
 
 void Camera::roll(float angle)
