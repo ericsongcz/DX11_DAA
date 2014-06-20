@@ -222,11 +222,6 @@ void Camera::pitch(float angle)
 	lookAt = XMVector3Normalize(lookAt);
 	lookAt = XMVector3TransformCoord(lookAt, rotationMatrix);
 	XMStoreFloat3(&mLookAt, lookAt);
-
-	XMMATRIX world = XMLoadFloat4x4(&mWorldMatrix);
-	XMVECTOR worldQuaternion = XMQuaternionRotationAxis(right, angle);
-	world *= XMMatrixRotationQuaternion(worldQuaternion);
-	XMStoreFloat4x4(&mWorldMatrix, world);
 }
 
 void Camera::yaw(float angle)
@@ -243,9 +238,6 @@ void Camera::yaw(float angle)
 	if (mCameraType == LANDOBJECT)
 	{
 		rotationMatrix = XMMatrixRotationY(angle);
-
-		worldQuaternion = XMQuaternionRotationAxis(XMLoadFloat3(&XMFLOAT3(0.0f, 1.0f, 0.0f)), angle);
-		world *= XMMatrixRotationQuaternion(worldQuaternion);
 	}
 	// 对于AIRCRAFT，绕着up向量旋转。
 	else
@@ -253,12 +245,7 @@ void Camera::yaw(float angle)
 		XMVECTOR up = XMLoadFloat3(&mUp);
 		rotationQuaternion = XMQuaternionRotationAxis(up, angle);
 		rotationMatrix = XMMatrixRotationQuaternion(rotationQuaternion);
-		
-		worldQuaternion = XMQuaternionRotationAxis(up, angle);
-		world *= XMMatrixRotationQuaternion(worldQuaternion);
 	}
-
-	XMStoreFloat4x4(&mWorldMatrix, world);
 
 	// 保持view局部坐标系各轴的彼此正交。
 	lookAt = XMVector3Normalize(lookAt);
@@ -277,8 +264,6 @@ void Camera::yaw(float angle)
 
 	lookAt = XMVector3TransformNormal(lookAt, rotationMatrix);
 	XMStoreFloat3(&mLookAt, lookAt);
-
-	mWorldMatrix._41 -= angle;
 }
 
 void Camera::roll(float angle)

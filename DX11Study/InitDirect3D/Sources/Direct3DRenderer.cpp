@@ -434,7 +434,8 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1), mDeferredBuffers->getShaderResourceView(2) };
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 
-	//mLightShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+	// 全屏的Quad世界坐标位置始终不变，也不需要根据摄像机的变换而变换，另外因为坐标已经是投影后的尺寸，也不需要经过投影变换。
+	// 所以绘制Quad时候三个矩阵只需要传入单位矩阵即可。
 	mLightShader->render(renderParameters, XMMatrixIdentity(), XMMatrixIdentity(), XMMatrixIdentity());
 }
 
