@@ -77,6 +77,18 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
+	mFBXImporter->LoadScene("cubeTextured.fbx");
+	mFBXImporter->WalkHierarchy();
+
+	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
+
+	if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
+	{
+		return;
+	}
+
+	mRenderModel = true;
+
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 5.0f, 20.0f)));

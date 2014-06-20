@@ -154,7 +154,6 @@ void Camera::strafe(float units)
 	}
 
 	XMStoreFloat3(&mPosition, position);
-	mWorldMatrix._41 += units;
 }
 
 void Camera::fly(float units)
@@ -171,8 +170,6 @@ void Camera::fly(float units)
 		position += up * units;
 		XMStoreFloat3(&mPosition, position);
 	}
-
-	mWorldMatrix._42 += units;
 }
 
 void Camera::walk(float units)
@@ -192,8 +189,6 @@ void Camera::walk(float units)
 	}
 
 	XMStoreFloat3(&mPosition, position);
-
-	mWorldMatrix._43 += units;
 }
 
 void Camera::pitch(float angle)
@@ -283,12 +278,7 @@ void Camera::yaw(float angle)
 	lookAt = XMVector3TransformNormal(lookAt, rotationMatrix);
 	XMStoreFloat3(&mLookAt, lookAt);
 
-	XMVECTOR eye = XMLoadFloat3(&mPosition);
-	float x = -XMVectorGetX(XMVector3Dot(eye, right));
-	float y = -XMVectorGetX(XMVector3Dot(eye, up));
-
-	mWorldMatrix._41 = -x;
-	mWorldMatrix._42 = -y;
+	mWorldMatrix._41 -= angle;
 }
 
 void Camera::roll(float angle)

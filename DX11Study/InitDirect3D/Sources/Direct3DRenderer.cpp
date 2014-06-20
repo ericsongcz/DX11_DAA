@@ -434,7 +434,8 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), mDeferredBuffers->getShaderResourceView(1), mDeferredBuffers->getShaderResourceView(2) };
 	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
 
-	mLightShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getOrthogonalMatrix());
+	//mLightShader->render(renderParameters, SharedParameters::camera->getWolrdMatrix(), SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+	mLightShader->render(renderParameters, XMMatrixIdentity(), XMMatrixIdentity(), XMMatrixIdentity());
 }
 
 void Direct3DRenderer::resetShaderResources()
