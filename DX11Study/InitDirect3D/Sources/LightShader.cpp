@@ -173,6 +173,8 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 0.0f, 1.0f);
 	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 
+	XMStoreFloat4x4(&lightBufferData->worldMatrix, SharedParameters::worldMatrix);
+
 	mDeviceContext->Unmap(mLightBuffer, 0);
 
 	// 设置常量缓冲位置。

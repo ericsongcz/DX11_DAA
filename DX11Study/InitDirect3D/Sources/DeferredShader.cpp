@@ -144,6 +144,8 @@ bool DeferredShader::render(RenderParameters& renderParameters, FXMMATRIX& world
 
 bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
+	SharedParameters::worldMatrix = worldMatrix;
+
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
 	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);
 	worldViewProjection = XMMatrixMultiply(worldViewProjection, projectionMatrix);

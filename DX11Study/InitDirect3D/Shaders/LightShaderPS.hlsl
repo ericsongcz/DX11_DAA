@@ -12,6 +12,7 @@ cbuffer LightBuffer : register(b0)
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
+	float4x4 worldMatrix;
 };
 
 Texture2D positionTexture : register(t0);
@@ -43,17 +44,17 @@ float4 main(PixelInput input) : SV_TARGET
 
 	// 使用查表法移除if语句。
 	// 如果在这里归一化向量会导致不正确的渲染结果(?)。
-	//float3 lightDirWorldSpace = /*normalize*/(lightPosition - position).xyz;
-	//float3 viewDirWorldSpace = /*normalize*/(cameraPosition - position).xyz;
+	float3 lightDirWorldSpace = /*normalize*/(lightPosition - position).xyz;
+	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - position).xyz;
 
-	//float4x4 worldToTangentSpace;
-	//worldToTangentSpace[0] = mul(tangent, worldMatrix);
-	//worldToTangentSpace[1] = mul(float4(cross(tangent.xyz, normal.xyz), 1.0f), worldMatrix);
-	//worldToTangentSpace[2] = mul(normal, worldMatrix);
-	//worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float4x4 worldToTangentSpace;
+	worldToTangentSpace[0] = mul(tangent, worldMatrix);
+	worldToTangentSpace[1] = mul(float4(cross(tangent.xyz, normal.xyz), 1.0f), worldMatrix);
+	worldToTangentSpace[2] = mul(normal, worldMatrix);
+	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	//float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
-	//float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
+	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
+	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
 
 	//float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
 	//float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
@@ -65,9 +66,9 @@ float4 main(PixelInput input) : SV_TARGET
 	//float3 lightDir = normalize(lightPosition - position).xyz;
 
 	// Directional light.
-	float4 lightDir = -lightDirection;
+	float3 lightDir = normalize(lightDirTangentSpace);
 
-	float diffuse = saturate(dot(normal, lightDir));
+	float diffuse = saturate(dot(normal.xyz, lightDir));
 
 	// All color components are summed in the pixel shader.
 	float4 outputColor;

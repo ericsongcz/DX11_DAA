@@ -39,6 +39,7 @@ private:
 		float pad2;
 		XMFLOAT4 cameraPositon;
 		XMFLOAT4 specularColor;
+		XMFLOAT4X4 worldMatrix;
 	};
 
 public:

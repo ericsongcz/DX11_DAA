@@ -42,6 +42,7 @@ PixelInput main(VertexInput input)
 	// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
 	// 切记切记，血泪的教训啊！
 	input.normal.w = 0.0f;
+	input.tangent.w = 0.0f;
 	
 	output.worldPosition = mul(input.position, worldMatrix);
 	output.position = mul(input.position, worldMatrix);

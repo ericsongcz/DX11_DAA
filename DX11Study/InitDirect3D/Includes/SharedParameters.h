@@ -20,5 +20,6 @@ public:
 	static XMMATRIX rotate;
 	static bool showTexture;
 	static Direct3DRenderer* render;
+	static XMMATRIX worldMatrix;
 private:
 };
