@@ -77,7 +77,7 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("cubeTextured.fbx");
+	mFBXImporter->LoadScene("NormalMap2.fbx");
 	mFBXImporter->WalkHierarchy();
 
 	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
