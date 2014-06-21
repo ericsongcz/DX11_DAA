@@ -7,6 +7,11 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
+	float4x4 worldViewProjection;
+};
+
+cbuffer LightBuffer : register(b1)
+{
 	float4 lightPosition;
 	float4 lightDirection;
 	float4 ambientColor;
@@ -17,17 +22,16 @@ cbuffer MatrixBuffer : register(b0)
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
-	float4x4 worldViewProjection;
 };
 
-cbuffer Test : register(b1)
+cbuffer CommonBuffer : register(b2)
 {
-	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
 	float factor;
 	int index;
 	PointLight pointLight;
-};
+}
 
 struct VertexInput
 {

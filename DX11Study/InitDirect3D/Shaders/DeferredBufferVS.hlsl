@@ -20,6 +20,7 @@ struct VertexInput
 	float4 position : POSITION;
 	float2 texcoord : TEXCOORD;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 };
 
 struct PixelInput
@@ -28,6 +29,7 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float2 texcoord : TEXCOORD;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 };
 
 PixelInput main(VertexInput input)
@@ -48,6 +50,7 @@ PixelInput main(VertexInput input)
 
 	output.normal = normalize(mul(input.normal, worldMatrix));
 	output.texcoord = input.texcoord;
+	output.tangent = input.tangent;
 
 	return output;
 }

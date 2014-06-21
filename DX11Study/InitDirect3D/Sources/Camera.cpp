@@ -231,8 +231,6 @@ void Camera::yaw(float angle)
 	XMVECTOR right = XMLoadFloat3(&mRight);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
-	XMMATRIX world = XMLoadFloat4x4(&mWorldMatrix);
-	XMVECTOR worldQuaternion;
 
 	// 对于LANDOBJECT总是绕(0, 1, 0)旋转。
 	if (mCameraType == LANDOBJECT)

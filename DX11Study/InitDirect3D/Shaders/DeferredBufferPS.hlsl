@@ -25,6 +25,7 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float2 texcoord : TEXCOORD;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 };
 
 struct PixelOutput
@@ -32,6 +33,7 @@ struct PixelOutput
 	float4 position : SV_TARGET0;
 	float4 color : SV_TARGET1;
 	float4 normal : SV_TARGET2;
+	float4 tangent : SV_TARGET3;
 };
 
 PixelOutput main(PixelInput input)
@@ -52,7 +54,9 @@ PixelOutput main(PixelInput input)
 
 	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
 
-	output.color = (textureColor * factor + baseColor * (1.0f - factor));;
+	output.color = (textureColor * factor + baseColor * (1.0f - factor));
+
+	output.tangent = input.tangent;
 
 	return output;
 }

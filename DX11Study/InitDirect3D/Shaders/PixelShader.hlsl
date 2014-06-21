@@ -1,8 +1,7 @@
-cbuffer MatrixBuffer : register(b0)
+#include "LightHelper.hlsli"
+
+cbuffer LightBuffer : register(b0)
 {
-	float4x4 worldMatrix;
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
 	float4 lightPosition;
 	float4 lightDirection;
 	float4 ambientColor;
@@ -13,17 +12,16 @@ cbuffer MatrixBuffer : register(b0)
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
-	float4x4 worldViewProjection;
 };
 
-cbuffer Test : register(b1)
+cbuffer CommonBuffer : register(b1)
 {
-	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
 	float factor;
 	int index;
-};
-
+	PointLight pointLight;
+}
 
 struct PixelInput
 {
@@ -64,7 +62,6 @@ float4 main(PixelInput input) : SV_TARGET
 	if (hasNormalMapTexture)
 	{
 		normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
-		//normal = normalMapTexture.Sample(samplerState, input.texcoord).xyz;
 	}
 	else
 	{
@@ -93,8 +90,6 @@ float4 main(PixelInput input) : SV_TARGET
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
 	color = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity) * textureColor/* + specular * 0.5f*/;
-
-	//color = float4(normal, 1.0f);
 
 	return color;
 }

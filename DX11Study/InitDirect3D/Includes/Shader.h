@@ -25,6 +25,20 @@ struct CommonBuffer
 	PointLight pointLight;
 };
 
+struct LightBuffer
+{
+	XMFLOAT4 lightPosition;
+	XMFLOAT4 lightDirection;
+	XMFLOAT4 ambientColor;
+	XMFLOAT4 diffuseColor;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float pad1;
+	float pad2;
+	XMFLOAT4 cameraPositon;
+	XMFLOAT4 specularColor;
+};
+
 class Shader
 {
 public:
@@ -33,16 +47,6 @@ public:
 		XMFLOAT4X4 worldMatrix;
 		XMFLOAT4X4 viewMatrix;
 		XMFLOAT4X4 projectionMatrix;
-		XMFLOAT4 lightPosition;
-		XMFLOAT4 lightDirection;
-		XMFLOAT4 ambientColor;
-		XMFLOAT4 diffuseColor;
-		float ambientIntensity;
-		float diffuseIntensity;
-		float pad1;
-		float pad2;
-		XMFLOAT4 cameraPositon;
-		XMFLOAT4 specularColor;
 		XMFLOAT4X4 worldViewProjection;
 	};
 
@@ -57,6 +61,7 @@ public:
 	void shutdown();
 private:
 	ID3D11Buffer* mMatrixBuffer;
+	ID3D11Buffer* mLightBuffer;
 	ID3D11Buffer* mCommonBuffer;
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;

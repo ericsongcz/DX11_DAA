@@ -59,7 +59,7 @@ bool InitDirect3D::Init()
 
 	FBXImporter* fbxImporter = new FBXImporter();
 	fbxImporter->Init();
-	fbxImporter->LoadScene("sponza.fbx");
+	fbxImporter->LoadScene("teapot.fbx");
 	fbxImporter->WalkHierarchy();
 
 	mGeometry = new Geometry();
@@ -116,6 +116,8 @@ void InitDirect3D::DrawScene()
 
 	XMMATRIX projectionMatrix = XMMatrixPerspectiveFovLH(XM_PI / 4, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 #endif
+
+	SharedParameters::showTexture = true;
 
 	RenderParameters renderParameters;
 	renderParameters.ambientColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0);

@@ -4,6 +4,7 @@
 
 Shader::Shader()
 : mMatrixBuffer(nullptr),
+  mLightBuffer(nullptr),
   mInputLayout(nullptr),
   mVertexShader(nullptr),
   mPixelShader(nullptr),
@@ -97,6 +98,18 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&lightBufferDesc, nullptr, &mLightBuffer));
+
 	D3D11_BUFFER_DESC commonBufferDesc;
 	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
 	commonBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -165,36 +178,45 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 
-#if USE_RIGHT_HAND
-	matrixData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
-	matrixData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
-#else
-	matrixData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
-#endif
-	matrixData->ambientColor = renderParameters.ambientColor;
-	matrixData->diffuseColor = renderParameters.diffuseColor;
-	matrixData->ambientIntensity = renderParameters.ambientIntensity;
-	matrixData->diffuseIntensity = renderParameters.diffuseIntensity;
-	matrixData->pad1 = 0.0f;
-	matrixData->pad2 = 0.0f;
-
-	XMFLOAT3 cameraPosition = SharedParameters::camera->getPosition();
-	matrixData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
-
-	matrixData->specularColor = XMFLOAT4(Colors::White);
-
 	XMStoreFloat4x4(&matrixData->worldViewProjection, worldViewProjection);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
-	D3D11_MAPPED_SUBRESOURCE testBufferResource;
+	D3D11_MAPPED_SUBRESOURCE lightBufferResource;
+	LightBuffer* lightBufferData;
+
+	HR(mDeviceContext->Map(mLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &lightBufferResource));
+
+	lightBufferData = (LightBuffer*)lightBufferResource.pData;
+
+#if USE_RIGHT_HAND
+	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
+	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+#else
+	lightBufferData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
+#endif
+	lightBufferData->ambientColor = renderParameters.ambientColor;
+	lightBufferData->diffuseColor = renderParameters.diffuseColor;
+	lightBufferData->ambientIntensity = renderParameters.ambientIntensity;
+	lightBufferData->diffuseIntensity = renderParameters.diffuseIntensity;
+	lightBufferData->pad1 = 0.0f;
+	lightBufferData->pad2 = 0.0f;
+
+	XMFLOAT3 cameraPosition = SharedParameters::camera->getPosition();
+	lightBufferData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
+
+	lightBufferData->specularColor = XMFLOAT4(Colors::White);
+
+	mDeviceContext->Unmap(mLightBuffer, 0);
+
+	D3D11_MAPPED_SUBRESOURCE commonBufferResource;
 
 	CommonBuffer* commonBufferData;
 
-	HR(mDeviceContext->Map(mCommonBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &testBufferResource));
+	HR(mDeviceContext->Map(mCommonBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &commonBufferResource));
 
-	commonBufferData = (CommonBuffer*)testBufferResource.pData;
+	commonBufferData = (CommonBuffer*)commonBufferResource.pData;
 
 	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
@@ -229,9 +251,9 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mCommonBuffer };
-	mDeviceContext->VSSetConstantBuffers(0, 2, buffers);
-	mDeviceContext->PSSetConstantBuffers(0, 2, buffers);
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer };
+	mDeviceContext->VSSetConstantBuffers(0, 3, buffers);
+	mDeviceContext->PSSetConstantBuffers(1, 2, buffers);
 
 	return true;
 }
