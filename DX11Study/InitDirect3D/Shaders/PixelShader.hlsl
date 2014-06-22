@@ -49,11 +49,12 @@ Texture2D normalMapTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
-	MipFilter = ANISOTROPIC;
-	MinFilter = ANISOTROPIC;
-	MagFilter = ANISOTROPIC;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
 	AddressU = Wrap;
 	AddressV = Wrap;
+	AddressW = Wrap;
 };
 
 float4 main(PixelInput input) : SV_TARGET
@@ -73,7 +74,11 @@ float4 main(PixelInput input) : SV_TARGET
 		normalWorldSpace = input.normal;
 	}
 
-	normalTangentSpace = (normalTangentSpace.x * input.tangent) + (normalTangentSpace.y * input.binormal) + (normalTangentSpace.z * input.normal);
+	float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
+
+	// 这里如果坐乘的话相当于乘以TBN的转置矩阵。
+	// 将切线空间的法线转换到世界空间。
+	normalTangentSpace = mul(normalTangentSpace, TBN);
 	normalTangentSpace = normalize(normalTangentSpace);
 
 	float3 lightDir = normalize(lightPosition - input.worldPosition).xyz;
@@ -83,8 +88,8 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float3 normal = normals[index];
 
+	//float diffuse = saturate(dot(-lightDirection.xyz, normal));
 	float diffuse = saturate(dot(lightDir, normal));
-	//float diffuse = saturate(dot(-lightDir, normal));
 
 	// Calculate Phong components per-pixel.
 	//float3 reflectionVector = normalize(reflect(-lightDir, normal));
