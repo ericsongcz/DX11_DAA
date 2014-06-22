@@ -533,7 +533,7 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 		return;
 	}
 
-	FbxGeometryElementTangent* binormalElement = mesh->GetElementTangent(0);
+	FbxGeometryElementBinormal* binormalElement = mesh->GetElementBinormal(0);
 
 	switch (binormalElement->GetMappingMode())
 	{

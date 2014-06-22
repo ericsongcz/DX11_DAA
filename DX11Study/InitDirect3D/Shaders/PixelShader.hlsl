@@ -58,8 +58,8 @@ SamplerState samplerState : register(s0)
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	float3 lightDir = normalize(input.lightDir);
-	float3 viewDir = normalize(input.viewDir);
+	//float3 lightDir = normalize(input.lightDir);
+	//float3 viewDir = normalize(input.viewDir);
 
 	float3 normalWorldSpace;
 	float3 normalTangentSpace;
@@ -73,33 +73,21 @@ float4 main(PixelInput input) : SV_TARGET
 		normalWorldSpace = input.normal;
 	}
 
-	//normalTangentSpace = (normalTangentSpace.x * input.tangent) + (normalTangentSpace.y * input.binormal) + (normalTangentSpace.z * input.normal);
-	//normalTangentSpace = normalize(normalTangentSpace);
+	normalTangentSpace = (normalTangentSpace.x * input.tangent) + (normalTangentSpace.y * input.binormal) + (normalTangentSpace.z * input.normal);
+	normalTangentSpace = normalize(normalTangentSpace);
 
-	//float3 lightDir = /*normalize*/(lightPosition - input.worldPosition).xyz;
-	//float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
-
-	//float4x4 worldToTangentSpace;
-	//// 如果放到PS里的话这里的normal要用normal map采样的normal才会有正确结果(?)。
-	//input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
-
-	//worldToTangentSpace[0] = input.tangent;
-	//worldToTangentSpace[1] = float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f);
-	//worldToTangentSpace[2] = normalWorldSpace;
-	//worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	//float4x4 tangentSpaceToWorld = transpose(worldToTangentSpace);
-
-	//normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
+	float3 lightDir = normalize(lightPosition - input.worldPosition).xyz;
+	float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
 
 	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
 
 	float3 normal = normals[index];
 
 	float diffuse = saturate(dot(lightDir, normal));
+	//float diffuse = saturate(dot(-lightDir, normal));
 
 	// Calculate Phong components per-pixel.
-	float3 reflectionVector = normalize(reflect(-lightDir, normal));
+	//float3 reflectionVector = normalize(reflect(-lightDir, normal));
 
 	// Manually compute reflection vector.
 	// r = I - 2(N·L)N.
@@ -107,7 +95,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	// Calculate specular component.
 	// specular = pow(max(v·r, 0), p)
-	float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 50.0f);
+	//float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 50.0f);
 
 	// All color components are summed in the pixel shader.
 	float4 color;

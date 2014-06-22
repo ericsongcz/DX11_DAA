@@ -86,26 +86,22 @@ PixelInput main(VertexInput input)
 	//float3 B = normalize(mul(input.binormal, worldMatrix)).xyz;
 	float3 B = cross(T, N);
 
-	//output.normal = N;
-	//output.tangent = T;
-	//output.binormal = B;
+	output.normal = N;
+	output.tangent = T;
+	output.binormal = B;
 
 	float3x3 TBN = float3x3(T, B, N);
 
-	//float3x3 worldToTangentSpace;
-	//worldToTangentSpace[0] = normalize(mul(input.tangent.xyz, (float3x3)worldMatrix));
-	//worldToTangentSpace[1] = normalize(mul(cross(input.tangent.xyz, input.normal.xyz), (float3x3)worldMatrix));
-	//worldToTangentSpace[2] = normalize(mul(input.normal.xyz, (float3x3)worldMatrix));
-	////worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
-
-	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace)).xyz;
-	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace)).xyz;
+	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
+	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
 
 	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
 	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
 
-	output.lightDir = lightDirs[index];
-	output.viewDir = viewDirs[index];
+	//output.lightDir = lightDirs[index];
+	//output.viewDir = viewDirs[index];
+
+	//output.lightDir = mul(TBN, lightDirection.xyz);
 
 	//output.normal = normalize(mul(input.normal, worldMatrix));
 	//output.tangent = normalize(mul(input.tangent, worldMatrix));
