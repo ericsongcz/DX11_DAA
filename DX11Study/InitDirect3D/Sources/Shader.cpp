@@ -253,7 +253,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer };
 	mDeviceContext->VSSetConstantBuffers(0, 3, buffers);
-	mDeviceContext->PSSetConstantBuffers(1, 2, buffers);
+	mDeviceContext->PSSetConstantBuffers(0, 3, buffers);
 
 	return true;
 }

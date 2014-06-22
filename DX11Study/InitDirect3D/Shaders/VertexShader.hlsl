@@ -48,6 +48,7 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
@@ -72,8 +73,7 @@ PixelInput main(VertexInput input)
 	// 使用查表法移除if语句。
 
 	// 如果在这里归一化向量会导致不正确的渲染结果(?)。
-	float3 lightDirWorldSpace = /*normalize*/(pointLight.lightPosition - output.worldPosition).xyz;
-	//float3 lightDirWorldSpace = lightDirection.xyz;
+	float3 lightDirWorldSpace = /*normalize*/(lightPosition - output.worldPosition).xyz;
 	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
 
 	float4x4 worldToTangentSpace;
@@ -82,8 +82,8 @@ PixelInput main(VertexInput input)
 	worldToTangentSpace[2] = mul(input.normal, worldMatrix);
 	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 1.0f))).xyz;
-	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 1.0f))).xyz;
+	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 0.0f))).xyz;
+	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 0.0f))).xyz;
 
 	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
 	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
@@ -92,6 +92,7 @@ PixelInput main(VertexInput input)
 	output.viewDir = viewDirs[index];
 
 	output.normal = normalize(mul(input.normal, worldMatrix));
+	output.tangent = normalize(mul(input.tangent, worldMatrix));
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;

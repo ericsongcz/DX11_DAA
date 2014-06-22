@@ -1,6 +1,14 @@
 #include "LightHelper.hlsli"
 
-cbuffer LightBuffer : register(b0)
+cbuffer MatrixBuffer : register(b0)
+{
+	float4x4 worldMatrix;
+	float4x4 viewMatrix;
+	float4x4 projectionMatrix;
+	float4x4 worldViewProjection;
+};
+
+cbuffer LightBuffer : register(b1)
 {
 	float4 lightPosition;
 	float4 lightDirection;
@@ -14,7 +22,7 @@ cbuffer LightBuffer : register(b0)
 	float4 specularColor;
 };
 
-cbuffer CommonBuffer : register(b1)
+cbuffer CommonBuffer : register(b2)
 {
 	int hasDiffuseTexture;
 	int hasNormalMapTexture;
@@ -29,6 +37,7 @@ struct PixelInput
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
 	float4 normal : NORMAL;
+	float4 tangent : TANGENT;
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
@@ -48,25 +57,40 @@ SamplerState samplerState : register(s0)
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	// Calculate per-pixel diffuse.
-	float3 lightDir = normalize(input.lightDir);
-	float3 viewDir = normalize(input.viewDir);
+	//float3 lightDir = normalize(input.lightDir);
+	//float3 viewDir = normalize(input.viewDir);
 
-	float3 normalWorldSpace = input.normal.xyz;
-	float3 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
-
-	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
-
-	float3 normal = normals[index];
+	float4 normalWorldSpace;
+	float4 normalTangentSpace;
 
 	if (hasNormalMapTexture)
 	{
-		normal = (2 * normalMapTexture.Sample(samplerState, input.texcoord)).xyz - 1.0f;
+		normalTangentSpace = 2 * (normalMapTexture.Sample(samplerState, input.texcoord) - 0.5f);
 	}
 	else
 	{
-		float3 normal = normalize(input.normal.xyz);
+		normalWorldSpace = input.normal;
 	}
+
+	float3 lightDir = normalize(lightPosition - input.worldPosition).xyz;
+	float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
+
+	float4x4 worldToTangentSpace;
+	// 如果放到PS里的话这里的normal要用normal map采样的normal才会有正确结果(?)。
+	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
+
+	worldToTangentSpace[0] = input.tangent;
+	worldToTangentSpace[1] = float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f);
+	worldToTangentSpace[2] = normalWorldSpace;
+	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	float4x4 tangentSpaceToWorld = transpose(worldToTangentSpace);
+
+	normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
+
+	float3 normals[2] = { normalWorldSpace.xyz, normalTangentSpace.xyz };
+
+	float3 normal = normals[index];
 
 	float diffuse = saturate(dot(lightDir, normal));
 

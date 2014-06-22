@@ -51,7 +51,7 @@ PixelInput main(VertexInput input)
 
 	output.normal = normalize(mul(input.normal, worldMatrix));
 	output.texcoord = input.texcoord;
-	output.tangent = input.tangent;
+	output.tangent = normalize(mul(input.tangent, worldMatrix));
 
 	return output;
 }

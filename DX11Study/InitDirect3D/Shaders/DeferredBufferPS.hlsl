@@ -1,4 +1,13 @@
-cbuffer CommonBuffer : register(b0)
+cbuffer MatrixBuffer : register(b0)
+{
+	float4x4 worldMatrix;
+	float4x4 viewMatrix;
+	float4x4 projectionMatrix;
+	float4x4 worldViewProjectionMatrix;
+};
+
+
+cbuffer CommonBuffer : register(b1)
 {
 	int hasDiffuseTexture;
 	int hasNormalMapTexture;
@@ -43,7 +52,26 @@ PixelOutput main(PixelInput input)
 	output.position = input.worldPosition;
 
 	float4 normalWorldSpace = input.normal;
-	float4 normalTangentSpace = (2 * normalMapTexture.Sample(samplerState, input.texcoord)) - 1.0f;
+	float4 normalTangentSpace = 2 * (normalMapTexture.Sample(samplerState, input.texcoord) - 0.5f);
+
+	normalTangentSpace = normalize(normalTangentSpace);
+
+	float4x4 worldToTangentSpace;
+	//worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
+	//worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f), worldMatrix);
+	//worldToTangentSpace[2] = mul(normalWorldSpace, worldMatrix);
+	//worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
+
+	worldToTangentSpace[0] = input.tangent;
+	worldToTangentSpace[1] = float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f);
+	worldToTangentSpace[2] = normalWorldSpace;
+	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	float4x4 tangentSpaceToWorld = transpose(worldToTangentSpace);
+
+	normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
 
 	float4 normals[2] = { normalWorldSpace, normalTangentSpace };
 

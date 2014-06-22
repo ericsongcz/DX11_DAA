@@ -29,12 +29,12 @@
       <Extensions>cpp;moc</Extensions>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{9615e011-a542-48bc-aab0-7137fc24088b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;cxx;c;def</Extensions>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{9615e011-a542-48bc-aab0-7137fc24088b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

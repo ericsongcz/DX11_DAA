@@ -8,20 +8,6 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldViewProjectionMatrix;
 };
 
-cbuffer LightBuffer : register(b1)
-{
-	float4 lightPosition;
-	float4 lightDirection;
-	float4 ambientColor;
-	float4 diffuseColor;
-	float ambientIntensity;
-	float diffuseIntensity;
-	float pad1;
-	float pad2;
-	float4 cameraPosition;
-	float4 specularColor;
-};
-
 struct VertexInput
 {
 	float4 position : POSITION;

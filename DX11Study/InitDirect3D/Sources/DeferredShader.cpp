@@ -144,8 +144,6 @@ bool DeferredShader::render(RenderParameters& renderParameters, FXMMATRIX& world
 
 bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	SharedParameters::worldMatrix = worldMatrix;
-
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
 	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);
 	worldViewProjection = XMMatrixMultiply(worldViewProjection, projectionMatrix);
@@ -154,6 +152,8 @@ bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXM
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
+
+	SharedParameters::worldMatrix = worldMatrixTemp;
 
 	MatrixBuffer* matrixData;
 
@@ -214,7 +214,7 @@ bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXM
 	// 用更新后的值设置常量缓冲。
 	ID3D11Buffer* buffers[] = { mMatrixBuffer, mCommonBuffer};
 	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
-	mDeviceContext->PSSetConstantBuffers(0, 1, &mCommonBuffer);
+	mDeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
 
 	return true;
 }

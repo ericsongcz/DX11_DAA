@@ -1,7 +1,7 @@
 #pragma once
 #include <d3d11.h>
 
-const int BUFFER_COUNT = 4;
+const int BUFFER_COUNT = 3;
 
 class DeferredBuffers
 {

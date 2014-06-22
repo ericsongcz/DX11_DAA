@@ -7,14 +7,14 @@
     <Filter Include="Includes">
       <UniqueIdentifier>{b6f152c7-a1a3-49ac-8fb3-af82ff2943e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Shaders">
-      <UniqueIdentifier>{939a5caf-e4a4-4b2c-ab37-c0e3adb7ec2a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Docs">
       <UniqueIdentifier>{12ea72b9-40c8-4868-949c-05069a128764}</UniqueIdentifier>
     </Filter>
     <Filter Include="Sources">
       <UniqueIdentifier>{c2affdba-337a-495e-a1fa-8008c1c0a8f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{939a5caf-e4a4-4b2c-ab37-c0e3adb7ec2a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
