@@ -15,6 +15,7 @@ struct Vertex
 	XMFLOAT4 color;
 	XMFLOAT3 normal;
 	XMFLOAT3 tangent;
+	XMFLOAT3 binormal;
 	XMFLOAT2 texcoord;
 };
 
@@ -124,6 +125,7 @@ struct MeshData
 	vector<XMFLOAT3> vertices;
 	vector<XMFLOAT3> normals;
 	vector<XMFLOAT3> tangents;
+	vector<XMFLOAT3> binormals;
 	vector<UINT> indices;
 	vector<XMFLOAT2> uvs;
 	UINT verticesCount;

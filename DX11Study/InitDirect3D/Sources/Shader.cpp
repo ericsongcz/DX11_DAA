@@ -32,12 +32,13 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
 	// 设置数据布局，以便在Shader中使用。
 	// 定义要和顶点结构一致。
-	D3D11_INPUT_ELEMENT_DESC poloygonLayout[5];
+	D3D11_INPUT_ELEMENT_DESC poloygonLayout[6];
 	ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[2], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[3], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[4], sizeof(D3D11_INPUT_ELEMENT_DESC));
+	ZeroMemory(&poloygonLayout[5], sizeof(D3D11_INPUT_ELEMENT_DESC));
 
 	poloygonLayout[0].SemanticName = "POSITION";	// VS中的输入参数。
 	poloygonLayout[0].SemanticIndex = 0;
@@ -71,13 +72,21 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	poloygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[3].InstanceDataStepRate = 0;
 
-	poloygonLayout[4].SemanticName = "TEXCOORD";
+	poloygonLayout[4].SemanticName = "BINORMAL";
 	poloygonLayout[4].SemanticIndex = 0;
-	poloygonLayout[4].Format = DXGI_FORMAT_R32G32_FLOAT;
+	poloygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	poloygonLayout[4].InputSlot = 0;
 	poloygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	poloygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	poloygonLayout[4].InstanceDataStepRate = 0;
+
+	poloygonLayout[5].SemanticName = "TEXCOORD";
+	poloygonLayout[5].SemanticIndex = 0;
+	poloygonLayout[5].Format = DXGI_FORMAT_R32G32_FLOAT;
+	poloygonLayout[5].InputSlot = 0;
+	poloygonLayout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	poloygonLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	poloygonLayout[5].InstanceDataStepRate = 0;
 
 	UINT numElements = sizeof(poloygonLayout) / sizeof(poloygonLayout[0]);
 

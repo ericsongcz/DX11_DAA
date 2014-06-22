@@ -45,6 +45,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 		mVertices[i].normal = mMeshdata->normals[i];
 		mVertices[i].texcoord = mMeshdata->uvs[i];
 		mVertices[i].tangent = mMeshdata->tangents[i];
+		mVertices[i].binormal = mMeshdata->binormals[i];
 	}
 
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);

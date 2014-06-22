@@ -252,10 +252,12 @@ MeshData* FBXImporter::GetMeshInfo()
 		if (fbxMeshData.mHasNormalMapTexture)
 		{
 			SplitVertexByTangent(fbxMeshData);
+			SplitVertexByBinormal(fbxMeshData);
 		}
 		else
 		{
 			fbxMeshData.mTangents.resize(fbxMeshData.mVerticesCount);
+			fbxMeshData.mBinormals.resize(fbxMeshData.mVerticesCount);
 		}
 
 		// 如果.fbx包含一个以上的mesh，需要计算当前FBXMeshData的索引在全局索引中的位置。
@@ -322,6 +324,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		Merge(mMeshData->normals, fbxMeshData.mNormals);
 		Merge(mMeshData->uvs, fbxMeshData.mUVs);
 		Merge(mMeshData->tangents, fbxMeshData.mTangents);
+		Merge(mMeshData->binormals, fbxMeshData.mBinormals);
 		mMeshData->materialIdOffsets.clear();
 	}
 
@@ -515,7 +518,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 		}
 	}
 
-		break;
+		//break;
 	default:
 		break;
 	}
@@ -530,33 +533,35 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 		return;
 	}
 
-	FbxGeometryElementTangent* tangentElement = mesh->GetElementTangent(0);
+	FbxGeometryElementTangent* binormalElement = mesh->GetElementTangent(0);
 
-	switch (tangentElement->GetMappingMode())
+	switch (binormalElement->GetMappingMode())
 	{
 	case FbxGeometryElement::eByControlPoint:
 	{
-		switch (tangentElement->GetReferenceMode())
+		switch (binormalElement->GetReferenceMode())
 		{
 		case FbxGeometryElement::eDirect:
 		{
-			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(controlPointIndex);
-			XMFLOAT3 tangent;
-			tangent.x = static_cast<float>(fbxTangent[0]);
-			tangent.y = static_cast<float>(fbxTangent[1]);
-			tangent.z = static_cast<float>(fbxTangent[2]);
+			FbxVector4 fbxBinormal = binormalElement->GetDirectArray().GetAt(controlPointIndex);
+			XMFLOAT3 binormal;
+			binormal.x = static_cast<float>(fbxBinormal[0]);
+			binormal.y = static_cast<float>(fbxBinormal[1]);
+			binormal.z = static_cast<float>(fbxBinormal[2]);
+			fbxMeshData.mBinormals.push_back(binormal);
 		}
 
 			break;
 
 		case FbxGeometryElement::eIndexToDirect:
 		{
-			int id = tangentElement->GetIndexArray().GetAt(controlPointIndex);
-			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(id);
-			XMFLOAT3 tangent;
-			tangent.x = static_cast<float>(fbxTangent[0]);
-			tangent.y = static_cast<float>(fbxTangent[1]);
-			tangent.z = static_cast<float>(fbxTangent[2]);
+			int id = binormalElement->GetIndexArray().GetAt(controlPointIndex);
+			FbxVector4 fbxBinormal = binormalElement->GetDirectArray().GetAt(id);
+			XMFLOAT3 binormal;
+			binormal.x = static_cast<float>(fbxBinormal[0]);
+			binormal.y = static_cast<float>(fbxBinormal[1]);
+			binormal.z = static_cast<float>(fbxBinormal[2]);
+			fbxMeshData.mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -567,26 +572,28 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 
 	case FbxGeometryElement::eByPolygonVertex:
 	{
-		switch (tangentElement->GetReferenceMode())
+		switch (binormalElement->GetReferenceMode())
 		{
 		case FbxGeometryElement::eDirect:
 		{
-			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(tangentIndex);
-			XMFLOAT3 tangent;
-			tangent.x = static_cast<float>(fbxTangent[0]);
-			tangent.y = static_cast<float>(fbxTangent[1]);
-			tangent.z = static_cast<float>(fbxTangent[2]);
+			FbxVector4 fbxBinormal = binormalElement->GetDirectArray().GetAt(tangentIndex);
+			XMFLOAT3 binormal;
+			binormal.x = static_cast<float>(fbxBinormal[0]);
+			binormal.y = static_cast<float>(fbxBinormal[1]);
+			binormal.z = static_cast<float>(fbxBinormal[2]);
+			fbxMeshData.mBinormals.push_back(binormal);
 		}
 
 			break;
 		case FbxGeometryElement::eIndexToDirect:
 		{
-			int id = tangentElement->GetIndexArray().GetAt(tangentIndex);
-			FbxVector4 fbxTangent = tangentElement->GetDirectArray().GetAt(id);
-			XMFLOAT3 tangent;
-			tangent.x = static_cast<float>(fbxTangent[0]);
-			tangent.y = static_cast<float>(fbxTangent[1]);
-			tangent.z = static_cast<float>(fbxTangent[2]);
+			int id = binormalElement->GetIndexArray().GetAt(tangentIndex);
+			FbxVector4 fbxBinormal = binormalElement->GetDirectArray().GetAt(id);
+			XMFLOAT3 binormal;
+			binormal.x = static_cast<float>(fbxBinormal[0]);
+			binormal.y = static_cast<float>(fbxBinormal[1]);
+			binormal.z = static_cast<float>(fbxBinormal[2]);
+			fbxMeshData.mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -733,6 +740,43 @@ void FBXImporter::SplitVertexByTangent(FBXMeshData& fbxMeshData)
 	}
 
 	fbxMeshData.mTangents = tangents;
+}
+
+void FBXImporter::SplitVertexByBinormal(FBXMeshData& fbxMeshData)
+{
+	vector<XMFLOAT3> binormals;
+	binormals.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+
+	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+
+	// 遍历索引，根据副法线来划分顶点，使得每个顶点包含唯一的副法线(顶点会有冗余)。
+	// 基本思路就是先建一个和顶点数组相同尺寸的副法线数组，然后按照索引顺序来填充这个数组。
+	// 在遍历的过程中，我们会遇到顶点位置相同，但是副法线不同的情况，这个时候我们就
+	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
+	// 我们将这个新顶点对应的副法线存入副法线数组。
+	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	{
+		if (XMFLOAT3Equal(binormals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
+		{
+			binormals[indicesBuffer[i]] = fbxMeshData.mBinormals[i];
+		}
+		else if (!XMFLOAT3Equal(binormals[indicesBuffer[i]], fbxMeshData.mBinormals[i]))
+		{
+			// 扩大顶点数组，将新的顶点追加到末尾。
+			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
+			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+
+			// 然后更新这个顶点的索引。
+			indicesBuffer[i] = fbxMeshData.mVerticesCount;
+			fbxMeshData.mVerticesCount++;
+
+			// 保存法线。
+			binormals.push_back(fbxMeshData.mBinormals[i]);
+		}
+	}
+
+	fbxMeshData.mBinormals = binormals;
 }
 
 void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)

@@ -39,6 +39,7 @@ struct VertexInput
 	float4 color : COLOR;
 	float4 normal : NORMAL;
 	float4 tangent : TANGENT;
+	float4 binormal : BINORMAL;
 	float2 texcoord : TEXCOORD0;
 };
 
@@ -47,8 +48,9 @@ struct PixelInput
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
-	float4 normal : NORMAL;
-	float4 tangent : TANGENT;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
@@ -81,7 +83,12 @@ PixelInput main(VertexInput input)
 
 	float3 N = normalize(mul(input.normal, worldMatrix)).xyz;
 	float3 T = normalize(tangentW - dot(tangentW, N) * N);
+	//float3 B = normalize(mul(input.binormal, worldMatrix)).xyz;
 	float3 B = cross(T, N);
+
+	//output.normal = N;
+	//output.tangent = T;
+	//output.binormal = B;
 
 	float3x3 TBN = float3x3(T, B, N);
 
@@ -100,8 +107,8 @@ PixelInput main(VertexInput input)
 	output.lightDir = lightDirs[index];
 	output.viewDir = viewDirs[index];
 
-	output.normal = normalize(mul(input.normal, worldMatrix));
-	output.tangent = normalize(mul(input.tangent, worldMatrix));
+	//output.normal = normalize(mul(input.normal, worldMatrix));
+	//output.tangent = normalize(mul(input.tangent, worldMatrix));
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;

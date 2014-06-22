@@ -36,8 +36,9 @@ struct PixelInput
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 worldPosition : POSITION;
 	float4 color : COLOR;
-	float4 normal : NORMAL;
-	float4 tangent : TANGENT;
+	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
@@ -60,17 +61,20 @@ float4 main(PixelInput input) : SV_TARGET
 	float3 lightDir = normalize(input.lightDir);
 	float3 viewDir = normalize(input.viewDir);
 
-	float4 normalWorldSpace;
-	float4 normalTangentSpace;
+	float3 normalWorldSpace;
+	float3 normalTangentSpace;
 
 	if (hasNormalMapTexture)
 	{
-		normalTangentSpace = 2 * (normalMapTexture.Sample(samplerState, input.texcoord) - 0.5f);
+		normalTangentSpace = 2 * (normalMapTexture.Sample(samplerState, input.texcoord).xyz - 0.5f);
 	}
 	else
 	{
 		normalWorldSpace = input.normal;
 	}
+
+	//normalTangentSpace = (normalTangentSpace.x * input.tangent) + (normalTangentSpace.y * input.binormal) + (normalTangentSpace.z * input.normal);
+	//normalTangentSpace = normalize(normalTangentSpace);
 
 	//float3 lightDir = /*normalize*/(lightPosition - input.worldPosition).xyz;
 	//float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
@@ -88,7 +92,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	//normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
 
-	float3 normals[2] = { normalWorldSpace.xyz, normalTangentSpace.xyz };
+	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
 
 	float3 normal = normals[index];
 

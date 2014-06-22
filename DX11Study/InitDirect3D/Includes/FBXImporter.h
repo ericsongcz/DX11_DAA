@@ -29,6 +29,7 @@ struct FBXMeshData
 	vector<UINT> mIndices;
 	vector<XMFLOAT3> mNormals;
 	vector<XMFLOAT3> mTangents;
+	vector<XMFLOAT3> mBinormals;
 	vector<XMFLOAT2> mUVs;
 	bool mHasDiffuseTexture;
 	bool mHasNormalMapTexture;
@@ -78,7 +79,7 @@ public:
 	void ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, int tangentIndex);
 
 	// 读取网格的副法线信息。
-	void ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex);
+	void ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int binormalIndex);
 
 	// 读取网格的纹理坐标。
 	void ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int textureUVIndex, int index, int uvLayer);
@@ -88,6 +89,9 @@ public:
 
 	// 根据切线拆分顶点(?)。
 	void SplitVertexByTangent(FBXMeshData& fbxMeshData);
+
+	// 根据切线拆分顶点(?)。
+	void SplitVertexByBinormal(FBXMeshData& fbxMeshData);
 
 	// 根据UV拆分顶点。
 	void SplitVertexByUV(FBXMeshData& fbxMeshData);
