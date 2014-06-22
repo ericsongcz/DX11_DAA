@@ -57,8 +57,8 @@ SamplerState samplerState : register(s0)
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	//float3 lightDir = normalize(input.lightDir);
-	//float3 viewDir = normalize(input.viewDir);
+	float3 lightDir = normalize(input.lightDir);
+	float3 viewDir = normalize(input.viewDir);
 
 	float4 normalWorldSpace;
 	float4 normalTangentSpace;
@@ -72,21 +72,21 @@ float4 main(PixelInput input) : SV_TARGET
 		normalWorldSpace = input.normal;
 	}
 
-	float3 lightDir = normalize(lightPosition - input.worldPosition).xyz;
-	float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
+	//float3 lightDir = /*normalize*/(lightPosition - input.worldPosition).xyz;
+	//float3 viewDir = /*normalize*/(cameraPosition - input.worldPosition).xyz;
 
-	float4x4 worldToTangentSpace;
-	// 如果放到PS里的话这里的normal要用normal map采样的normal才会有正确结果(?)。
-	input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
+	//float4x4 worldToTangentSpace;
+	//// 如果放到PS里的话这里的normal要用normal map采样的normal才会有正确结果(?)。
+	//input.tangent = normalize(input.tangent - dot(input.tangent, input.normal) * input.normal);
 
-	worldToTangentSpace[0] = input.tangent;
-	worldToTangentSpace[1] = float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f);
-	worldToTangentSpace[2] = normalWorldSpace;
-	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	//worldToTangentSpace[0] = input.tangent;
+	//worldToTangentSpace[1] = float4(cross(input.tangent.xyz, normalWorldSpace.xyz), 1.0f);
+	//worldToTangentSpace[2] = normalWorldSpace;
+	//worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
 
-	float4x4 tangentSpaceToWorld = transpose(worldToTangentSpace);
+	//float4x4 tangentSpaceToWorld = transpose(worldToTangentSpace);
 
-	normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
+	//normalTangentSpace = mul(normalTangentSpace, worldToTangentSpace);
 
 	float3 normals[2] = { normalWorldSpace.xyz, normalTangentSpace.xyz };
 

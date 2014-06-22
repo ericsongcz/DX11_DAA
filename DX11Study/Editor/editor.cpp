@@ -211,7 +211,7 @@ void Editor::drawScene()
 	renderParameters.ambientIntensity = mAmbientIntensity;
 	renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-	mRenderer->resetShaderResources();
+	//mRenderer->resetShaderResources();
 
 	//float delta = mTimer.DeltaTime();
 
@@ -220,23 +220,23 @@ void Editor::drawScene()
 	//mRotate *= mRotateAxisX;
 	//SharedParameters::rotate = mRotate;
 
-	mRenderer->renderToTexture(renderParameters);
+	//mRenderer->renderToTexture(renderParameters);
 
 	mRenderer->beginScene();
 
 	if (mRenderModel)
 	{
-		mRenderer->turnOnZTest(false);
+		//mRenderer->turnOnZTest(false);
 
-		mRenderer->renderLight(renderParameters);
+		//mRenderer->renderLight(renderParameters);
 
-		mRenderer->renderQuad(renderParameters);
+		//mRenderer->renderQuad(renderParameters);
 
-		mRenderer->turnOnZTest(true);
+		//mRenderer->turnOnZTest(true);
 
-		mGeometry->setupBuffers(SharedParameters::deviceContext);
+		//mGeometry->setupBuffers(SharedParameters::deviceContext);
 
-		//mRenderer->render(renderParameters);
+		mRenderer->render(renderParameters);
 	}
 
 	mRenderer->endScene();

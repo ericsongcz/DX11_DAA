@@ -50,24 +50,33 @@ void Geometry::FillMeshData(MeshData* meshData)
 	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
 	//GeometryGenerator geometryGenerator;
-	//GeometryGenerator::MeshData meshData;
+	//GeometryGenerator::MeshData md;
 	////geometryGenerator.CreateSphere(2, 32, 32, meshData);
-	//geometryGenerator.CreateBox(4, 4, 4, meshData);
+	//geometryGenerator.CreateBox(4, 4, 4, md);
 
-	//mVerticesCount = meshData.Vertices.size();
-	//mIndicesCount = meshData.Indices.size();
+	//mVerticesCount = md.Vertices.size();
+	//mIndicesCount = md.Indices.size();
 
 	//mVertices = new Vertex[mVerticesCount];
 	//mIndices = new UINT[mIndicesCount];
 
 	//for (int i = 0; i < mVerticesCount; i++)
 	//{
-	//	mVertices[i].position = meshData.Vertices[i].Position;
-	//	mVertices[i].normal = meshData.Vertices[i].Normal;
-	//	mVertices[i].texcoord = meshData.Vertices[i].TexC;
+	//	mVertices[i].position = md.Vertices[i].Position;
+	//	mVertices[i].normal = md.Vertices[i].Normal;
+	//	mVertices[i].tangent = md.Vertices[i].TangentU;
+	//	mVertices[i].texcoord = md.Vertices[i].TexC;
 	//}
 
-	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(meshData.Indices[0]), sizeof(UINT) * mIndicesCount);
+	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(md.Indices[0]), sizeof(UINT) * mIndicesCount);
+
+	//meshData->textureFiles.push_back("Fieldstone.tga");
+	//meshData->textureFiles.push_back("FieldstoneBumpDOT3.tga");
+
+	//RenderPackage renderPackage;
+	//renderPackage.diffuseTextureFile = "Fieldstone.tga";
+	//renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
+	//meshData->renderPackages.push_back(renderPackage);
 
 	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
 

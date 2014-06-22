@@ -64,6 +64,7 @@ PixelInput main(VertexInput input)
 	// 因为normal使用的float4，如果不将w设为0，会导致光照计算错误。
 	// 切记切记，血泪的教训啊！
 	input.normal.w = 0.0f;
+	input.tangent.w = 0.0f;
 
 	// 乘以3个矩阵，得到clip空间的坐标。
 	// 保存worldPosition以便光照计算。
@@ -76,14 +77,22 @@ PixelInput main(VertexInput input)
 	float3 lightDirWorldSpace = /*normalize*/(lightPosition - output.worldPosition).xyz;
 	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
 
-	float4x4 worldToTangentSpace;
-	worldToTangentSpace[0] = mul(input.tangent, worldMatrix);
-	worldToTangentSpace[1] = mul(float4(cross(input.tangent.xyz, input.normal.xyz), 1.0f), worldMatrix);
-	worldToTangentSpace[2] = mul(input.normal, worldMatrix);
-	worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+	float3 tangentW = mul(input.tangent, worldMatrix).xyz;
 
-	float3 lightDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(lightDirWorldSpace, 0.0f))).xyz;
-	float3 viewDirTangentSpace = /*normalize*/(mul(worldToTangentSpace, float4(viewDirWorldSpace, 0.0f))).xyz;
+	float3 N = normalize(mul(input.normal, worldMatrix)).xyz;
+	float3 T = normalize(tangentW - dot(tangentW, N) * N);
+	float3 B = cross(T, N);
+
+	float3x3 TBN = float3x3(T, B, N);
+
+	//float3x3 worldToTangentSpace;
+	//worldToTangentSpace[0] = normalize(mul(input.tangent.xyz, (float3x3)worldMatrix));
+	//worldToTangentSpace[1] = normalize(mul(cross(input.tangent.xyz, input.normal.xyz), (float3x3)worldMatrix));
+	//worldToTangentSpace[2] = normalize(mul(input.normal.xyz, (float3x3)worldMatrix));
+	////worldToTangentSpace[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+
+	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace)).xyz;
+	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace)).xyz;
 
 	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
 	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };

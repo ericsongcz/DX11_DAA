@@ -18,7 +18,6 @@ cbuffer LightBuffer : register(b0)
 Texture2D positionTexture : register(t0);
 Texture2D colorTexture : register(t1);
 Texture2D normalTexture : register(t2);
-Texture2D tangentTexture : register(t3);
 
 SamplerState samplerState : register(s0)
 {
@@ -40,11 +39,9 @@ float4 main(PixelInput input) : SV_TARGET
 {
 	float4 worldPosition = positionTexture.Sample(samplerState, input.texcoord);
 	float4 normal = normalTexture.Sample(samplerState, input.texcoord);
-	float4 tangent = tangentTexture.Sample(samplerState, input.texcoord);
 
 	worldPosition.w = 1.0f;
 	normal.w = 0.0f;
-	tangent.w = 0.0f;
 
 	// Point light.
 	float3 lightDir = normalize(lightPosition - worldPosition).xyz;
