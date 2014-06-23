@@ -147,6 +147,9 @@
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;d3d11.lib;DirectXTex.lib;libfbxsdk-md.lib;dxerr.lib;QtSolutions_PropertyBrowser-head.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
+    <FxCompile>
+      <ShaderModel>4.0</ShaderModel>
+    </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />

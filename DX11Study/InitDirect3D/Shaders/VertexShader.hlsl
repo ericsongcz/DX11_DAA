@@ -12,7 +12,6 @@ cbuffer MatrixBuffer : register(b0)
 
 cbuffer LightBuffer : register(b1)
 {
-	float4 lightPosition;
 	float4 lightDirection;
 	float4 ambientColor;
 	float4 diffuseColor;
@@ -31,6 +30,7 @@ cbuffer CommonBuffer : register(b2)
 	float factor;
 	int index;
 	PointLight pointLight;
+	SpotLight spotLight;
 }
 
 struct VertexInput
@@ -76,7 +76,7 @@ PixelInput main(VertexInput input)
 	// 使用查表法移除if语句。
 
 	// 如果在这里归一化向量会导致不正确的渲染结果(?)。
-	float3 lightDirWorldSpace = /*normalize*/(lightPosition - output.worldPosition).xyz;
+	float3 lightDirWorldSpace = /*normalize*/(pointLight.position - output.worldPosition).xyz;
 	float3 viewDirWorldSpace = /*normalize*/(cameraPosition - output.worldPosition).xyz;
 
 	float3 tangentW = mul(input.tangent, worldMatrix).xyz;
@@ -90,21 +90,18 @@ PixelInput main(VertexInput input)
 	output.tangent = T;
 	output.binormal = B;
 
-	float3x3 TBN = float3x3(T, B, N);
+	//float3x3 TBN = float3x3(T, B, N);
 
-	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
-	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
+	//float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
+	//float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
 
-	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
-	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
+	//float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
+	//float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
 
 	//output.lightDir = lightDirs[index];
 	//output.viewDir = viewDirs[index];
 
 	//output.lightDir = mul(TBN, lightDirection.xyz);
-
-	//output.normal = normalize(mul(input.normal, worldMatrix));
-	//output.tangent = normalize(mul(input.tangent, worldMatrix));
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;

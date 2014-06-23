@@ -8,6 +8,25 @@ enum ESamplerType
 	ST_ANISOTROPIC
 };
 
+struct PointLight
+{
+	XMFLOAT4 diffuseColor;
+	XMFLOAT4 position;
+	float range;
+	float attenuation0;
+	float attenuation1;
+	float attenuation2;
+};
+
+struct Spotlight
+{
+	XMFLOAT4 diffuseColor;
+	XMFLOAT3 position;
+	float range;
+	XMFLOAT3 direction;
+	float spot;
+};
+
 struct ShaderData
 {
 	ShaderData()

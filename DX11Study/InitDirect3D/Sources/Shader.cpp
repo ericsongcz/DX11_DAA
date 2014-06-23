@@ -221,10 +221,9 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	lightBufferData = (LightBuffer*)lightBufferResource.pData;
 
 #if USE_RIGHT_HAND
-	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
 	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
 #else
-	lightBufferData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
+	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, 1.0f, 0.0f);
 #endif
 	lightBufferData->ambientColor = renderParameters.ambientColor;
 	lightBufferData->diffuseColor = renderParameters.diffuseColor;
@@ -272,8 +271,17 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	}
 
 	PointLight pointLight;
-	pointLight.lightPosition = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+	pointLight.diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	pointLight.position = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
 	commonBufferData->pointLight = pointLight;
+
+	Spotlight spotLight;
+	spotLight.diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.position = XMFLOAT3(0.0f, 5.0f, 0.0f);
+	spotLight.range = 10.0f;
+	spotLight.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	spotLight.spot = 8.0f;
+	commonBufferData->spotLight = spotLight;
 
 	mDeviceContext->Unmap(mCommonBuffer, 0);
 
