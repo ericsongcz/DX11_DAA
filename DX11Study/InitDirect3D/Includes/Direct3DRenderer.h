@@ -34,6 +34,7 @@ public:
 	void resetRenderTarget();
 	void resetShaderResources();
 	void turnOnZTest(bool on);
+	void setSamplerState(ESamplerType samplerType);
 private:
 	// D3D11 stuffs.
 	float mScreenWidth;

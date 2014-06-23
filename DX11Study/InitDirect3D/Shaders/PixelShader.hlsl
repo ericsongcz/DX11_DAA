@@ -49,12 +49,12 @@ Texture2D normalMapTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	AddressU = Wrap;
-	AddressV = Wrap;
-	AddressW = Wrap;
+	//MipFilter = LINEAR;
+	//MinFilter = LINEAR;
+	//MagFilter = LINEAR;
+	//AddressU = Wrap;
+	//AddressV = Wrap;
+	//AddressW = Wrap;
 };
 
 float4 main(PixelInput input) : SV_TARGET
@@ -62,8 +62,8 @@ float4 main(PixelInput input) : SV_TARGET
 	//float3 lightDir = normalize(input.lightDir);
 	//float3 viewDir = normalize(input.viewDir);
 
-	float3 normalWorldSpace;
-	float3 normalTangentSpace;
+	float3 normalWorldSpace = float3(0.0f, 0.0f, 0.0f);
+	float3 normalTangentSpace = float3(0.0f, 0.0f, 0.0f);
 
 	if (hasNormalMapTexture)
 	{
@@ -103,13 +103,14 @@ float4 main(PixelInput input) : SV_TARGET
 	//float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 50.0f);
 
 	// All color components are summed in the pixel shader.
-	float4 color;
+	float4 color = diffuse * diffuseColor;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
 
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
+	color = color * textureColor;
 	color = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity) * textureColor/* + specular * 0.5f*/;
 
 	return color;

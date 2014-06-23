@@ -9,7 +9,8 @@ DeferredShader::DeferredShader()
 	  mInputLayout(nullptr),
 	  mVertexShader(nullptr),
 	  mPixelShader(nullptr),
-	  mSamplerState(nullptr),
+	  mSamplerStateLinear(nullptr),
+	  mSamplerStateAnisotropic(nullptr),
 	  mDeviceContext(nullptr),
 	  mShaderResourceView(nullptr)
 {
@@ -120,25 +121,45 @@ bool DeferredShader::initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 
 	HR(mDevice->CreateBuffer(&commonBufferDesc, nullptr, &mCommonBuffer));
 
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
+	D3D11_SAMPLER_DESC samplerLinearDesc;
+	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
 
-	samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 16;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	samplerLinearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerLinearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.MipLODBias = 0.0f;
+	samplerLinearDesc.MaxAnisotropy = 1;
+	samplerLinearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerLinearDesc.BorderColor[0] = 0;
+	samplerLinearDesc.BorderColor[1] = 0;
+	samplerLinearDesc.BorderColor[2] = 0;
+	samplerLinearDesc.BorderColor[3] = 0;
+	samplerLinearDesc.MinLOD = 0;
+	samplerLinearDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
 	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
+	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
+
+	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
+	ZeroMemory(&samplerAnisotropicDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplerAnisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerAnisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.MipLODBias = 0.0f;
+	samplerAnisotropicDesc.MaxAnisotropy = 16;
+	samplerAnisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerAnisotropicDesc.BorderColor[0] = 0;
+	samplerAnisotropicDesc.BorderColor[1] = 0;
+	samplerAnisotropicDesc.BorderColor[2] = 0;
+	samplerAnisotropicDesc.BorderColor[3] = 0;
+	samplerAnisotropicDesc.MinLOD = 0;
+	samplerAnisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// 创建纹理采样状态。
+	HR(mDevice->CreateSamplerState(&samplerAnisotropicDesc, &mSamplerStateAnisotropic));
 
 	return true;
 }
@@ -236,16 +257,35 @@ void DeferredShader::renderShader()
 	// 设置渲染使用VS和PS。
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
-	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
+	setSamplerState(SharedParameters::samplerType);
 }
+
+void DeferredShader::setSamplerState(ESamplerType samplerType)
+{
+	switch (samplerType)
+	{
+	case ST_LINEAR:
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateLinear);
+		break;
+
+	case ST_ANISOTROPIC:
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateAnisotropic);
+		break;
+
+	default:
+		break;
+	}
+}
+
 
 void DeferredShader::shutdown()
 {
-	SafeDelete(mSamplerState);
-	SafeDelete(mPixelShader);
-	SafeDelete(mVertexShader);
-	SafeDelete(mInputLayout);
-	SafeDelete(mMatrixBuffer);
+	SafeRelease(mSamplerStateLinear);
+	SafeRelease(mSamplerStateAnisotropic);
+	SafeRelease(mPixelShader);
+	SafeRelease(mVertexShader);
+	SafeRelease(mInputLayout);
+	SafeRelease(mMatrixBuffer);
 }
 
 void DeferredShader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)

@@ -91,7 +91,7 @@ bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	pixelShaderBuffer = 0;
 
     // Compile the vertex shader code.
-	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "BumpMapVertexShader", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 
+	result = D3DX11CompileFromFile(vsFilename, NULL, NULL, "BumpMapVertexShader", "vs_4_0", D3D10_SHADER_ENABLE_STRICTNESS, 
 								   0, NULL, &vertexShaderBuffer, &errorMessage, NULL);
 	if(FAILED(result))
 	{
@@ -110,7 +110,7 @@ bool BumpMapShaderClass::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR
 	}
 
     // Compile the pixel shader code.
-	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "BumpMapPixelShader", "ps_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 
+	result = D3DX11CompileFromFile(psFilename, NULL, NULL, "BumpMapPixelShader", "ps_4_0", D3D10_SHADER_ENABLE_STRICTNESS, 
 								   0, NULL, &pixelShaderBuffer, &errorMessage, NULL);
 	if(FAILED(result))
 	{

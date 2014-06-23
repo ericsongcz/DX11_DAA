@@ -12,6 +12,7 @@ Editor::Editor(QWidget *parent)
 	mWireframe(false),
 	mShowTexture(false),
 	mMouseRightButtonDown(false),
+	mDeferredRendering(false),
 	mScreenWidth(0.0f),
 	mScreenHeight(0.0f),
 	mMenuBarHeight(0.0f),
@@ -211,8 +212,6 @@ void Editor::drawScene()
 	renderParameters.ambientIntensity = mAmbientIntensity;
 	renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-	//mRenderer->resetShaderResources();
-
 	//float delta = mTimer.DeltaTime();
 
 	//mRotateAxisX = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), delta);
@@ -220,23 +219,32 @@ void Editor::drawScene()
 	//mRotate *= mRotateAxisX;
 	//SharedParameters::rotate = mRotate;
 
-	//mRenderer->renderToTexture(renderParameters);
+	if (mDeferredRendering)
+	{
+		mRenderer->resetShaderResources();
+		mRenderer->renderToTexture(renderParameters);
+	}
 
 	mRenderer->beginScene();
 
 	if (mRenderModel)
 	{
-		//mRenderer->turnOnZTest(false);
+		if (mDeferredRendering)
+		{
+			mRenderer->turnOnZTest(false);
 
-		//mRenderer->renderLight(renderParameters);
+			mRenderer->renderLight(renderParameters);
 
-		//mRenderer->renderQuad(renderParameters);
+			mRenderer->renderQuad(renderParameters);
 
-		//mRenderer->turnOnZTest(true);
+			mRenderer->turnOnZTest(true);
 
-		//mGeometry->setupBuffers(SharedParameters::deviceContext);
-
-		mRenderer->render(renderParameters);
+			mGeometry->setupBuffers(SharedParameters::deviceContext);
+		}
+		else
+		{
+			mRenderer->render(renderParameters);
+		}
 	}
 
 	mRenderer->endScene();
@@ -298,6 +306,37 @@ void Editor::createPropertyBrowser()
 	property = mShowTexturePropertyManager->addProperty(SHOW_TEXTURE);
 	mShowTexturePropertyManager->setValue(property, true);
 	mPropertys[SHOW_TEXTURE] = property;
+
+	group->addSubProperty(property);
+
+	// 渲染路径属性。
+	mRenderingPathPropertyManager = new QtEnumPropertyManager(this);
+	connect(mRenderingPathPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(renderingPathChanged(QtProperty*, int)));
+
+	QtEnumEditorFactory* enumEditorFactory = new QtEnumEditorFactory(this);
+	variantEditor->setFactoryForManager(mRenderingPathPropertyManager, enumEditorFactory);
+
+	property = mRenderingPathPropertyManager->addProperty(RENDERING_PATH);
+	QStringList enumNames;
+	enumNames.push_back(FORWARD_RENDERING);
+	enumNames.push_back(DEFFERED_RENDERING);
+	mRenderingPathPropertyManager->setEnumNames(property, enumNames);
+	mPropertys[RENDERING_PATH] = property;
+
+	group->addSubProperty(property);
+
+	// 采样器类型。
+	mSamplerFilterTypePropertyManager = new QtEnumPropertyManager(this);
+	connect(mSamplerFilterTypePropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(samplerFilterChanged(QtProperty*, int)));
+
+	variantEditor->setFactoryForManager(mSamplerFilterTypePropertyManager, enumEditorFactory);
+
+	property = mSamplerFilterTypePropertyManager->addProperty(SAMPLER_FILTER);
+	enumNames.clear();
+	enumNames.push_back(SAMPLER_FILTER_LINEAR);
+	enumNames.push_back(SAMPLER_FILTER_ANISOTROPIC);
+	mSamplerFilterTypePropertyManager->setEnumNames(property, enumNames);
+	mPropertys[SAMPLER_FILTER] = property;
 
 	group->addSubProperty(property);
 
@@ -426,6 +465,24 @@ void Editor::showTextureChanged(QtProperty* property, bool value)
 {
 	mShowTexture = value;
 	SharedParameters::showTexture = mShowTexture;
+}
+
+void Editor::renderingPathChanged(QtProperty* property, int value)
+{
+	if (value == RP_DEFERRED)
+	{
+		mDeferredRendering = true;
+	}
+	else
+	{
+		mDeferredRendering = false;
+	}
+}
+
+void Editor::samplerFilterChanged(QtProperty* property, int value)
+{
+	ESamplerType samplerType = (ESamplerType)value;
+	SharedParameters::samplerType = samplerType;
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* event)

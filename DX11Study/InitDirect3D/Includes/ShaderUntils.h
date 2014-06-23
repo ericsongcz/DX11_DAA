@@ -2,6 +2,12 @@
 #include <d3d11.h>
 #include "D3DUtils.h"
 
+enum ESamplerType
+{
+	ST_LINEAR,
+	ST_ANISOTROPIC
+};
+
 struct ShaderData
 {
 	ShaderData()

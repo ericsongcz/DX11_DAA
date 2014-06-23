@@ -21,12 +21,12 @@ Texture2D normalTexture : register(t2);
 
 SamplerState samplerState : register(s0)
 {
-	MipFilter = POINT;
-	MinFilter = POINT;
-	MagFilter = POINT;
-	AddressU = Clamp;
-	AddressV = Clamp;
-	AddressW = Clamp;
+	//MipFilter = POINT;
+	//MinFilter = POINT;
+	//MagFilter = POINT;
+	//AddressU = Clamp;
+	//AddressV = Clamp;
+	//AddressW = Clamp;
 };
 
 struct PixelInput
@@ -47,7 +47,7 @@ float4 main(PixelInput input) : SV_TARGET
 	float3 lightDir = normalize(lightPosition - worldPosition).xyz;
 
 	// Directional light.
-	//float3 lightDir = -normalize(lightDirection);
+	//float3 lightDir = -normalize(lightDirection).xyz;
 
 	float diffuse = saturate(dot(normal.xyz, lightDir));
 

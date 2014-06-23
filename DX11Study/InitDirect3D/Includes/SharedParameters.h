@@ -3,6 +3,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Direct3DRenderer.h"
+#include "ShaderUntils.h"
 #include <vector>
 
 using std::vector;
@@ -21,5 +22,6 @@ public:
 	static bool showTexture;
 	static Direct3DRenderer* render;
 	static XMMATRIX worldMatrix;
+	static ESamplerType samplerType;
 private:
 };

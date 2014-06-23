@@ -11,3 +11,4 @@ XMMATRIX SharedParameters::rotate = XMMatrixIdentity();
 bool SharedParameters::showTexture = false;
 Direct3DRenderer* SharedParameters::render = nullptr;
 XMMATRIX SharedParameters::worldMatrix = XMMatrixIdentity();
+ESamplerType SharedParameters::samplerType = ST_LINEAR;

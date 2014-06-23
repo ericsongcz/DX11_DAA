@@ -19,7 +19,19 @@
 class Editor : public QMainWindow
 {
 	Q_OBJECT
-	
+
+	enum ERenderingPath
+	{
+		RP_FOWARD,
+		RP_DEFERRED
+	};
+
+	const QString SAMPLER_FILTER = tr("Sampler Filter");
+	const QString SAMPLER_FILTER_LINEAR = tr("Linear");
+	const QString SAMPLER_FILTER_ANISOTROPIC = tr("Anisotropic");
+	const QString RENDERING_PATH = tr("Rendering Path");
+	const QString FORWARD_RENDERING = tr("Forward Rendering");
+	const QString DEFFERED_RENDERING = tr("Deferred Rendering");
 	const QString WIREFRAME_MODE = tr("Wireframe Mode");
 	const QString SHOW_TEXTURE = tr("Show Texture");
 	const QString CLEAR_COLOR = tr("Clear Color");
@@ -49,6 +61,8 @@ private slots:
 	void loadModel();
 	void fillModeChanged(QtProperty* property, bool value);
 	void showTextureChanged(QtProperty* property, bool value);
+	void renderingPathChanged(QtProperty* property, int value);
+	void samplerFilterChanged(QtProperty* property, int value);
 	void clearColorChanged(QtProperty* property, const QColor& value);
 	void ambientColorChanged(QtProperty* property, const QColor& value);
 	void ambientIntensityChanged(QtProperty *property, int value);
@@ -73,11 +87,14 @@ private:
 	bool mWireframe;
 	bool mShowTexture;
 	bool mMouseRightButtonDown;
+	bool mDeferredRendering;
 	QHBoxLayout* mLeftLayout;
 	QHBoxLayout* mRightLayout;
 	QMap<QString, QtProperty*> mPropertys;
 	QMap<QString, bool> mPropertyValues;
 	QMap<QString, int> mPropertyIndices;
+	QtEnumPropertyManager* mSamplerFilterTypePropertyManager;
+	QtEnumPropertyManager* mRenderingPathPropertyManager;
 	QtBoolPropertyManager* mFillModePropertyManager;
 	QtBoolPropertyManager* mShowTexturePropertyManager;
 	QtColorPropertyManager* mClearColorPropertyManager;

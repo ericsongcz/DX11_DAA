@@ -182,7 +182,7 @@ bool GraphicsClass::Render()
 	}
 
 	// Rotate the world matrix by the rotation value.
-	D3DXMatrixRotationX(&worldMatrix, -rotation);
+	D3DXMatrixRotationX(&worldMatrix, -rotation * 0.5f);
 
 	// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 	m_Model->Render(m_D3D->GetDeviceContext());

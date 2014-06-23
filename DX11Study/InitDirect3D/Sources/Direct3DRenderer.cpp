@@ -448,3 +448,9 @@ void Direct3DRenderer::resetShaderResources()
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr, nullptr };
 	mLightShader->setShaderResource(srvs, ARRAYSIZE(srvs));
 }
+
+void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
+{
+	mShader->setSamplerState(samplerType);
+	mDeferredShader->setSamplerState(samplerType);
+}

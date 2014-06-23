@@ -221,10 +221,10 @@
     <ClInclude Include="..\InitDirect3D\Includes\Log.h" />
     <ClInclude Include="..\InitDirect3D\Includes\MathHelper.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\ShaderUntils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedParameters.h" />
     <ClInclude Include="..\InitDirect3D\Includes\stdafx.h" />
-    <ClInclude Include="..\InitDirect3D\Sources\ShaderUntils.h" />
     <ClInclude Include="GeneratedFiles\ui_d3drenderingwidget.h" />
     <CustomBuild Include="d3drenderingwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>

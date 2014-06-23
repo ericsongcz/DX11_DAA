@@ -35,6 +35,7 @@ public:
 	bool setShaderParameters(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, CXMMATRIX& viewMatrix, CXMMATRIX& projectionMatrix);
 	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	void renderShader();
+	void setSamplerState(ESamplerType samplerType);
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName);
 	void shutdown();
 private:
@@ -43,7 +44,8 @@ private:
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;
-	ID3D11SamplerState* mSamplerState;
+	ID3D11SamplerState* mSamplerStateLinear;
+	ID3D11SamplerState* mSamplerStateAnisotropic;
 
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
