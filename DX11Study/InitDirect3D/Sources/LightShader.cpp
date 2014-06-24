@@ -153,14 +153,7 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 
 	lightBufferData = (LightBuffer*)lightBufferResource.pData;
 
-#if USE_RIGHT_HAND
-	lightBufferData->lightPosition = XMFLOAT4(0.0f, 5.0f, 5.0f, 1.0f);
-	lightBufferData->lightDirection = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
-#else
-	lightBufferData->lightPosition = XMFLOAT4(0.0, 5.0f, -5.0f, 1.0f);
-#endif
 	lightBufferData->ambientColor = renderParameters.ambientColor;
-	lightBufferData->diffuseColor = renderParameters.diffuseColor;
 	lightBufferData->ambientIntensity = renderParameters.ambientIntensity;
 	lightBufferData->diffuseIntensity = renderParameters.diffuseIntensity;
 	lightBufferData->pad1 = 0.0f;
@@ -171,7 +164,27 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 
 	lightBufferData->specularColor = XMFLOAT4(Colors::White);
 
-	XMStoreFloat4x4(&lightBufferData->worldMatrix, SharedParameters::worldMatrix);
+	DirectionalLight directionalLight;
+	directionalLight.diffuseColor = renderParameters.diffuseColor;
+	directionalLight.direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+	lightBufferData->directionalLight = directionalLight;
+
+	PointLight pointLight;
+	pointLight.diffuseColor = renderParameters.diffuseColor;
+	pointLight.position = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+	pointLight.range = 50.0f;
+	pointLight.attenuation0 = 0.0f;
+	pointLight.attenuation1 = 1.0f;
+	pointLight.attenuation2 = 0.0f;
+	lightBufferData->pointLight = pointLight;
+
+	Spotlight spotLight;
+	spotLight.diffuseColor = renderParameters.diffuseColor;;
+	spotLight.position = XMFLOAT3(0.0f, 5.0f, 0.0f);
+	spotLight.range = 10.0f;
+	spotLight.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	spotLight.spot = 8.0f;
+	lightBufferData->spotLight = spotLight;
 
 	mDeviceContext->Unmap(mLightBuffer, 0);
 

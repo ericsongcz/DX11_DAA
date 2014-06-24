@@ -31,6 +31,8 @@ struct LightResult
 
 float SpecularFactor(float3 reflectVector, float3 toEye, float power)
 {
+	// Calculate specular component.
+	// specular = pow(max(v，r, 0), p)
 	return pow(saturate(dot(reflectVector, toEye)), power);
 }
 
@@ -43,6 +45,10 @@ LightResult ComputeDirectionalLight(DirectionalLight light, float3 normal, float
 	//[flatten]
 	//if (diffuseFactor > 0.0f)
 	//{}
+
+	// Manually compute reflection vector.
+	//  r = I - 2(N，L)N.
+	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
 
 	float3 reflectVector = reflect(-light.direction.xyz, normal);
 	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
@@ -76,6 +82,10 @@ LightResult ComputePointLight(PointLight light, float3 normal, float3 position, 
 	//diffuseColor = light.diffuseColor * diffuseFactor;
 	//{}
 
+	// Manually compute reflection vector.
+	//  r = I - 2(N，L)N.
+	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
+
 	float3 reflectVector = reflect(-lightDir, normal);
 	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
 	float4 specualarColor = light.diffuseColor * specualarFactor;
@@ -83,7 +93,7 @@ LightResult ComputePointLight(PointLight light, float3 normal, float3 position, 
 	// Attenuate.
 	float3 attenuations = float3(light.attenuation0, light.attenuation1, light.attenuation2);
 	float attenuation = 1.0f / dot(attenuations, float3(1.0f, distance, distance * distance));
-	result.diffuseColor = diffuseColor/* * attenuation*/;
+	result.diffuseColor = diffuseColor * attenuation;
 	result.specularColor = specualarColor * attenuation;
 
 	return result;
@@ -101,6 +111,10 @@ LightResult ComputeSpotLight(SpotLight light, float3 normal, float3 position, fl
 	//[flatten]
 	//if (diffuseFactor > 0.0f)
 	//{}
+
+	// Manually compute reflection vector.
+	//  r = I - 2(N，L)N.
+	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
 
 	float3 reflectVector = reflect(-lightDir, normal);
 	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
