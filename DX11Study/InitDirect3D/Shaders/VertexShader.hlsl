@@ -29,6 +29,7 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	DirectionalLight directionalLight;
 	PointLight pointLight;
 	SpotLight spotLight;
 }
@@ -90,16 +91,17 @@ PixelInput main(VertexInput input)
 	output.tangent = T;
 	output.binormal = B;
 
-	//float3x3 TBN = float3x3(T, B, N);
+	// 将光照向量和观察向量变换到切线空间。
+	float3x3 TBN = float3x3(T, B, N);
 
-	//float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
-	//float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
+	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
+	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
 
-	//float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
-	//float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
+	float3 lightDirs[2] = { lightDirWorldSpace, lightDirTangentSpace };
+	float3 viewDirs[2] = { viewDirWorldSpace, viewDirTangentSpace };
 
-	//output.lightDir = lightDirs[index];
-	//output.viewDir = viewDirs[index];
+	output.lightDir = lightDirs[index];
+	output.viewDir = viewDirs[index];
 
 	//output.lightDir = mul(TBN, lightDirection.xyz);
 

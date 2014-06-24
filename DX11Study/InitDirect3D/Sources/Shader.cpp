@@ -18,7 +18,7 @@ Shader::Shader()
 
 Shader::~Shader()
 {
-
+	shutdown();
 }
 
 bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName)
@@ -270,13 +270,18 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 		commonBufferData->index = 0;
 	}
 
+	DirectionalLight directionalLight;
+	directionalLight.diffuseColor = renderParameters.diffuseColor;
+	directionalLight.direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+	commonBufferData->directionalLight = directionalLight;
+
 	PointLight pointLight;
-	pointLight.diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	pointLight.diffuseColor = renderParameters.diffuseColor;
 	pointLight.position = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
 	commonBufferData->pointLight = pointLight;
 
 	Spotlight spotLight;
-	spotLight.diffuseColor = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+	spotLight.diffuseColor = renderParameters.diffuseColor;;
 	spotLight.position = XMFLOAT3(0.0f, 5.0f, 0.0f);
 	spotLight.range = 10.0f;
 	spotLight.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);

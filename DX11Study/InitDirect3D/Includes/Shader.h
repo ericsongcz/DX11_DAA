@@ -13,6 +13,7 @@ struct CommonBuffer
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	DirectionalLight directionalLight;
 	PointLight pointLight;
 	Spotlight spotLight;
 };

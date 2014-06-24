@@ -27,6 +27,7 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	DirectionalLight directionalLight;
 	PointLight pointLight;
 	SpotLight spotLight;
 }
@@ -88,36 +89,35 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float3 normal = normals[index];
 
-	float diffuse = saturate(dot(-lightDirection.xyz, normal));
-	//float diffuse = saturate(dot(lightDir, normal));
+	LightResult result = ComputeDirectionalLight(directionalLight, normal, viewDir);
+	float4 directionalLightDiffuseColor = result.diffuseColor;
+
+	result = ComputePointLight(pointLight, normal, input.worldPosition.xyz, viewDir);
+	float4 pointLightDiffuseColor = result.diffuseColor;
+
+	result = ComputeSpotLight(spotLight, normal, input.worldPosition.xyz, viewDir);
+	float4 spotLightDiffuseColor = result.diffuseColor;
 
 	// Calculate Phong components per-pixel.
-	//float3 reflectionVector = normalize(reflect(-lightDir, normal));
+	float3 reflectionVector = normalize(reflect(-lightDir, normal));
 
 	// Manually compute reflection vector.
-	// r = I - 2(N¡¤L)N.
-	float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
+	//  r = I - 2(N¡¤L)N.
+	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
 
 	// Calculate specular component.
 	// specular = pow(max(v¡¤r, 0), p)
 	float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 1.0f);
 
-	float3 spotLightDir = normalize(spotLight.position - input.worldPosition.xyz);
-	float spot = pow(saturate(dot(-spotLightDir, spotLight.direction)), spotLight.spot);
-
-	float4 spotDiffuse = saturate(dot(spotLightDir, normal));
-	float4 spotDiffuseColor = spotLight.diffuseColor * spotDiffuse * diffuseIntensity * spot;
-
 	// All color components are summed in the pixel shader.
-	float4 color = diffuse * diffuseColor;
+	float4 diffuseColor = (directionalLightDiffuseColor + pointLightDiffuseColor + spotLightDiffuseColor) * diffuseIntensity;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
 
 	textureColor = (textureColor * factor + baseColor * (1.0f - factor));
 
-	color = color * textureColor;
-	color = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity + spotDiffuseColor) * textureColor/* + specular * 0.5f*/;
+	float4 outputColor = (ambientColor * ambientIntensity + diffuseColor) * textureColor/* + specular * 0.5f*/;
 
-	return color;
+	return outputColor;
 }

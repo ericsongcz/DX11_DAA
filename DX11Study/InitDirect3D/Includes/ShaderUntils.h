@@ -8,6 +8,12 @@ enum ESamplerType
 	ST_ANISOTROPIC
 };
 
+struct DirectionalLight
+{
+	XMFLOAT4 diffuseColor;
+	XMFLOAT4 direction;
+};
+
 struct PointLight
 {
 	XMFLOAT4 diffuseColor;
