@@ -278,6 +278,10 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	PointLight pointLight;
 	pointLight.diffuseColor = renderParameters.diffuseColor;
 	pointLight.position = XMFLOAT4(0.0, 5.0f, 5.0f, 1.0f);
+	pointLight.range = 10.0f;
+	pointLight.attenuation0 = 0.0f;
+	pointLight.attenuation1 = 0.0f;
+	pointLight.attenuation2 = 1.0f;
 	commonBufferData->pointLight = pointLight;
 
 	Spotlight spotLight;

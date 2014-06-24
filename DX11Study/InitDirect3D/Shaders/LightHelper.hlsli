@@ -37,11 +37,15 @@ float SpecularFactor(float3 reflectVector, float3 toEye, float power)
 LightResult ComputeDirectionalLight(DirectionalLight light, float3 normal, float3 toEye)
 {
 	LightResult result = (LightResult)0;
-	float4 diffuseFactor = saturate(dot(normal, -light.direction.xyz));
+	float diffuseFactor = saturate(dot(normal, -light.direction.xyz));
 	float4 diffuseColor = light.diffuseColor * diffuseFactor;
 
+	//[flatten]
+	//if (diffuseFactor > 0.0f)
+	//{}
+
 	float3 reflectVector = reflect(-light.direction.xyz, normal);
-	float4 specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
+	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
 	float4 specualarColor = light.diffuseColor * specualarFactor;
 
 	result.diffuseColor = diffuseColor;
@@ -54,16 +58,33 @@ LightResult ComputePointLight(PointLight light, float3 normal, float3 position, 
 {
 	LightResult result = (LightResult)0;
 
-	float3 lightDir = normalize(light.position.xyz - position);
-	float4 diffuseFactor = saturate(dot(lightDir, normal));
+	float3 lightDir = light.position.xyz - position;
+	float distance = length(lightDir);
+
+	if (distance > light.range)
+	{
+		return result;
+	}
+
+	lightDir = normalize(lightDir);
+
+	float diffuseFactor = saturate(dot(lightDir, normal));
 	float4 diffuseColor = light.diffuseColor * diffuseFactor;
 
+	//[flatten]
+	//if (diffuseFactor > 0.0f)
+	//diffuseColor = light.diffuseColor * diffuseFactor;
+	//{}
+
 	float3 reflectVector = reflect(-lightDir, normal);
-	float4 specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
+	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
 	float4 specualarColor = light.diffuseColor * specualarFactor;
 
-	result.diffuseColor = diffuseColor;
-	result.specularColor = specualarColor;
+	// Attenuate.
+	float3 attenuations = float3(light.attenuation0, light.attenuation1, light.attenuation2);
+	float attenuation = 1.0f / dot(attenuations, float3(1.0f, distance, pow(distance, 2.0f)));
+	result.diffuseColor = diffuseColor * attenuation;
+	result.specularColor = specualarColor * attenuation;
 
 	return result;
 }
@@ -74,11 +95,15 @@ LightResult ComputeSpotLight(SpotLight light, float3 normal, float3 position, fl
 
 	float3 lightDir = normalize(light.position - position);
 	float spotFactor = pow(saturate(dot(-lightDir, light.direction)), light.spot);
-	float4 diffuseFactor = saturate(dot(lightDir, normal));
+	float diffuseFactor = saturate(dot(lightDir, normal));
 	float4 diffuseColor = light.diffuseColor * diffuseFactor * spotFactor;
 
+	//[flatten]
+	//if (diffuseFactor > 0.0f)
+	//{}
+
 	float3 reflectVector = reflect(-lightDir, normal);
-	float4 specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
+	float specualarFactor = SpecularFactor(reflectVector, toEye, 8.0f);
 	float4 specualarColor = light.diffuseColor * specualarFactor;
 
 	result.diffuseColor = diffuseColor;
