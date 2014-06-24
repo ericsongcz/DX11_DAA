@@ -82,8 +82,8 @@ LightResult ComputePointLight(PointLight light, float3 normal, float3 position, 
 
 	// Attenuate.
 	float3 attenuations = float3(light.attenuation0, light.attenuation1, light.attenuation2);
-	float attenuation = 1.0f / dot(attenuations, float3(1.0f, distance, pow(distance, 2.0f)));
-	result.diffuseColor = diffuseColor * attenuation;
+	float attenuation = 1.0f / dot(attenuations, float3(1.0f, distance, distance * distance));
+	result.diffuseColor = diffuseColor/* * attenuation*/;
 	result.specularColor = specualarColor * attenuation;
 
 	return result;
