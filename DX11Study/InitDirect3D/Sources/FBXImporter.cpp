@@ -907,9 +907,9 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 							offsets.push_back(offset);
 						}
 					}
-					else
 					// 如果当前materialId和上次循环的不同，说明开始了新的三角形集合
 					// 那么我们就将旧的集合保存到容器，开始处理新集合。
+					else
 					{
 
 						offsets.push_back(offset);

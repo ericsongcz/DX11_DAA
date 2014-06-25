@@ -5,20 +5,21 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
-	float4x4 worldViewProjection;
+	float4x4 worldViewProjectionMatrix;
 };
 
 cbuffer LightBuffer : register(b1)
 {
-	float4 lightDirection;
 	float4 ambientColor;
-	float4 diffuseColor;
 	float ambientIntensity;
 	float diffuseIntensity;
 	float pad1;
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
+	DirectionalLight directionalLight;
+	PointLight pointLight;
+	SpotLight spotLight;
 };
 
 cbuffer CommonBuffer : register(b2)
@@ -27,9 +28,6 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
-	DirectionalLight directionalLight;
-	PointLight pointLight;
-	SpotLight spotLight;
 }
 
 struct PixelInput
@@ -82,32 +80,21 @@ float4 main(PixelInput input) : SV_TARGET
 	normalTangentSpace = mul(normalTangentSpace, TBN);
 	normalTangentSpace = normalize(normalTangentSpace);
 
-	float3 lightDir = normalize(pointLight.position - input.worldPosition).xyz;
-	float3 viewDir = (cameraPosition - input.worldPosition).xyz;
-
 	float3 normals[2] = { normalWorldSpace, normalTangentSpace };
 
 	float3 normal = normals[index];
 
+	float3 viewDir = (cameraPosition - input.worldPosition).xyz;
+
 	LightResult result = ComputeDirectionalLight(directionalLight, normal, viewDir);
 	float4 directionalLightDiffuseColor = result.diffuseColor;
 
-	result = ComputePointLight(pointLight, normal, input.worldPosition.xyz, viewDir);
-	float4 pointLightDiffuseColor = result.diffuseColor;
+	//result = ComputePointLight(pointLight, normal, input.worldPosition.xyz, viewDir);
+	//float4 pointLightDiffuseColor = result.diffuseColor;
+	float4 pointLightDiffuseColor = DirectIllumination(pointLight, input.worldPosition.xyz, normal, 0.001f);
 
 	result = ComputeSpotLight(spotLight, normal, input.worldPosition.xyz, viewDir);
 	float4 spotLightDiffuseColor = result.diffuseColor;
-
-	// Calculate Phong components per-pixel.
-	float3 reflectionVector = normalize(reflect(-lightDir, normal));
-
-	// Manually compute reflection vector.
-	//  r = I - 2(N¡¤L)N.
-	//float3 reflectionVector = normalize(-lightDir - 2 * (dot(normal, -lightDir) * normal));
-
-	// Calculate specular component.
-	// specular = pow(max(v¡¤r, 0), p)
-	float4 specular = specularColor * pow(saturate(dot(reflectionVector, viewDir)), 1.0f);
 
 	// All color components are summed in the pixel shader.
 	float4 diffuseColor = (/*directionalLightDiffuseColor + */pointLightDiffuseColor/* + spotLightDiffuseColor*/) * diffuseIntensity;

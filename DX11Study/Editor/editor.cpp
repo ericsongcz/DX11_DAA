@@ -28,7 +28,7 @@ Editor::Editor(QWidget *parent)
 	mAmbientColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
 	mAmbientIntensity(0.5f),
 	mDiffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
-	mDiffuseIntensity(0.5f)
+	mDiffuseIntensity(1.0f)
 {
 	AllocConsole();
 	FILE* file;
@@ -212,12 +212,22 @@ void Editor::drawScene()
 	renderParameters.ambientIntensity = mAmbientIntensity;
 	renderParameters.diffuseIntensity = mDiffuseIntensity;
 
-	//float delta = mTimer.DeltaTime();
+	float delta = mTimer.DeltaTime();
 
 	//mRotateAxisX = XMMatrixRotationAxis(XMLoadFloat3(&XMFLOAT3(1.0f, 0.0f, 0.0f)), delta);
 
 	//mRotate *= mRotateAxisX;
 	//SharedParameters::rotate = mRotate;
+
+	static float texcoordOffsetX;
+	texcoordOffsetX += delta;
+
+	static float texcoordOffsetY;
+	texcoordOffsetY += delta;
+
+	XMMATRIX textureTransform = XMMatrixTranslation(texcoordOffsetX, texcoordOffsetY, 0);
+
+	XMStoreFloat4x4(&renderParameters.textureTransformMatrix, textureTransform);
 
 	if (mDeferredRendering)
 	{
@@ -413,7 +423,7 @@ void Editor::createPropertyBrowser()
 	variantEditor->setFactoryForManager(mDiffuseIntensitySpinBoxPropertManager, spinBoxFactory);
 
 	property = mDiffuseIntensitySpinBoxPropertManager->addProperty(DIFFUSE_INTENSITY);
-	mDiffuseIntensitySpinBoxPropertManager->setValue(property, 50);
+	mDiffuseIntensitySpinBoxPropertManager->setValue(property, 10);
 	mDiffuseIntensitySpinBoxPropertManager->setMinimum(property, 0);
 	mDiffuseIntensitySpinBoxPropertManager->setMaximum(property, 100);
 	mPropertys[DIFFUSE_INTENSITY] = property;
@@ -425,7 +435,7 @@ void Editor::createPropertyBrowser()
 	variantEditor->setFactoryForManager(mDiffuseIntensitySliderPropertyManager, sliderFactory);
 
 	property = mDiffuseIntensitySliderPropertyManager->addProperty(DIFFUSE_INTENSITY_SLIDER);
-	mDiffuseIntensitySliderPropertyManager->setValue(property, 50);
+	mDiffuseIntensitySliderPropertyManager->setValue(property, 10);
 	mDiffuseIntensitySliderPropertyManager->setMinimum(property, 0);
 	mDiffuseIntensitySliderPropertyManager->setMaximum(property, 100);
 	mPropertys[DIFFUSE_INTENSITY_SLIDER] = property;
@@ -583,7 +593,7 @@ void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
 		mDiffuseIntensitySpinBoxPropertManager->setValue(mPropertys[DIFFUSE_INTENSITY], value);
 	}
 
-	mDiffuseIntensity = 1.0f / 100.0f * (float)value;
+	mDiffuseIntensity = 0.1f * (float)value;
 }
 
 void Editor::wheelEvent(QWheelEvent* event)

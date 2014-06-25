@@ -18,7 +18,7 @@ struct PointLight
 {
 	XMFLOAT4 diffuseColor;
 	XMFLOAT4 position;
-	float range;
+	float radius;
 	float attenuation0;
 	float attenuation1;
 	float attenuation2;
@@ -28,9 +28,40 @@ struct Spotlight
 {
 	XMFLOAT4 diffuseColor;
 	XMFLOAT3 position;
-	float range;
+	float radius;
 	XMFLOAT3 direction;
 	float spot;
+};
+
+struct MatrixBuffer
+{
+	XMFLOAT4X4 worldMatrix;
+	XMFLOAT4X4 viewMatrix;
+	XMFLOAT4X4 projectionMatrix;
+	XMFLOAT4X4 worldViewProjectionMatrix;
+	XMFLOAT4X4 textureTransformMatrix;
+};
+
+struct LightBuffer
+{
+	XMFLOAT4 ambientColor;
+	float ambientIntensity;
+	float diffuseIntensity;
+	float pad1;
+	float pad2;
+	XMFLOAT4 cameraPositon;
+	XMFLOAT4 specularColor;
+	DirectionalLight directionalLight;
+	PointLight pointLight;
+	Spotlight spotLight;
+};
+
+struct CommonBuffer
+{
+	int hasDiffuseTexture;
+	int hasNormalMapTexture;
+	float factor;
+	int index;
 };
 
 struct ShaderData

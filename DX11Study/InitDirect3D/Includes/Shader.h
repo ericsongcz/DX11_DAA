@@ -7,40 +7,9 @@
 
 using namespace DirectX;
 
-struct CommonBuffer
-{
-	int hasDiffuseTexture;
-	int hasNormalMapTexture;
-	float factor;
-	int index;
-	DirectionalLight directionalLight;
-	PointLight pointLight;
-	Spotlight spotLight;
-};
-
-struct LightBuffer
-{
-	XMFLOAT4 lightDirection;
-	XMFLOAT4 ambientColor;
-	XMFLOAT4 diffuseColor;
-	float ambientIntensity;
-	float diffuseIntensity;
-	float pad1;
-	float pad2;
-	XMFLOAT4 cameraPositon;
-	XMFLOAT4 specularColor;
-};
-
 class Shader
 {
 public:
-	struct MatrixBuffer
-	{
-		XMFLOAT4X4 worldMatrix;
-		XMFLOAT4X4 viewMatrix;
-		XMFLOAT4X4 projectionMatrix;
-		XMFLOAT4X4 worldViewProjection;
-	};
 
 	Shader();
 	~Shader();

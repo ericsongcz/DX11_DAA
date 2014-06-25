@@ -2,17 +2,16 @@
 
 cbuffer LightBuffer : register(b0)
 {
-	float4 lightPosition;
-	float4 lightDirection;
 	float4 ambientColor;
-	float4 diffuseColor;
 	float ambientIntensity;
 	float diffuseIntensity;
 	float pad1;
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
-	float4x4 worldMatrix;
+	DirectionalLight directionalLight;
+	PointLight pointLight;
+	SpotLight spotLight;
 };
 
 Texture2D positionTexture : register(t0);
@@ -43,21 +42,24 @@ float4 main(PixelInput input) : SV_TARGET
 	worldPosition.w = 1.0f;
 	normal.w = 0.0f;
 
-	// Point light.
-	float3 lightDir = normalize(lightPosition - worldPosition).xyz;
+	float3 viewDir = (cameraPosition - worldPosition).xyz;
 
-	// Directional light.
-	//float3 lightDir = -normalize(lightDirection).xyz;
+	LightResult result = ComputeDirectionalLight(directionalLight, normal.xyz, viewDir);
+	float4 directionalLightDiffuseColor = result.diffuseColor;
 
-	float diffuse = saturate(dot(normal.xyz, lightDir));
+	result = ComputePointLight(pointLight, normal.xyz, worldPosition.xyz, viewDir);
+	float4 pointLightDiffuseColor = result.diffuseColor;
+
+	result = ComputeSpotLight(spotLight, normal.xyz, worldPosition.xyz, viewDir);
+	float4 spotLightDiffuseColor = result.diffuseColor;
 
 	// All color components are summed in the pixel shader.
-	float4 outputColor;
+	float4 diffuseColor = diffuseColor = (/*directionalLightDiffuseColor + */pointLightDiffuseColor/* + spotLightDiffuseColor*/)* diffuseIntensity;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
 
-	outputColor = (ambientColor * ambientIntensity + diffuseColor * diffuse * diffuseIntensity) * textureColor/* + specular * 0.5f*/;
+	float4 outputColor = (ambientColor * ambientIntensity + diffuseColor) * textureColor/* + specular * 0.5f*/;
 
 	return outputColor;
 }

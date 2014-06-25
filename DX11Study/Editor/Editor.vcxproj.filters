@@ -36,6 +36,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;cxx;c;def</Extensions>
     </Filter>
+    <Filter Include="Docs">
+      <UniqueIdentifier>{4959a640-3150-4f45-83a4-5e58311c0b42}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -214,6 +217,9 @@
   <ItemGroup>
     <None Include="..\InitDirect3D\Shaders\LightHelper.hlsli">
       <Filter>Shaders</Filter>
+    </None>
+    <None Include="..\InitDirect3D\Docs\Develop Notes.docx">
+      <Filter>Docs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

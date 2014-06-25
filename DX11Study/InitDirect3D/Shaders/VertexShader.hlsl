@@ -7,20 +7,22 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 worldMatrix;
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
-	float4x4 worldViewProjection;
+	float4x4 worldViewProjectionMatrix;
+	float4x4 textureTransformMatrix;
 };
 
 cbuffer LightBuffer : register(b1)
 {
-	float4 lightDirection;
 	float4 ambientColor;
-	float4 diffuseColor;
 	float ambientIntensity;
 	float diffuseIntensity;
 	float pad1;
 	float pad2;
 	float4 cameraPosition;
 	float4 specularColor;
+	DirectionalLight directionalLight;
+	PointLight pointLight;
+	SpotLight spotLight;
 };
 
 cbuffer CommonBuffer : register(b2)
@@ -29,9 +31,6 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
-	DirectionalLight directionalLight;
-	PointLight pointLight;
-	SpotLight spotLight;
 }
 
 struct VertexInput
@@ -72,7 +71,7 @@ PixelInput main(VertexInput input)
 	// 乘以3个矩阵，得到clip空间的坐标。
 	// 保存worldPosition以便光照计算。
 	output.worldPosition = mul(input.position, worldMatrix);
-	output.position = mul(input.position, worldViewProjection);
+	output.position = mul(input.position, worldViewProjectionMatrix);
 
 	// 使用查表法移除if语句。
 
@@ -107,7 +106,7 @@ PixelInput main(VertexInput input)
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;
-	output.texcoord = input.texcoord;
+	output.texcoord = mul(float4(input.texcoord, 0.0f, 1.0f), textureTransformMatrix).xy;
 
 	return output;
 }

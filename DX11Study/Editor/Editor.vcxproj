@@ -329,6 +329,7 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\InitDirect3D\Docs\Develop Notes.docx" />
     <None Include="..\InitDirect3D\Shaders\LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
