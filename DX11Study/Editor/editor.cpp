@@ -219,13 +219,17 @@ void Editor::drawScene()
 	//mRotate *= mRotateAxisX;
 	//SharedParameters::rotate = mRotate;
 
-	static float texcoordOffsetX;
+	static float texcoordOffsetX = 0.0f;
 	texcoordOffsetX += delta;
 
-	static float texcoordOffsetY;
+	static float texcoordOffsetY = 0.0f;
 	texcoordOffsetY += delta;
 
-	XMMATRIX textureTransform = XMMatrixTranslation(texcoordOffsetX, texcoordOffsetY, 0);
+	static float angle = 0.0f;
+	angle += delta;
+
+	//XMMATRIX textureTransform = XMMatrixTranslation(texcoordOffsetX, texcoordOffsetY, 0);
+	XMMATRIX textureTransform = XMMatrixRotationZ(angle);
 
 	XMStoreFloat4x4(&renderParameters.textureTransformMatrix, textureTransform);
 
