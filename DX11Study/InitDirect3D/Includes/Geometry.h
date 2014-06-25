@@ -97,7 +97,6 @@ struct RenderParameters
 	  ambientIntensity(0.5f),
 	  diffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0)),
 	  diffuseIntensity(0.5f),
-	  rotate(XMMatrixIdentity()),
 	  showTexture(false)
 	{}
 
@@ -107,7 +106,8 @@ struct RenderParameters
 	float ambientIntensity;
 	XMFLOAT4 diffuseColor;
 	float diffuseIntensity;
-	XMMATRIX rotate;
+	XMFLOAT4X4 rotate;
+	XMFLOAT4X4 textureTransformMatrix;
 	bool showTexture;
 };
 
