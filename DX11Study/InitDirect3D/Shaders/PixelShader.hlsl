@@ -110,12 +110,13 @@ float4 main(PixelInput input) : SV_TARGET
 	float fogRange = 100.0f;
 	float fogEnd = fogStart + fogRange;
 	float distanceToEye = length(viewDir);
-	//float fogLerp = saturate((distanceToEye - fogStart) / fogRange) * 0.8f;
-	float fogLerp = 1.0f / log(distanceToEye * 0.1f);
-	//float fogLerp = log(pow(distanceToEye * 0.1f, 2));
+	float fogLerp = saturate((fogEnd - distanceToEye) / fogRange) * 0.1f;
+	//float fogLerp = 1.0f / exp(distanceToEye * 0.01f);
+	//float fogLerp = 1.0f / exp(pow(distanceToEye * 0.01f, 2));
 	float4 fogColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	outputColor = lerp(outputColor, fogColor, fogLerp);
+	//outputColor = lerp(outputColor, fogColor, fogLerp);
+	outputColor = lerp(fogColor, outputColor, fogLerp);
 
 	return outputColor;
 }

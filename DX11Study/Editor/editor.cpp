@@ -453,6 +453,29 @@ void Editor::createPropertyBrowser()
 
 	variantEditor->addProperty(group);
 
+	// 雾属性。
+	QtGroupPropertyManager* fogGroupProperyManager = new QtGroupPropertyManager(this);
+	group = fogGroupProperyManager->addProperty("Fog");
+
+	// 雾类型属性。
+	mFogTypePropertManager = new QtEnumPropertyManager(this);
+	connect(mFogTypePropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(renderingPathChanged(QtProperty*, int)));
+
+	variantEditor->setFactoryForManager(mFogTypePropertManager, enumEditorFactory);
+
+	property = mFogTypePropertManager->addProperty(FOG_TYPE);
+
+	enumNames.clear();
+	enumNames.push_back(FOG_TYPE_LINEAR);
+	enumNames.push_back(FOG_TYPE_EXP);
+	enumNames.push_back(FOG_TYPE_EXP2);
+	mFogTypePropertManager->setEnumNames(property, enumNames);
+	mPropertys[FOG_TYPE] = property;
+
+	group->addSubProperty(property);
+
+	variantEditor->addProperty(group);
+
 	// 设置是否显示属性前面的折叠小箭头。
 	variantEditor->setPropertiesWithoutValueMarked(true);
 	variantEditor->setRootIsDecorated(false);

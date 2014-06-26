@@ -41,6 +41,11 @@ class Editor : public QMainWindow
 	const QString DIFFUSE_COLOR = tr("Diffuse Color");
 	const QString DIFFUSE_INTENSITY = tr("Diffuse Intensity");
 	const QString DIFFUSE_INTENSITY_SLIDER = tr("Diffuse Intensity Slider");
+	const QString FOG_TYPE = tr("Fog Type");
+	const QString FOG_TYPE_LINEAR = tr("Linear");
+	const QString FOG_TYPE_EXP = tr("Fog Exp");
+	const QString FOG_TYPE_EXP2 = tr("Fog Exp2");
+	const QString FOG_COLOR = tr("Fog Color");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -104,6 +109,11 @@ private:
 	QtIntPropertyManager* mAmbientIntensitySliderPropertyManager;
 	QtIntPropertyManager* mDiffuseIntensitySpinBoxPropertManager;
 	QtIntPropertyManager* mDiffuseIntensitySliderPropertyManager;
+	QtDoublePropertyManager* mFogStartPropertManager;
+	QtDoublePropertyManager* mFogRangePropertManager;
+	QtIntPropertyManager mFogDensityPropertManager;
+	QtColorPropertyManager* mFogColorPropertManager;
+	QtEnumPropertyManager* mFogTypePropertManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;
