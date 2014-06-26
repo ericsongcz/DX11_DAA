@@ -33,7 +33,8 @@ public:
 	void renderLight(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
-	void turnOnZTest(bool on);
+	void enableOnZTest(bool on);
+	void enableAlphaBlend(bool enable);
 	void setSamplerState(ESamplerType samplerType);
 private:
 	// D3D11 stuffs.
@@ -63,6 +64,7 @@ private:
 	ID3D11RasterizerState* mWireframeState;
 	ID3D11DepthStencilState* mDepthStencilState;
 	ID3D11DepthStencilState* mDisableDepthStencilState;
+	ID3D11BlendState* mAlphaBlendState;
 	float mClearColor[3];
 	DeferredBuffers* mDeferredBuffers;
 	DeferredShader* mDeferredShader;

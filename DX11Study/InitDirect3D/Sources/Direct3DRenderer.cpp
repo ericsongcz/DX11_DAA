@@ -146,6 +146,22 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	HR(mDevice->CreateDepthStencilState(&disabledDepthStencilDesc, &mDisableDepthStencilState));
 
+	D3D11_BLEND_DESC alphaBlendStateDesc;
+	ZeroMemory(&alphaBlendStateDesc, sizeof(D3D11_BLEND_DESC));
+
+	alphaBlendStateDesc.AlphaToCoverageEnable = false;
+	alphaBlendStateDesc.IndependentBlendEnable = false;
+	alphaBlendStateDesc.RenderTarget[0].BlendEnable = true;
+	alphaBlendStateDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	alphaBlendStateDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	alphaBlendStateDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	alphaBlendStateDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	alphaBlendStateDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	alphaBlendStateDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	alphaBlendStateDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+	HR(mDevice->CreateBlendState(&alphaBlendStateDesc, &mAlphaBlendState));
+
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
@@ -417,7 +433,7 @@ void Direct3DRenderer::renderQuad(RenderParameters& renderParameters)
 	renderBuffer(renderPackages[0].indicesCount, renderPackages[0].indicesOffset, 0);
 }
 
-void Direct3DRenderer::turnOnZTest(bool on)
+void Direct3DRenderer::enableOnZTest(bool on)
 {
 	if (on)
 	{
@@ -449,8 +465,21 @@ void Direct3DRenderer::resetShaderResources()
 	mLightShader->setShaderResource(srvs, ARRAYSIZE(srvs));
 }
 
+void Direct3DRenderer::enableAlphaBlend(bool enable)
+{
+	if (enable)
+	{
+		mDeviceContext->OMSetBlendState(mAlphaBlendState, nullptr, 0);
+	}
+	else
+	{
+		mDeviceContext->OMSetBlendState(nullptr, nullptr, 0);
+	}
+}
+
 void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
 {
 	mShader->setSamplerState(samplerType);
 	mDeferredShader->setSamplerState(samplerType);
 }
+

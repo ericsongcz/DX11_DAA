@@ -107,6 +107,7 @@ PixelInput main(VertexInput input)
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
 	output.color = input.color;
 	output.texcoord = mul(float4(input.texcoord, 0.0f, 1.0f), textureTransformMatrix).xy;
+	output.texcoord = input.texcoord;
 
 	return output;
 }

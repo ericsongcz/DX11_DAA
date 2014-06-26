@@ -245,19 +245,21 @@ void Editor::drawScene()
 	{
 		if (mDeferredRendering)
 		{
-			mRenderer->turnOnZTest(false);
+			mRenderer->enableOnZTest(false);
 
 			mRenderer->renderLight(renderParameters);
 
 			mRenderer->renderQuad(renderParameters);
 
-			mRenderer->turnOnZTest(true);
+			mRenderer->enableOnZTest(true);
 
 			mGeometry->setupBuffers(SharedParameters::deviceContext);
 		}
 		else
 		{
+			//mRenderer->enableAlphaBlend(true);
 			mRenderer->render(renderParameters);
+			//mRenderer->enableAlphaBlend(false);
 		}
 	}
 

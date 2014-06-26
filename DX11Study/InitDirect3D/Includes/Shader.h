@@ -30,7 +30,6 @@ private:
 	ID3D11PixelShader* mPixelShader;
 	ID3D11SamplerState* mSamplerStateLinear;
 	ID3D11SamplerState* mSamplerStateAnisotropic;
-
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
 	ID3D11ShaderResourceView* mShaderResourceView;

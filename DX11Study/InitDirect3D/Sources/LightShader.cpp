@@ -166,7 +166,7 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 
 	DirectionalLight directionalLight;
 	directionalLight.diffuseColor = renderParameters.diffuseColor;
-	directionalLight.direction = XMFLOAT4(0.0f, 0.0f, -1.0f, 0.0f);
+	directionalLight.direction = XMFLOAT4(-1.0f, -1.0f, 0.0f, 0.0f);
 	lightBufferData->directionalLight = directionalLight;
 
 	PointLight pointLight;
