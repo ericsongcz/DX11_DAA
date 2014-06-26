@@ -457,9 +457,21 @@ void Editor::createPropertyBrowser()
 	QtGroupPropertyManager* fogGroupProperyManager = new QtGroupPropertyManager(this);
 	group = fogGroupProperyManager->addProperty("Fog");
 
+	// 雾颜色属性。
+	mFogColorPropertManager = new QtColorPropertyManager(this);
+	connect(mFogColorPropertManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(fogColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mFogColorPropertManager->subIntPropertyManager(), spinBoxFactory);
+	variantEditor->setFactoryForManager(mFogColorPropertManager, colorEditorFactory);
+
+	property = mFogColorPropertManager->addProperty(FOG_COLOR);
+	mFogColorPropertManager->setValue(property, QColor(255, 255, 255));
+	mPropertys[FOG_COLOR] = property;
+
+	group->addSubProperty(property);
+
 	// 雾类型属性。
 	mFogTypePropertManager = new QtEnumPropertyManager(this);
-	connect(mFogTypePropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(renderingPathChanged(QtProperty*, int)));
+	connect(mFogTypePropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(fogTypeChanged(QtProperty*, int)));
 
 	variantEditor->setFactoryForManager(mFogTypePropertManager, enumEditorFactory);
 
@@ -623,6 +635,31 @@ void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
 	}
 
 	mDiffuseIntensity = 0.1f * (float)value;
+}
+
+void Editor::fogColorChanged(QtProperty* property, const QColor& value)
+{
+
+}
+
+void Editor::fogTypeChanged(QtProperty* property, const int value)
+{
+
+}
+
+void Editor::fogStartChanged(QtProperty* property, const int value)
+{
+
+}
+
+void Editor::fogRangeChanged(QtProperty* property, const int value)
+{
+
+}
+
+void Editor::fogDensityChange(QtProperty* property, const int value)
+{
+
 }
 
 void Editor::wheelEvent(QWheelEvent* event)

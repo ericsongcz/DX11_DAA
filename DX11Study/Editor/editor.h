@@ -73,6 +73,11 @@ private slots:
 	void ambientIntensityChanged(QtProperty *property, int value);
 	void diffuseColorChanged(QtProperty* property, const QColor& value);
 	void diffuseIntensityChanged(QtProperty* property, const int& value);
+	void fogColorChanged(QtProperty* property, const QColor& value);
+	void fogTypeChanged(QtProperty* property, const int value);
+	void fogStartChanged(QtProperty* property, const int value);
+	void fogRangeChanged(QtProperty* property, const int value);
+	void fogDensityChange(QtProperty* property, const int value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -124,6 +129,10 @@ private:
 	float mAmbientIntensity;
 	XMFLOAT4 mDiffuseColor;
 	float mDiffuseIntensity;
+	XMFLOAT4 mFogColor;
+	XMFLOAT4 mFogStart;
+	XMFLOAT4 mFogRange;
+	float mFogDensity;
 };
 
 #endif // EDITOR_H
