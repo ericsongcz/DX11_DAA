@@ -26,6 +26,13 @@ class Editor : public QMainWindow
 		RP_DEFERRED
 	};
 
+	enum EFogType
+	{
+		FT_LINEAR,
+		FT_EXP,
+		FT_EXP2
+	};
+
 	const QString SAMPLER_FILTER = tr("Sampler Filter");
 	const QString SAMPLER_FILTER_LINEAR = tr("Linear");
 	const QString SAMPLER_FILTER_ANISOTROPIC = tr("Anisotropic");
@@ -41,11 +48,17 @@ class Editor : public QMainWindow
 	const QString DIFFUSE_COLOR = tr("Diffuse Color");
 	const QString DIFFUSE_INTENSITY = tr("Diffuse Intensity");
 	const QString DIFFUSE_INTENSITY_SLIDER = tr("Diffuse Intensity Slider");
+	const QString FOG = tr("Fog");
+	const QString SHOW_FOG = tr("Show Fog");
 	const QString FOG_TYPE = tr("Fog Type");
+	const QString FOG_DENSITY = tr("Fog Density");
+	const QString FOG_DENSITY_SLIDER = tr("Fog Density Slider");
 	const QString FOG_TYPE_LINEAR = tr("Linear");
 	const QString FOG_TYPE_EXP = tr("Fog Exp");
 	const QString FOG_TYPE_EXP2 = tr("Fog Exp2");
 	const QString FOG_COLOR = tr("Fog Color");
+	const QString FOG_START = tr("Fog Start");
+	const QString FOG_RANGE = tr("Fog Range");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -72,12 +85,13 @@ private slots:
 	void ambientColorChanged(QtProperty* property, const QColor& value);
 	void ambientIntensityChanged(QtProperty *property, int value);
 	void diffuseColorChanged(QtProperty* property, const QColor& value);
-	void diffuseIntensityChanged(QtProperty* property, const int& value);
+	void diffuseIntensityChanged(QtProperty* property, int value);
 	void fogColorChanged(QtProperty* property, const QColor& value);
-	void fogTypeChanged(QtProperty* property, const int value);
-	void fogStartChanged(QtProperty* property, const int value);
-	void fogRangeChanged(QtProperty* property, const int value);
-	void fogDensityChange(QtProperty* property, const int value);
+	void fogTypeChanged(QtProperty* property, int value);
+	void fogStartChanged(QtProperty* property, double value);
+	void fogRangeChanged(QtProperty* property, double value);
+	void fogDensityChanged(QtProperty* property, int value);
+	void enableFogChanged(QtProperty* property, bool value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -110,15 +124,17 @@ private:
 	QtColorPropertyManager* mClearColorPropertyManager;
 	QtColorPropertyManager* mAmbientColorPropertyManager;
 	QtColorPropertyManager* mDiffuseColorPropertyManager;
-	QtIntPropertyManager* mAmbientIntensitySpinBoxPropertManager;
+	QtIntPropertyManager* mAmbientIntensitySpinBoxPropertyManager;
 	QtIntPropertyManager* mAmbientIntensitySliderPropertyManager;
-	QtIntPropertyManager* mDiffuseIntensitySpinBoxPropertManager;
+	QtIntPropertyManager* mDiffuseIntensitySpinBoxPropertyManager;
 	QtIntPropertyManager* mDiffuseIntensitySliderPropertyManager;
-	QtDoublePropertyManager* mFogStartPropertManager;
-	QtDoublePropertyManager* mFogRangePropertManager;
-	QtIntPropertyManager mFogDensityPropertManager;
-	QtColorPropertyManager* mFogColorPropertManager;
-	QtEnumPropertyManager* mFogTypePropertManager;
+	QtDoublePropertyManager* mFogStartPropertyManager;
+	QtDoublePropertyManager* mFogRangePropertyManager;
+	QtColorPropertyManager* mFogColorPropertyManager;
+	QtEnumPropertyManager* mFogTypePropertyManager;
+	QtIntPropertyManager* mFogDensitySpinBoxPropertyManager;
+	QtIntPropertyManager* mFogDensitySliderPropertyManager;
+	QtBoolPropertyManager* mEnableFogPropertyManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;
@@ -130,9 +146,11 @@ private:
 	XMFLOAT4 mDiffuseColor;
 	float mDiffuseIntensity;
 	XMFLOAT4 mFogColor;
-	XMFLOAT4 mFogStart;
-	XMFLOAT4 mFogRange;
+	float mFogStart;
+	float mFogRange;
 	float mFogDensity;
+	EFogType mFogType;
+	bool mShowFog;
 };
 
 #endif // EDITOR_H

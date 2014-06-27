@@ -15,7 +15,7 @@ Camera::Camera()
 	mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
-	mCameraType = LANDOBJECT;
+	mCameraType = AIRCRAFT;
 
 	SharedParameters::camera = this;
 }

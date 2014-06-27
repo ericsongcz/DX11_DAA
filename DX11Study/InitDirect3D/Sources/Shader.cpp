@@ -5,6 +5,8 @@
 Shader::Shader()
 : mMatrixBuffer(nullptr),
   mLightBuffer(nullptr),
+  mCommonBuffer(nullptr),
+  mFogBuffer(nullptr),
   mInputLayout(nullptr),
   mVertexShader(nullptr),
   mPixelShader(nullptr),
@@ -130,6 +132,17 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	commonBufferDesc.StructureByteStride = 0;
 
 	HR(mDevice->CreateBuffer(&commonBufferDesc, nullptr, &mCommonBuffer));
+
+	D3D11_BUFFER_DESC fogBufferDesc;
+	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBuffer);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&fogBufferDesc, nullptr, &mFogBuffer));
 
 	D3D11_SAMPLER_DESC samplerLinearDesc;
 	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -289,13 +302,28 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	mDeviceContext->Unmap(mCommonBuffer, 0);
 
+	D3D11_MAPPED_SUBRESOURCE fogBufferResource;
+	FogBuffer* fogBufferData;
+
+	HR(mDeviceContext->Map(mFogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &fogBufferResource));
+
+	fogBufferData = (FogBuffer*)fogBufferResource.pData;
+	fogBufferData->fogColor = renderParameters.fogColor;
+	fogBufferData->fogDensity = renderParameters.fogDensity;
+	fogBufferData->fogStart = renderParameters.fogStart;
+	fogBufferData->fogRange = renderParameters.fogRange;
+	fogBufferData->fogType = renderParameters.fogType;
+	fogBufferData->showFog = renderParameters.showFog;
+
+	mDeviceContext->Unmap(mFogBuffer, 0);
+
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer };
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer, mFogBuffer};
 	mDeviceContext->VSSetConstantBuffers(0, 3, buffers);
-	mDeviceContext->PSSetConstantBuffers(0, 3, buffers);
+	mDeviceContext->PSSetConstantBuffers(0, 4, buffers);
 
 	return true;
 }
@@ -340,5 +368,8 @@ void Shader::shutdown()
 	SafeRelease(mPixelShader);
 	SafeRelease(mVertexShader);
 	SafeRelease(mInputLayout);
+	SafeRelease(mFogBuffer);
+	SafeRelease(mCommonBuffer);
+	SafeRelease(mLightBuffer);
 	SafeRelease(mMatrixBuffer);
 }

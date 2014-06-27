@@ -28,7 +28,8 @@ Editor::Editor(QWidget *parent)
 	mAmbientColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
 	mAmbientIntensity(0.5f),
 	mDiffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
-	mDiffuseIntensity(1.0f)
+	mDiffuseIntensity(1.0f),
+	mShowFog(false)
 {
 	AllocConsole();
 	FILE* file;
@@ -211,6 +212,12 @@ void Editor::drawScene()
 	renderParameters.diffuseColor = mDiffuseColor;
 	renderParameters.ambientIntensity = mAmbientIntensity;
 	renderParameters.diffuseIntensity = mDiffuseIntensity;
+	renderParameters.fogColor = mFogColor;
+	renderParameters.fogDensity = mFogDensity;
+	renderParameters.fogStart = mFogStart;
+	renderParameters.fogRange = mFogRange;
+	renderParameters.fogType = mFogType;
+	renderParameters.showFog = mShowFog;
 
 	float delta = mTimer.DeltaTime();
 
@@ -325,6 +332,16 @@ void Editor::createPropertyBrowser()
 
 	group->addSubProperty(property);
 
+	// 雾显示属性。
+	mEnableFogPropertyManager = new QtBoolPropertyManager(this);
+	connect(mEnableFogPropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(enableFogChanged(QtProperty*, bool)));
+	variantEditor->setFactoryForManager(mEnableFogPropertyManager, checkBoxFactory);
+	property = mEnableFogPropertyManager->addProperty(SHOW_FOG);
+	mEnableFogPropertyManager->setValue(property, false);
+	mPropertys[SHOW_FOG] = property;
+
+	group->addSubProperty(property);
+
 	// 渲染路径属性。
 	mRenderingPathPropertyManager = new QtEnumPropertyManager(this);
 	connect(mRenderingPathPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(renderingPathChanged(QtProperty*, int)));
@@ -386,13 +403,13 @@ void Editor::createPropertyBrowser()
 	variantEditor->setFactoryForManager(mAmbientColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
 	variantEditor->setFactoryForManager(mAmbientColorPropertyManager, colorEditorFactory);
 
-	mAmbientIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
-	variantEditor->setFactoryForManager(mAmbientIntensitySpinBoxPropertManager, spinBoxFactory);
+	mAmbientIntensitySpinBoxPropertyManager = new QtIntPropertyManager(this);
+	variantEditor->setFactoryForManager(mAmbientIntensitySpinBoxPropertyManager, spinBoxFactory);
 
-	property = mAmbientIntensitySpinBoxPropertManager->addProperty(AMBIENT_INTENSITY);
-	mAmbientIntensitySpinBoxPropertManager->setValue(property, 50);
-	mAmbientIntensitySpinBoxPropertManager->setMinimum(property, 0);
-	mAmbientIntensitySpinBoxPropertManager->setMaximum(property, 100);
+	property = mAmbientIntensitySpinBoxPropertyManager->addProperty(AMBIENT_INTENSITY);
+	mAmbientIntensitySpinBoxPropertyManager->setValue(property, 50);
+	mAmbientIntensitySpinBoxPropertyManager->setMinimum(property, 0);
+	mAmbientIntensitySpinBoxPropertyManager->setMaximum(property, 100);
 	mPropertys[AMBIENT_INTENSITY] = property;
 
 	group->addSubProperty(property);
@@ -408,7 +425,7 @@ void Editor::createPropertyBrowser()
 	mAmbientIntensitySliderPropertyManager->setMaximum(property, 100);
 	mPropertys[AMBIENT_INTENSITY_SLIDER] = property;
 
-	connect(mAmbientIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(ambientIntensityChanged(QtProperty*, int)));
+	connect(mAmbientIntensitySpinBoxPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(ambientIntensityChanged(QtProperty*, int)));
 	connect(mAmbientIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(ambientIntensityChanged(QtProperty*, int)));
 
 	group->addSubProperty(property);
@@ -425,19 +442,18 @@ void Editor::createPropertyBrowser()
 	variantEditor->setFactoryForManager(mDiffuseColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
 	variantEditor->setFactoryForManager(mDiffuseColorPropertyManager, colorEditorFactory);
 
-	mDiffuseIntensitySpinBoxPropertManager = new QtIntPropertyManager(this);
-	variantEditor->setFactoryForManager(mDiffuseIntensitySpinBoxPropertManager, spinBoxFactory);
+	mDiffuseIntensitySpinBoxPropertyManager = new QtIntPropertyManager(this);
+	variantEditor->setFactoryForManager(mDiffuseIntensitySpinBoxPropertyManager, spinBoxFactory);
 
-	property = mDiffuseIntensitySpinBoxPropertManager->addProperty(DIFFUSE_INTENSITY);
-	mDiffuseIntensitySpinBoxPropertManager->setValue(property, 10);
-	mDiffuseIntensitySpinBoxPropertManager->setMinimum(property, 0);
-	mDiffuseIntensitySpinBoxPropertManager->setMaximum(property, 100);
+	property = mDiffuseIntensitySpinBoxPropertyManager->addProperty(DIFFUSE_INTENSITY);
+	mDiffuseIntensitySpinBoxPropertyManager->setValue(property, 10);
+	mDiffuseIntensitySpinBoxPropertyManager->setMinimum(property, 0);
+	mDiffuseIntensitySpinBoxPropertyManager->setMaximum(property, 100);
 	mPropertys[DIFFUSE_INTENSITY] = property;
 
 	group->addSubProperty(property);
 
 	mDiffuseIntensitySliderPropertyManager = new QtIntPropertyManager(this);
-
 	variantEditor->setFactoryForManager(mDiffuseIntensitySliderPropertyManager, sliderFactory);
 
 	property = mDiffuseIntensitySliderPropertyManager->addProperty(DIFFUSE_INTENSITY_SLIDER);
@@ -446,7 +462,7 @@ void Editor::createPropertyBrowser()
 	mDiffuseIntensitySliderPropertyManager->setMaximum(property, 100);
 	mPropertys[DIFFUSE_INTENSITY_SLIDER] = property;
 
-	connect(mDiffuseIntensitySpinBoxPropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(diffuseIntensityChanged(QtProperty*, int)));
+	connect(mDiffuseIntensitySpinBoxPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(diffuseIntensityChanged(QtProperty*, int)));
 	connect(mDiffuseIntensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(diffuseIntensityChanged(QtProperty*, int)));
 
 	group->addSubProperty(property);
@@ -455,34 +471,84 @@ void Editor::createPropertyBrowser()
 
 	// 雾属性。
 	QtGroupPropertyManager* fogGroupProperyManager = new QtGroupPropertyManager(this);
-	group = fogGroupProperyManager->addProperty("Fog");
+	group = fogGroupProperyManager->addProperty(FOG);
+	mPropertys[FOG] = group;
+
+	group->setEnabled(false);
 
 	// 雾颜色属性。
-	mFogColorPropertManager = new QtColorPropertyManager(this);
-	connect(mFogColorPropertManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(fogColorChanged(QtProperty*, const QColor&)));
-	variantEditor->setFactoryForManager(mFogColorPropertManager->subIntPropertyManager(), spinBoxFactory);
-	variantEditor->setFactoryForManager(mFogColorPropertManager, colorEditorFactory);
+	mFogColorPropertyManager = new QtColorPropertyManager(this);
+	connect(mFogColorPropertyManager, SIGNAL(valueChanged(QtProperty*, const QColor&)), this, SLOT(fogColorChanged(QtProperty*, const QColor&)));
+	variantEditor->setFactoryForManager(mFogColorPropertyManager->subIntPropertyManager(), spinBoxFactory);
+	variantEditor->setFactoryForManager(mFogColorPropertyManager, colorEditorFactory);
 
-	property = mFogColorPropertManager->addProperty(FOG_COLOR);
-	mFogColorPropertManager->setValue(property, QColor(255, 255, 255));
+	property = mFogColorPropertyManager->addProperty(FOG_COLOR);
+	mFogColorPropertyManager->setValue(property, QColor(255, 255, 255));
 	mPropertys[FOG_COLOR] = property;
 
 	group->addSubProperty(property);
 
 	// 雾类型属性。
-	mFogTypePropertManager = new QtEnumPropertyManager(this);
-	connect(mFogTypePropertManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(fogTypeChanged(QtProperty*, int)));
+	mFogTypePropertyManager = new QtEnumPropertyManager(this);
+	connect(mFogTypePropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(fogTypeChanged(QtProperty*, int)));
 
-	variantEditor->setFactoryForManager(mFogTypePropertManager, enumEditorFactory);
+	variantEditor->setFactoryForManager(mFogTypePropertyManager, enumEditorFactory);
 
-	property = mFogTypePropertManager->addProperty(FOG_TYPE);
+	property = mFogTypePropertyManager->addProperty(FOG_TYPE);
 
 	enumNames.clear();
 	enumNames.push_back(FOG_TYPE_LINEAR);
 	enumNames.push_back(FOG_TYPE_EXP);
 	enumNames.push_back(FOG_TYPE_EXP2);
-	mFogTypePropertManager->setEnumNames(property, enumNames);
+	mFogTypePropertyManager->setEnumNames(property, enumNames);
+	mFogTypePropertyManager->setValue(property, FT_LINEAR);
 	mPropertys[FOG_TYPE] = property;
+
+	group->addSubProperty(property);
+
+	mFogDensitySpinBoxPropertyManager = new QtIntPropertyManager(this);
+	variantEditor->setFactoryForManager(mFogDensitySpinBoxPropertyManager, spinBoxFactory);
+	property = mFogDensitySpinBoxPropertyManager->addProperty(FOG_DENSITY);
+	mFogDensitySpinBoxPropertyManager->setValue(property, 1);
+	mFogDensitySpinBoxPropertyManager->setMinimum(property, 0);
+	mFogDensitySpinBoxPropertyManager->setMaximum(property, 100);
+	mPropertys[FOG_DENSITY] = property;
+
+	group->addSubProperty(property);
+
+	mFogDensitySliderPropertyManager = new QtIntPropertyManager(this);
+	connect(mFogDensitySpinBoxPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(fogDensityChanged(QtProperty*, int)));
+	connect(mFogDensitySliderPropertyManager, SIGNAL(valueChanged(QtProperty*, int)), this, SLOT(fogDensityChanged(QtProperty*, int)));
+	variantEditor->setFactoryForManager(mFogDensitySliderPropertyManager, sliderFactory);
+	property = mFogDensitySliderPropertyManager->addProperty(FOG_DENSITY_SLIDER);
+	mFogDensitySliderPropertyManager->setValue(property, 1);
+	mFogDensitySliderPropertyManager->setMinimum(property, 0);
+	mFogDensitySliderPropertyManager->setMaximum(property, 100);
+	mFogDensitySliderPropertyManager->setRange(property, 0, 100);
+	mPropertys[FOG_DENSITY_SLIDER] = property;
+
+	group->addSubProperty(property);
+
+	mFogStartPropertyManager = new QtDoublePropertyManager(this);
+	QtDoubleSpinBoxFactory* doubleSpinBoxFactory = new QtDoubleSpinBoxFactory(this);
+	connect(mFogStartPropertyManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(fogStartChanged(QtProperty*, double)));
+	variantEditor->setFactoryForManager(mFogStartPropertyManager, doubleSpinBoxFactory);
+	property = mFogStartPropertyManager->addProperty(FOG_START);
+	mFogStartPropertyManager->setValue(property, 10.0f);
+	mFogStartPropertyManager->setMinimum(property, 0.0f);
+	mFogStartPropertyManager->setMaximum(property, 1000.0f);
+	mPropertys[FOG_START] = property;
+
+	group->addSubProperty(property);
+
+	mFogRangePropertyManager = new QtDoublePropertyManager(this);
+	connect(mFogRangePropertyManager, SIGNAL(valueChanged(QtProperty*, double)), this, SLOT(fogRangeChanged(QtProperty*, double)));
+	variantEditor->setFactoryForManager(mFogRangePropertyManager, doubleSpinBoxFactory);
+	property = mFogRangePropertyManager->addProperty(FOG_RANGE);
+	mFogRangePropertyManager->setValue(property, 100.0f);
+	mFogRangePropertyManager->setMinimum(property, 0.0f);
+	mFogRangePropertyManager->setMaximum(property, 1000.0f);
+	mPropertys[FOG_RANGE] = property;
 
 	group->addSubProperty(property);
 
@@ -609,7 +675,7 @@ void Editor::ambientIntensityChanged(QtProperty *property, int value)
 	}
 	else
 	{
-		mAmbientIntensitySpinBoxPropertManager->setValue(mPropertys[AMBIENT_INTENSITY], value);
+		mAmbientIntensitySpinBoxPropertyManager->setValue(mPropertys[AMBIENT_INTENSITY], value);
 	}
 
 	mAmbientIntensity = 1.0f / 100.0f * (float)value;
@@ -623,7 +689,7 @@ void Editor::diffuseColorChanged(QtProperty* property, const QColor& value)
 	mDiffuseColor.w = RGB256(value.alpha());
 }
 
-void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
+void Editor::diffuseIntensityChanged(QtProperty* property, int value)
 {
 	if (property->propertyName() == DIFFUSE_INTENSITY)
 	{
@@ -631,7 +697,7 @@ void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
 	}
 	else
 	{
-		mDiffuseIntensitySpinBoxPropertManager->setValue(mPropertys[DIFFUSE_INTENSITY], value);
+		mDiffuseIntensitySpinBoxPropertyManager->setValue(mPropertys[DIFFUSE_INTENSITY], value);
 	}
 
 	mDiffuseIntensity = 0.1f * (float)value;
@@ -639,27 +705,45 @@ void Editor::diffuseIntensityChanged(QtProperty* property, const int& value)
 
 void Editor::fogColorChanged(QtProperty* property, const QColor& value)
 {
-
+	mFogColor.x = RGB256(value.red());
+	mFogColor.y = RGB256(value.green());
+	mFogColor.z = RGB256(value.blue());
 }
 
-void Editor::fogTypeChanged(QtProperty* property, const int value)
+void Editor::fogTypeChanged(QtProperty* property, int value)
 {
-
+	mFogType = (EFogType)value;
 }
 
-void Editor::fogStartChanged(QtProperty* property, const int value)
+void Editor::fogStartChanged(QtProperty* property, double value)
 {
-
+	mFogStart = value;
 }
 
-void Editor::fogRangeChanged(QtProperty* property, const int value)
+void Editor::fogRangeChanged(QtProperty* property, double value)
 {
-
+	mFogRange = value;
 }
 
-void Editor::fogDensityChange(QtProperty* property, const int value)
+void Editor::fogDensityChanged(QtProperty* property, int value)
 {
+	if (property->propertyName() == FOG_DENSITY)
+	{
+		mFogDensitySliderPropertyManager->setValue(mPropertys[FOG_DENSITY_SLIDER], value);
+	}
+	else
+	{
+		mFogDensitySpinBoxPropertyManager->setValue(mPropertys[FOG_DENSITY], value);
+	}
 
+	if (mFogType == FT_LINEAR)
+	{
+		mFogDensity = (float)value * 0.01f;
+	}
+	else
+	{
+		mFogDensity = (float)value * 0.001f;
+	}
 }
 
 void Editor::wheelEvent(QWheelEvent* event)
@@ -678,4 +762,10 @@ void Editor::wheelEvent(QWheelEvent* event)
 	int step = degree / 15;
 
 	mCamera->walk(-step * 0.1f);
+}
+
+void Editor::enableFogChanged(QtProperty* property, bool value)
+{
+	mShowFog = value;
+	mPropertys[FOG]->setEnabled(value);
 }

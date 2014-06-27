@@ -64,6 +64,19 @@ struct CommonBuffer
 	int index;
 };
 
+struct FogBuffer
+{
+	XMFLOAT4 fogColor;
+	float fogStart;
+	float fogRange;
+	float fogDensity;
+	int fogType;
+	int showFog;
+	int fogBufferPad1;
+	int fogBufferPad2;
+	int fogBufferPad3;
+};
+
 struct ShaderData
 {
 	ShaderData()

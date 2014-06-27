@@ -30,6 +30,19 @@ cbuffer CommonBuffer : register(b2)
 	int index;
 }
 
+cbuffer FogBuffer : register(b3)
+{
+	float4 fogColor;
+	float fogStart;
+	float fogRange;
+	float fogDensity;
+	int fogType;
+	int showFog;
+	int fogBufferPad1;
+	int fogBufferPad2;
+	int fogBufferPad3;
+}
+
 struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
@@ -106,17 +119,30 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float4 outputColor = (ambientColor * ambientIntensity + diffuseColor) * textureColor/* + specular * 0.5f*/;
 
-	float fogStart = 20.0f;
-	float fogRange = 100.0f;
-	float fogEnd = fogStart + fogRange;
-	float distanceToEye = length(viewDir);
-	float fogLerp = saturate((fogEnd - distanceToEye) / fogRange) * 0.1f;
-	//float fogLerp = 1.0f / exp(distanceToEye * 0.01f);
-	//float fogLerp = 1.0f / exp(pow(distanceToEye * 0.01f, 2));
-	float4 fogColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	if (showFog)
+	{
+		float fogEnd = fogStart + fogRange;
+		float distanceToEye = length(viewDir);
+		float fogLerp;
+		
+		if (fogType == 0)
+		{
+			fogLerp = saturate((distanceToEye - fogStart) / fogRange);
+			fogLerp = 1 - fogLerp * fogDensity;
+		}
 
-	//outputColor = lerp(outputColor, fogColor, fogLerp);
-	outputColor = lerp(fogColor, outputColor, fogLerp);
+		if (fogType == 1)
+		{
+			fogLerp = 1.0f / exp(distanceToEye * fogDensity);
+		}
+
+		if (fogType == 2)
+		{
+			fogLerp = 1.0f / exp(pow(distanceToEye * fogDensity, 2));
+		}
+
+		outputColor = lerp(fogColor, outputColor, fogLerp);
+	}
 
 	return outputColor;
 }

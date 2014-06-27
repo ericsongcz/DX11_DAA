@@ -109,6 +109,12 @@ struct RenderParameters
 	XMFLOAT4X4 rotate;
 	XMFLOAT4X4 textureTransformMatrix;
 	bool showTexture;
+	XMFLOAT4 fogColor;
+	float fogStart;
+	float fogRange;
+	float fogDensity;
+	int fogType;
+	int showFog;
 };
 
 struct MeshData
