@@ -22,6 +22,7 @@ public:
 private:
 	ID3D11Buffer* mMatrixBuffer;
 	ID3D11Buffer* mLightBuffer;
+	ID3D11Buffer* mFogBuffer;
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;

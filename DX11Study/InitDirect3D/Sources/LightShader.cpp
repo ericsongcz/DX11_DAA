@@ -83,6 +83,18 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 
 	HR(mDevice->CreateBuffer(&lightBufferDesc, nullptr, &mLightBuffer));
 
+	D3D11_BUFFER_DESC fogBufferDesc;
+	ZeroMemory(&fogBufferDesc, sizeof(D3D11_BUFFER_DESC));
+
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBuffer);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&fogBufferDesc, nullptr, &mFogBuffer));
+
 	D3D11_SAMPLER_DESC samplerDesc;
 	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
 
@@ -188,13 +200,29 @@ bool LightShader::setShaderParameters(RenderParameters& renderParameters, FXMMAT
 
 	mDeviceContext->Unmap(mLightBuffer, 0);
 
+	D3D11_MAPPED_SUBRESOURCE fogBufferResource;
+	FogBuffer* fogBufferData;
+
+	HR(mDeviceContext->Map(mFogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &fogBufferResource));
+
+	fogBufferData = (FogBuffer*)fogBufferResource.pData;
+	fogBufferData->fogColor = renderParameters.fogColor;
+	fogBufferData->fogDensity = renderParameters.fogDensity;
+	fogBufferData->fogStart = renderParameters.fogStart;
+	fogBufferData->fogRange = renderParameters.fogRange;
+	fogBufferData->fogType = renderParameters.fogType;
+	fogBufferData->showFog = renderParameters.showFog;
+
+	mDeviceContext->Unmap(mFogBuffer, 0);
+
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* constantBuffers[] = { mMatrixBuffer, mLightBuffer };
+	ID3D11Buffer* constantBuffers[] = { mMatrixBuffer, mLightBuffer, mFogBuffer};
 	mDeviceContext->VSSetConstantBuffers(startSlot, 1, &mMatrixBuffer);
 	mDeviceContext->PSSetConstantBuffers(startSlot, 1, &mLightBuffer);
+	mDeviceContext->PSSetConstantBuffers(startSlot + 1, 1, &mFogBuffer);
 
 	return true;
 }

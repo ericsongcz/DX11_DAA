@@ -761,7 +761,7 @@ void Editor::wheelEvent(QWheelEvent* event)
 	int degree = event->delta() / 8;
 	int step = degree / 15;
 
-	mCamera->walk(-step * 0.1f);
+	mCamera->walk(step * 0.1f);
 }
 
 void Editor::enableFogChanged(QtProperty* property, bool value)

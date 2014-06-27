@@ -14,6 +14,19 @@ cbuffer LightBuffer : register(b0)
 	SpotLight spotLight;
 };
 
+cbuffer FogBuffer : register(b1)
+{
+	float4 fogColor;
+	float fogStart;
+	float fogRange;
+	float fogDensity;
+	int fogType;
+	int showFog;
+	int fogBufferPad1;
+	int fogBufferPad2;
+	int fogBufferPad3;
+}
+
 Texture2D positionTexture : register(t0);
 Texture2D colorTexture : register(t1);
 Texture2D normalTexture : register(t2);
@@ -54,12 +67,37 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 spotLightDiffuseColor = result.diffuseColor;
 
 	// All color components are summed in the pixel shader.
-	float4 diffuseColor = diffuseColor = (/*directionalLightDiffuseColor + */pointLightDiffuseColor/* + spotLightDiffuseColor*/)* diffuseIntensity;
+	float4 diffuseColor = diffuseColor = (directionalLightDiffuseColor/* + pointLightDiffuseColor*//* + spotLightDiffuseColor*/)* diffuseIntensity;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
 
 	float4 outputColor = (ambientColor * ambientIntensity + diffuseColor) * textureColor/* + specular * 0.5f*/;
+
+	if (showFog)
+	{
+		float fogEnd = fogStart + fogRange;
+		float distanceToEye = length(viewDir);
+		float fogLerp;
+
+		if (fogType == 0)
+		{
+			fogLerp = saturate((distanceToEye - fogStart) / fogRange);
+			fogLerp = 1 - fogLerp * fogDensity;
+		}
+
+		if (fogType == 1)
+		{
+			fogLerp = 1.0f / exp(distanceToEye * fogDensity);
+		}
+
+		if (fogType == 2)
+		{
+			fogLerp = 1.0f / exp(pow(distanceToEye * fogDensity, 2));
+		}
+
+		outputColor = lerp(fogColor, outputColor, fogLerp);
+	}
 
 	return outputColor;
 }

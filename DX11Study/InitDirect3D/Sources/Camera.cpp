@@ -9,9 +9,9 @@ Camera::Camera()
 #if USE_RIGHT_HAND
 	mPosition = XMFLOAT3(0.0f, 0.0f, 20.0f);
 #else
-	mPosition = XMFLOAT3(0.0f, 0.0f, -10.0f);
+	mPosition = XMFLOAT3(0.0f, 0.0f, -20.0f);
 #endif
-	mLookAt = XMFLOAT3(0.0f, 0.0f, 1.0f);
+	mLookAt = XMFLOAT3(0.0f, 0.0f, -1.0f);
 	mUp = XMFLOAT3(0.0f, 1.0f, 0.0f);
 	mRight = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
@@ -65,14 +65,14 @@ XMMATRIX Camera::getViewMatrix()
 	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
 
 	// 所以我们手动创建一个视图矩阵，让相机可以实现平移。
-	XMVECTOR row1 = XMVectorSet(XMVectorGetX(right), XMVectorGetX(up), XMVectorGetX(lookAt), 0.0f);
+	XMVECTOR row1 = XMVectorSet(-XMVectorGetX(right), XMVectorGetX(up), XMVectorGetX(lookAt), 0.0f);
 	XMVECTOR row2 = XMVectorSet(XMVectorGetY(right), XMVectorGetY(up), XMVectorGetY(lookAt), 0.0f);
-	XMVECTOR row3 = XMVectorSet(XMVectorGetZ(right), XMVectorGetZ(up), XMVectorGetZ(lookAt), 0.0f);
+	XMVECTOR row3 = XMVectorSet(XMVectorGetZ(right), XMVectorGetZ(up), -XMVectorGetZ(lookAt), 0.0f);
 
 	// 将eye转换到view space。
 	float x = -XMVectorGetX(XMVector3Dot(eye, right));
 	float y = -XMVectorGetX(XMVector3Dot(eye, up));
-	float z = -XMVectorGetX(XMVector3Dot(eye, lookAt));
+	float z = -XMVectorGetX(-XMVector3Dot(eye, lookAt));
 
 	XMVECTOR row4 = XMVectorSet(x, y, z, 1.0f);
 
