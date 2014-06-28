@@ -93,6 +93,8 @@ PixelInput main(VertexInput input)
 	// 将光照向量和观察向量变换到切线空间。
 	float3x3 TBN = float3x3(T, B, N);
 
+	// 左乘相当于乘以TBN的转置矩阵，也就是TBN的逆矩阵。
+	// TBN是从切线空间到世界空间的转换，进行逆变换的话就需要逆矩阵。
 	float3 lightDirTangentSpace = /*normalize*/(mul(TBN, lightDirWorldSpace));
 	float3 viewDirTangentSpace = /*normalize*/(mul(TBN, viewDirWorldSpace));
 

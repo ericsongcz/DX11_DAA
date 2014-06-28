@@ -88,7 +88,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
 
-	// 这里如果坐乘的话相当于乘以TBN的转置矩阵。
+	// 这里如果左乘的话相当于乘以TBN的转置矩阵。
 	// 将切线空间的法线转换到世界空间。
 	normalTangentSpace = mul(normalTangentSpace, TBN);
 	normalTangentSpace = normalize(normalTangentSpace);

@@ -137,11 +137,11 @@ void Editor::keyPressEvent(QKeyEvent *event)
 
 		break;
 	case Qt::Key_Q:
-		mCamera->walk(speed * time);
+		mCamera->walk(-speed * time);
 
 		break;
 	case Qt::Key_E:
-		mCamera->walk(-speed * time);
+		mCamera->walk(speed * time);
 
 		break;
 	case Qt::Key_F:
@@ -761,7 +761,7 @@ void Editor::wheelEvent(QWheelEvent* event)
 	int degree = event->delta() / 8;
 	int step = degree / 15;
 
-	mCamera->walk(step * 0.1f);
+	mCamera->walk(-step * 0.1f);
 }
 
 void Editor::enableFogChanged(QtProperty* property, bool value)
