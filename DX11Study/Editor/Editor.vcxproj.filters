@@ -125,6 +125,9 @@
     <ClCompile Include="..\InitDirect3D\Sources\FullScreenQuad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\ReflectionShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -196,6 +199,9 @@
     <ClInclude Include="..\InitDirect3D\Includes\ShaderUntils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\ReflectionShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.h">
@@ -239,6 +245,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\LightShaderPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ReflectionShaderPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ReflectionShaderVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
