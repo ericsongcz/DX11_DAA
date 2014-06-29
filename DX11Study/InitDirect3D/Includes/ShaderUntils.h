@@ -64,6 +64,11 @@ struct CommonBuffer
 	int index;
 };
 
+struct ReflectionBuffer
+{
+	XMFLOAT4X4 reflectionMatrix;
+};
+
 struct FogBuffer
 {
 	XMFLOAT4 fogColor;

@@ -115,6 +115,7 @@ struct RenderParameters
 	float fogDensity;
 	int fogType;
 	int showFog;
+	XMFLOAT4X4 reflectionMatrix;
 };
 
 struct MeshData

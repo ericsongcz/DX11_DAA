@@ -200,7 +200,7 @@ bool DeferredShader::setShaderParameters(RenderParameters& renderParameters, FXM
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 
-	XMStoreFloat4x4(&matrixData->worldViewProjection, worldViewProjection);
+	XMStoreFloat4x4(&matrixData->worldViewProjectionMatrix, worldViewProjection);
 
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);

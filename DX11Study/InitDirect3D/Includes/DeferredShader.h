@@ -9,24 +9,6 @@ using namespace DirectX;
 
 class DeferredShader
 {
-private:
-	struct MatrixBuffer
-	{
-		XMFLOAT4X4 worldMatrix;
-		XMFLOAT4X4 viewMatrix;
-		XMFLOAT4X4 projectionMatrix;
-		XMFLOAT4X4 worldViewProjection;
-	};
-
-	struct CommonBuffer
-	{
-		int hasDiffuseTexture;
-		int hasNormalMapTexture;
-		float factor;
-		int index;
-	};
-
-
 public:
 	DeferredShader();
 	~DeferredShader();
