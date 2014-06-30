@@ -243,7 +243,7 @@ void Editor::drawScene()
 	if (mDeferredRendering)
 	{
 		mRenderer->resetShaderResources();
-		mRenderer->renderToTexture(renderParameters);
+		mRenderer->renderToDeferredBuffers(renderParameters);
 	}
 
 	mRenderer->beginScene();

@@ -5,7 +5,6 @@
 #include <iostream>
 #include "SharedParameters.h"
 #include <DirectXTex/DirectXTex.h>
-#include "GeometryGenerator.h"
 #include <map>
 
 using namespace DirectX;
@@ -19,8 +18,6 @@ Geometry::Geometry()
 	mInputLayout(nullptr),
 	mVerticesCount(0),
 	mIndicesCount(0),
-	//mVertices(nullptr),
-	mIndices(nullptr),
 	mMeshdata(nullptr)
 {
 }
@@ -52,47 +49,58 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	GeometryGenerator geometryGenerator;
 	GeometryGenerator::MeshData md;
-	//geometryGenerator.CreateSphere(2, 32, 32, meshData);
+	//geometryGenerator.CreateSphere(2, 32, 32, md);
 	geometryGenerator.CreateBox(4, 4, 4, md);
 
-	mVerticesCount = md.Vertices.size();
-	mIndicesCount = md.Indices.size();
+	mVerticesCount += md.Vertices.size();
+	mVertices.resize(mVerticesCount);
+	mIndicesCount += md.Indices.size();
+	mIndices.resize(mIndicesCount);
 
-	//mVertices = new Vertex[mVerticesCount];
-	mIndices = new UINT[mIndicesCount];
+	int verticesOffset = mVerticesCount - md.Vertices.size();
+	int indicesOffset = mIndicesCount - md.Indices.size();
 
-	//for (int i = 0; i < mVerticesCount; i++)
-	//{
-	//	mVertices[i].position = md.Vertices[i].Position;
-	//	mVertices[i].normal = md.Vertices[i].Normal;
-	//	mVertices[i].tangent = md.Vertices[i].TangentU;
-	//	mVertices[i].texcoord = md.Vertices[i].TexC;
-	//}
-
-	Vertex vertex;
-	for (int i = 0; i < mVerticesCount; i++)
-	{
-		vertex.position = md.Vertices[i].Position;
-		vertex.normal = md.Vertices[i].Normal;
-		vertex.tangent = md.Vertices[i].TangentU;
-		vertex.texcoord = md.Vertices[i].TexC;
-		mVertices.push_back(vertex);
-	}
-
-	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(md.Indices[0]), sizeof(UINT) * mIndicesCount);
+	memcpy_s(&mVertices[verticesOffset], sizeof(Vertex) * md.Vertices.size(), &(md.Vertices[0]), sizeof(Vertex) * md.Vertices.size());
+	memcpy_s(&mIndices[indicesOffset], sizeof(UINT) * md.Indices.size(), &(md.Indices[0]), sizeof(UINT) * md.Indices.size());
 
 	mMeshdata = new MeshData();
 
 	mMeshdata->textureFiles.push_back("Fieldstone.tga");
 	mMeshdata->textureFiles.push_back("FieldstoneBumpDOT3.tga");
+	mMeshdata->textureFiles.push_back("blue.dds");
 
 	RenderPackage renderPackage;
 	renderPackage.diffuseTextureFile = "Fieldstone.tga";
 	renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
-	renderPackage.indicesCount = mIndicesCount;
-	renderPackage.indicesOffset = 0;
-	renderPackage.globalTransform = XMMatrixTranslation(-5.0f, 0.0, 0.0f);
+	renderPackage.indicesCount = md.Indices.size();
+	renderPackage.indicesOffset = indicesOffset;
+	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 3.0f, 0.0f);
 	mMeshdata->renderPackages.push_back(renderPackage);
+
+	geometryGenerator.CreateBox(16, 0.5f, 16, md);
+
+	mVerticesCount += md.Vertices.size();
+	mVertices.resize(mVerticesCount);
+	mIndicesCount += md.Indices.size();
+	mIndices.resize(mIndicesCount);
+
+	verticesOffset = mVerticesCount - md.Vertices.size();
+	indicesOffset = mIndicesCount - md.Indices.size();
+
+	for (int i = 0; i < md.Indices.size(); i++)
+	{
+		md.Indices[i] += verticesOffset;
+	}
+
+	memcpy_s(&mVertices[verticesOffset], sizeof(Vertex) * md.Vertices.size(), &(md.Vertices[0]), sizeof(Vertex) * md.Vertices.size());
+	memcpy_s(&mIndices[indicesOffset], sizeof(UINT) * md.Indices.size(), &(md.Indices[0]), sizeof(UINT) * md.Indices.size());
+
+	RenderPackage renderPackage1;
+	renderPackage1.diffuseTextureFile = "blue.dds";
+	renderPackage1.normalMapTextureFile = "";
+	renderPackage1.indicesCount = md.Indices.size();
+	renderPackage1.indicesOffset = indicesOffset;
+	mMeshdata->renderPackages.push_back(renderPackage1);
 
 	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
 
@@ -103,7 +111,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	for (int i = 0; i < mMeshdata->renderPackages.size(); i++)
 	{
-		if (meshData->renderPackages[i].diffuseTextureFile.size() > 0)
+		if (mMeshdata->renderPackages[i].diffuseTextureFile.size() > 0)
 		{
 			mMeshdata->renderPackages[i].diffuseTexture = shaderReresourceViews[mMeshdata->renderPackages[i].diffuseTextureFile];
 			mMeshdata->renderPackages[i].hasDiffuseTexture = true;
@@ -155,7 +163,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	indexBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA indexData;
-	indexData.pSysMem = mIndices;
+	indexData.pSysMem = &mIndices[0];
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -175,8 +183,6 @@ void Geometry::clear()
 {
 	mVerticesCount = 0;
 	mIndicesCount = 0;
-	//SafeDelete(mVertices);
-	SafeDelete(mIndices);
 	SafeDelete(mMeshdata);
 }
 

@@ -128,6 +128,9 @@
     <ClCompile Include="..\InitDirect3D\Sources\ReflectionShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\RenderToTexture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -200,6 +203,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\InitDirect3D\Includes\ReflectionShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\RenderToTexture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

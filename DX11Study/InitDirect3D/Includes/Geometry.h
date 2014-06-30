@@ -4,20 +4,11 @@
 #include <DirectXMath.h>
 #include <vector>
 #include <string>
+#include "GeometryGenerator.h"
 
 using namespace DirectX;
 using std::vector;
 using std::string;
-
-struct Vertex
-{
-	XMFLOAT3 position;
-	XMFLOAT4 color;
-	XMFLOAT3 normal;
-	XMFLOAT3 tangent;
-	XMFLOAT3 binormal;
-	XMFLOAT2 texcoord;
-};
 
 struct Material
 {
@@ -166,8 +157,7 @@ private:
 	ID3D11InputLayout* mInputLayout;
 	int mVerticesCount;
 	int mIndicesCount;
-	//Vertex* mVertices;
 	vector<Vertex> mVertices;
-	UINT* mIndices;
+	vector<UINT> mIndices;
 	MeshData* mMeshdata;
 };

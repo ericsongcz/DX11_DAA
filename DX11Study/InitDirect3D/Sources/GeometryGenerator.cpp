@@ -121,23 +121,23 @@ void GeometryGenerator::CreateSphere(float radius, UINT sliceCount, UINT stackCo
 			Vertex v;
 
 			// spherical to cartesian
-			v.Position.x = radius*sinf(phi)*cosf(theta);
-			v.Position.y = radius*cosf(phi);
-			v.Position.z = radius*sinf(phi)*sinf(theta);
+			v.position.x = radius*sinf(phi)*cosf(theta);
+			v.position.y = radius*cosf(phi);
+			v.position.z = radius*sinf(phi)*sinf(theta);
 
 			// Partial derivative of P with respect to theta
-			v.TangentU.x = -radius*sinf(phi)*sinf(theta);
-			v.TangentU.y = 0.0f;
-			v.TangentU.z = +radius*sinf(phi)*cosf(theta);
+			v.tangent.x = -radius*sinf(phi)*sinf(theta);
+			v.tangent.y = 0.0f;
+			v.tangent.z = +radius*sinf(phi)*cosf(theta);
 
-			XMVECTOR T = XMLoadFloat3(&v.TangentU);
-			XMStoreFloat3(&v.TangentU, XMVector3Normalize(T));
+			XMVECTOR T = XMLoadFloat3(&v.tangent);
+			XMStoreFloat3(&v.tangent, XMVector3Normalize(T));
 
-			XMVECTOR p = XMLoadFloat3(&v.Position);
-			XMStoreFloat3(&v.Normal, XMVector3Normalize(p));
+			XMVECTOR p = XMLoadFloat3(&v.position);
+			XMStoreFloat3(&v.normal, XMVector3Normalize(p));
 
-			v.TexC.x = theta / XM_2PI;
-			v.TexC.y = phi / XM_PI;
+			v.texcoord.x = theta / XM_2PI;
+			v.texcoord.y = phi / XM_PI;
 
 			meshData.Vertices.push_back( v );
 		}
@@ -233,20 +233,20 @@ void GeometryGenerator::Subdivide(MeshData& meshData)
 		// For subdivision, we just care about the position component.  We derive the other
 		// vertex components in CreateGeosphere.
 
-		m0.Position = XMFLOAT3(
-			0.5f*(v0.Position.x + v1.Position.x),
-			0.5f*(v0.Position.y + v1.Position.y),
-			0.5f*(v0.Position.z + v1.Position.z));
+		m0.position = XMFLOAT3(
+			0.5f*(v0.position.x + v1.position.x),
+			0.5f*(v0.position.y + v1.position.y),
+			0.5f*(v0.position.z + v1.position.z));
 
-		m1.Position = XMFLOAT3(
-			0.5f*(v1.Position.x + v2.Position.x),
-			0.5f*(v1.Position.y + v2.Position.y),
-			0.5f*(v1.Position.z + v2.Position.z));
+		m1.position = XMFLOAT3(
+			0.5f*(v1.position.x + v2.position.x),
+			0.5f*(v1.position.y + v2.position.y),
+			0.5f*(v1.position.z + v2.position.z));
 
-		m2.Position = XMFLOAT3(
-			0.5f*(v0.Position.x + v2.Position.x),
-			0.5f*(v0.Position.y + v2.Position.y),
-			0.5f*(v0.Position.z + v2.Position.z));
+		m2.position = XMFLOAT3(
+			0.5f*(v0.position.x + v2.position.x),
+			0.5f*(v0.position.y + v2.position.y),
+			0.5f*(v0.position.z + v2.position.z));
 
 		//
 		// Add new geometry.
@@ -309,7 +309,7 @@ void GeometryGenerator::CreateGeosphere(float radius, UINT numSubdivisions, Mesh
 	meshData.Indices.resize(60);
 
 	for(UINT i = 0; i < 12; ++i)
-		meshData.Vertices[i].Position = pos[i];
+		meshData.Vertices[i].position = pos[i];
 
 	for(UINT i = 0; i < 60; ++i)
 		meshData.Indices[i] = k[i];
@@ -321,31 +321,31 @@ void GeometryGenerator::CreateGeosphere(float radius, UINT numSubdivisions, Mesh
 	for(UINT i = 0; i < meshData.Vertices.size(); ++i)
 	{
 		// Project onto unit sphere.
-		XMVECTOR n = XMVector3Normalize(XMLoadFloat3(&meshData.Vertices[i].Position));
+		XMVECTOR n = XMVector3Normalize(XMLoadFloat3(&meshData.Vertices[i].position));
 
 		// Project onto sphere.
 		XMVECTOR p = radius*n;
 
-		XMStoreFloat3(&meshData.Vertices[i].Position, p);
-		XMStoreFloat3(&meshData.Vertices[i].Normal, n);
+		XMStoreFloat3(&meshData.Vertices[i].position, p);
+		XMStoreFloat3(&meshData.Vertices[i].normal, n);
 
 		// Derive texture coordinates from spherical coordinates.
 		float theta = MathHelper::AngleFromXY(
-			meshData.Vertices[i].Position.x, 
-			meshData.Vertices[i].Position.z);
+			meshData.Vertices[i].position.x, 
+			meshData.Vertices[i].position.z);
 
-		float phi = acosf(meshData.Vertices[i].Position.y / radius);
+		float phi = acosf(meshData.Vertices[i].position.y / radius);
 
-		meshData.Vertices[i].TexC.x = theta/XM_2PI;
-		meshData.Vertices[i].TexC.y = phi/XM_PI;
+		meshData.Vertices[i].texcoord.x = theta/XM_2PI;
+		meshData.Vertices[i].texcoord.y = phi/XM_PI;
 
 		// Partial derivative of P with respect to theta
-		meshData.Vertices[i].TangentU.x = -radius*sinf(phi)*sinf(theta);
-		meshData.Vertices[i].TangentU.y = 0.0f;
-		meshData.Vertices[i].TangentU.z = +radius*sinf(phi)*cosf(theta);
+		meshData.Vertices[i].tangent.x = -radius*sinf(phi)*sinf(theta);
+		meshData.Vertices[i].tangent.y = 0.0f;
+		meshData.Vertices[i].tangent.z = +radius*sinf(phi)*cosf(theta);
 
-		XMVECTOR T = XMLoadFloat3(&meshData.Vertices[i].TangentU);
-		XMStoreFloat3(&meshData.Vertices[i].TangentU, XMVector3Normalize(T));
+		XMVECTOR T = XMLoadFloat3(&meshData.Vertices[i].tangent);
+		XMStoreFloat3(&meshData.Vertices[i].tangent, XMVector3Normalize(T));
 	}
 }
 
@@ -380,10 +380,10 @@ void GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, floa
 			float c = cosf(j*dTheta);
 			float s = sinf(j*dTheta);
 
-			vertex.Position = XMFLOAT3(r*c, y, r*s);
+			vertex.position = XMFLOAT3(r*c, y, r*s);
 
-			vertex.TexC.x = (float)j/sliceCount;
-			vertex.TexC.y = 1.0f - (float)i/stackCount;
+			vertex.texcoord.x = (float)j/sliceCount;
+			vertex.texcoord.y = 1.0f - (float)i/stackCount;
 
 			// Cylinder can be parameterized as follows, where we introduce v
 			// parameter that goes in the same direction as the v tex-coord
@@ -405,15 +405,15 @@ void GeometryGenerator::CreateCylinder(float bottomRadius, float topRadius, floa
 			//  dz/dv = (r0-r1)*sin(t)
 
 			// This is unit length.
-			vertex.TangentU = XMFLOAT3(-s, 0.0f, c);
+			vertex.tangent = XMFLOAT3(-s, 0.0f, c);
 
 			float dr = bottomRadius-topRadius;
 			XMFLOAT3 bitangent(dr*c, -height, dr*s);
 
-			XMVECTOR T = XMLoadFloat3(&vertex.TangentU);
+			XMVECTOR T = XMLoadFloat3(&vertex.tangent);
 			XMVECTOR B = XMLoadFloat3(&bitangent);
 			XMVECTOR N = XMVector3Normalize(XMVector3Cross(T, B));
-			XMStoreFloat3(&vertex.Normal, N);
+			XMStoreFloat3(&vertex.normal, N);
 
 			meshData.Vertices.push_back(vertex);
 		}
@@ -543,13 +543,13 @@ void GeometryGenerator::CreateGrid(float width, float depth, UINT m, UINT n, Mes
 		{
 			float x = -halfWidth + j*dx;
 
-			meshData.Vertices[i*n+j].Position = XMFLOAT3(x, 0.0f, z);
-			meshData.Vertices[i*n+j].Normal   = XMFLOAT3(0.0f, 1.0f, 0.0f);
-			meshData.Vertices[i*n+j].TangentU = XMFLOAT3(1.0f, 0.0f, 0.0f);
+			meshData.Vertices[i*n+j].position = XMFLOAT3(x, 0.0f, z);
+			meshData.Vertices[i*n+j].normal   = XMFLOAT3(0.0f, 1.0f, 0.0f);
+			meshData.Vertices[i*n+j].tangent = XMFLOAT3(1.0f, 0.0f, 0.0f);
 
 			// Stretch texture over grid.
-			meshData.Vertices[i*n+j].TexC.x = j*du;
-			meshData.Vertices[i*n+j].TexC.y = i*dv;
+			meshData.Vertices[i*n+j].texcoord.x = j*du;
+			meshData.Vertices[i*n+j].texcoord.y = i*dv;
 		}
 	}
  

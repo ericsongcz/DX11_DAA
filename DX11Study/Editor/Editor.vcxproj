@@ -168,6 +168,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\Log.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\MathHelper.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\ReflectionShader.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\RenderToTexture.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Shader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\ShaderUtils.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedInputLayouts.cpp" />
@@ -225,6 +226,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\Log.h" />
     <ClInclude Include="..\InitDirect3D\Includes\MathHelper.h" />
     <ClInclude Include="..\InitDirect3D\Includes\ReflectionShader.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\RenderToTexture.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\ShaderUntils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />

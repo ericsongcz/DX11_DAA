@@ -19,6 +19,7 @@ public:
 	XMMATRIX getOrthogonalWorldMatrix() const;
 	XMMATRIX getBaseViewMatrix() const;
 	XMMATRIX getViewMatrix();
+	XMMATRIX getReflectionViewMatrix(float height);
 	XMMATRIX getInverseViewMatrix() const;
 	XMMATRIX getProjectionMatrix() const;
 	XMMATRIX getOrthogonalMatrix() const;

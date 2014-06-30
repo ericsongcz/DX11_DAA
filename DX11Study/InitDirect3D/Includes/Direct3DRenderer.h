@@ -7,6 +7,8 @@
 #include "DeferredBuffers.h"
 #include "FullScreenQuad.h"
 #include "LightShader.h"
+#include "ReflectionShader.h"
+#include "RenderToTexture.h"
 
 using std::wstring;
 
@@ -28,6 +30,7 @@ public:
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
 	void setClearColor(int r, int g, int b);
+	void renderToDeferredBuffers(RenderParameters& renderParameters);
 	void renderToTexture(RenderParameters& renderParameters);
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight(RenderParameters& renderParameters);
@@ -70,4 +73,6 @@ private:
 	DeferredShader* mDeferredShader;
 	FullScreenQuad* mFullScreenQuad;
 	LightShader* mLightShader;
+	ReflectionShader* mReflectionShader;
+	RenderToTexture* mRenderToTexture;
 };

@@ -93,8 +93,6 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	backBuffer->Release();
 
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-
-	// Initialize the description of the stencil state.
 	ZeroMemory(&depthStencilDesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
 
 	// Set up the description of the stencil state.
@@ -201,6 +199,8 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mLightShader = new LightShader();
 	mLightShader->initialize(mDevice, mDeviceContext, TEXT("LightShaderVS.cso"), TEXT("LightShaderPS.cso"));
 
+	mRenderToTexture = new RenderToTexture();
+
 	setClearColor(100, 149, 237);
 
 	return true;
@@ -262,6 +262,7 @@ void Direct3DRenderer::resizeBackBuffer(UINT width, UINT height)
 
 	mDeferredBuffers->initialize(mDevice, mScreenWidth, mScreenHeight, 1.0f, 0.0f);
 	mFullScreenQuad->initialize(mDevice, mScreenWidth, mScreenHeight);
+	mRenderToTexture->initialize(mDevice, mScreenWidth, mScreenHeight);
 }
 
 ID3D11Device* Direct3DRenderer::getDevice() const
@@ -369,7 +370,7 @@ void Direct3DRenderer::setClearColor(int r, int g, int b)
 	mClearColor[2] = RGB256(b);
 }
 
-void Direct3DRenderer::renderToTexture(RenderParameters& renderParameters)
+void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameters)
 {
 	mDeferredBuffers->setRenderTargets(mDeviceContext);
 	mDeferredBuffers->clearRenderTargets(mDeviceContext, mClearColor);
@@ -407,6 +408,17 @@ void Direct3DRenderer::renderToTexture(RenderParameters& renderParameters)
 		renderParameters.hasDiffuseTexture = false;
 		renderParameters.hasNormalMapTexture = false;
 	}
+
+	resetRenderTarget();
+}
+
+
+void Direct3DRenderer::renderToTexture(RenderParameters& renderParameters)
+{
+	mRenderToTexture->setRenderTarget(mDeviceContext, mDepthStencilView);
+	mRenderToTexture->clearRenderTarget(mDeviceContext, mDepthStencilView, mClearColor);
+
+	render(renderParameters);
 
 	resetRenderTarget();
 }
@@ -482,4 +494,5 @@ void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
 	mShader->setSamplerState(samplerType);
 	mDeferredShader->setSamplerState(samplerType);
 }
+
 
