@@ -158,6 +158,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\DeferredBuffers.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\DeferredShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Direct3DRenderer.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\Entity.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\FBXImporter.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\FullScreenQuad.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\GameTimer.cpp" />
@@ -211,11 +212,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\InitDirect3D\Includes\Camera.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\CommonStructures.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DApp.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DUtils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h" />
     <ClInclude Include="..\InitDirect3D\Includes\DeferredShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\Entity.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FBXImporter.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FullScreenQuad.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GameTimer.h" />

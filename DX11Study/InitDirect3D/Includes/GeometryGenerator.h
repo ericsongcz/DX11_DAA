@@ -17,51 +17,13 @@
 
 #include "D3DUtils.h"
 #include <vector>
+#include "CommonStructures.h"
 
 using std::vector;
-
-struct Vertex
-{
-		Vertex(){}
-		Vertex(const XMFLOAT3& p, const XMFLOAT3& n, const XMFLOAT3& t, const XMFLOAT2& uv)
-			: position(p), normal(n), tangent(t), texcoord(uv){}
-		Vertex(
-			float px, float py, float pz,
-			float nx, float ny, float nz,
-			float tx, float ty, float tz,
-			float u, float v)
-			: position(px, py, pz), normal(nx, ny, nz),
-			tangent(tx, ty, tz), texcoord(u, v){}
-
-	XMFLOAT3 position;
-	XMFLOAT4 color;
-	XMFLOAT3 normal;
-	XMFLOAT3 tangent;
-	XMFLOAT3 binormal;
-	XMFLOAT2 texcoord;
-};
 
 class GeometryGenerator
 {
 public:
-	//struct Vertex
-	//{
-	//	Vertex(){}
-	//	Vertex(const XMFLOAT3& p, const XMFLOAT3& n, const XMFLOAT3& t, const XMFLOAT2& uv)
-	//		: Position(p), Normal(n), TangentU(t), TexC(uv){}
-	//	Vertex(
-	//		float px, float py, float pz, 
-	//		float nx, float ny, float nz,
-	//		float tx, float ty, float tz,
-	//		float u, float v)
-	//		: Position(px,py,pz), Normal(nx,ny,nz),
-	//		  TangentU(tx, ty, tz), TexC(u,v){}
-
-	//	XMFLOAT3 Position;
-	//	XMFLOAT3 Normal;
-	//	XMFLOAT3 TangentU;
-	//	XMFLOAT2 TexC;
-	//};
 
 	struct MeshData
 	{

@@ -3,6 +3,9 @@
 #include "D3DUtils.h"
 
 RenderToTexture::RenderToTexture()
+	: mRenderTexture(nullptr),
+	  mRenderTargetView(nullptr),
+	  mShaderResourceView(nullptr)
 {
 }
 

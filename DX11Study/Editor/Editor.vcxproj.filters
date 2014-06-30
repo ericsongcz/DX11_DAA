@@ -131,6 +131,9 @@
     <ClCompile Include="..\InitDirect3D\Sources\RenderToTexture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\Entity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -206,6 +209,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\InitDirect3D\Includes\RenderToTexture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\Entity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\CommonStructures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
