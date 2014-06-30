@@ -33,7 +33,6 @@ bool DeferredShader::initialize(ID3D11Device* device, ID3D11DeviceContext* devic
 	mPixelShader = shaderData->pixelShader;
 
 	// 设置数据布局，以便在Shader中使用。
-	// 设置数据布局，以便在Shader中使用。
 	// 定义要和顶点结构一致。
 	D3D11_INPUT_ELEMENT_DESC poloygonLayout[6];
 	ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));

@@ -201,6 +201,9 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	mRenderToTexture = new RenderToTexture();
 
+	mReflectionShader = new ReflectionShader();
+	mReflectionShader->initialize(mDevice, mDeviceContext, TEXT("ReflectionShaderVS.cso"), TEXT("ReflectionShaderPS.cso"));
+
 	setClearColor(100, 149, 237);
 
 	return true;
@@ -335,7 +338,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
 		}
 
-		mShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
+		mShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 
@@ -467,6 +470,45 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 	// 全屏的Quad世界坐标位置始终不变，也不需要根据摄像机的变换而变换，另外因为坐标已经是投影后的尺寸，也不需要经过投影变换。
 	// 所以绘制Quad时候三个矩阵只需要传入单位矩阵即可。
 	mLightShader->render(renderParameters, XMMatrixIdentity(), XMMatrixIdentity(), XMMatrixIdentity());
+}
+
+void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
+{
+	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
+
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
+
+		if (SharedParameters::showTexture)
+		{
+			if (renderPackages[i].hasDiffuseTexture)
+			{
+				renderParameters.hasDiffuseTexture = true;
+			}
+		}
+
+		if (renderPackages[i].hasNormalMapTexture)
+		{
+			renderParameters.hasNormalMapTexture = true;
+		}
+
+		renderPackages[i].addTexture(mRenderToTexture->getShaderResourceView());
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+		}
+
+		mReflectionShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
+
+		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+
+		renderParameters.hasDiffuseTexture = false;
+		renderParameters.hasNormalMapTexture = false;
+	}
 }
 
 void Direct3DRenderer::resetShaderResources()

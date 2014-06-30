@@ -19,7 +19,7 @@ ReflectionShader::ReflectionShader()
 
 ReflectionShader::~ReflectionShader()
 {
-
+	shutdown();
 }
 
 bool ReflectionShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName)
@@ -32,7 +32,6 @@ bool ReflectionShader::initialize(ID3D11Device* device, ID3D11DeviceContext* dev
 	mVertexShader = shaderData->vertexShader;
 	mPixelShader = shaderData->pixelShader;
 
-	// 设置数据布局，以便在Shader中使用。
 	// 设置数据布局，以便在Shader中使用。
 	// 定义要和顶点结构一致。
 	D3D11_INPUT_ELEMENT_DESC poloygonLayout[6];

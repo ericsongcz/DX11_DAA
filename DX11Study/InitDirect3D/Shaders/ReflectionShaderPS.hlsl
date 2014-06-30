@@ -1,7 +1,7 @@
-Texture2D diffuseTexture;
-SamplerState samplerState;
+Texture2D diffuseTexture : register(t0);
+Texture2D reflectionTexture : register(t1);
 
-Texture2D reflectionTexture;
+SamplerState samplerState : register(s0);
 
 struct PixelInput
 {
@@ -12,7 +12,7 @@ struct PixelInput
 
 float4 main(PixelInput input) : SV_TARGET
 {
-	float4 textureColor = reflectionTexture.Sample(samplerState, input.texcoord);
+	float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);
 
 	//  输入的反射位置的齐次坐标需要转换为适当的纹理坐标。为了做到这一点首先除以w，这让我们得到[-1, 1]之间的tu和tv，为了映射到[0, 1]，简单的除以2然后加上0.5。
 	// Calculate the projected reflection texture coordinates.

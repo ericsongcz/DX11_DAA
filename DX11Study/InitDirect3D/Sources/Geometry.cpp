@@ -74,7 +74,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 	renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
 	renderPackage.indicesCount = md.Indices.size();
 	renderPackage.indicesOffset = indicesOffset;
-	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 3.0f, 0.0f);
+	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 5.0f, 0.0f);
 	mMeshdata->renderPackages.push_back(renderPackage);
 
 	geometryGenerator.CreateBox(16, 0.5f, 16, md);
@@ -95,12 +95,12 @@ void Geometry::FillMeshData(MeshData* meshData)
 	memcpy_s(&mVertices[verticesOffset], sizeof(Vertex) * md.Vertices.size(), &(md.Vertices[0]), sizeof(Vertex) * md.Vertices.size());
 	memcpy_s(&mIndices[indicesOffset], sizeof(UINT) * md.Indices.size(), &(md.Indices[0]), sizeof(UINT) * md.Indices.size());
 
-	RenderPackage renderPackage1;
-	renderPackage1.diffuseTextureFile = "blue.dds";
-	renderPackage1.normalMapTextureFile = "";
-	renderPackage1.indicesCount = md.Indices.size();
-	renderPackage1.indicesOffset = indicesOffset;
-	mMeshdata->renderPackages.push_back(renderPackage1);
+	renderPackage.diffuseTextureFile = "blue.dds";
+	renderPackage.normalMapTextureFile = "";
+	renderPackage.indicesCount = md.Indices.size();
+	renderPackage.indicesOffset = indicesOffset;
+	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 1.5f, 0.0f);
+	mMeshdata->renderPackages.push_back(renderPackage);
 
 	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
 

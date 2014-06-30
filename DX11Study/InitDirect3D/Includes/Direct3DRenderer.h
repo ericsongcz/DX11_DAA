@@ -34,12 +34,13 @@ public:
 	void renderToTexture(RenderParameters& renderParameters);
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight(RenderParameters& renderParameters);
+	void renderReflection(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void enableOnZTest(bool on);
 	void enableAlphaBlend(bool enable);
 	void setSamplerState(ESamplerType samplerType);
-private:
+//private:
 	// D3D11 stuffs.
 	float mScreenWidth;
 	float mScreenHeight;

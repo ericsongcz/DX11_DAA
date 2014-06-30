@@ -218,6 +218,8 @@ void Editor::drawScene()
 	renderParameters.fogRange = mFogRange;
 	renderParameters.fogType = mFogType;
 	renderParameters.showFog = mShowFog;
+	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
+	XMStoreFloat4x4(&renderParameters.projectionMatrix, SharedParameters::camera->getProjectionMatrix());
 
 	float delta = mTimer.DeltaTime();
 
@@ -246,6 +248,11 @@ void Editor::drawScene()
 		mRenderer->renderToDeferredBuffers(renderParameters);
 	}
 
+	SharedParameters::renderPackages.clear();
+	SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
+	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+	mRenderer->renderToTexture(renderParameters);
+
 	mRenderer->beginScene();
 
 	if (mRenderModel)
@@ -265,7 +272,15 @@ void Editor::drawScene()
 		else
 		{
 			//mRenderer->enableAlphaBlend(true);
+			XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
+			SharedParameters::renderPackages.clear();
+			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
 			mRenderer->render(renderParameters);
+
+			SharedParameters::renderPackages.clear();
+			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
+			XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+			mRenderer->renderReflection(renderParameters);
 			//mRenderer->enableAlphaBlend(false);
 		}
 	}

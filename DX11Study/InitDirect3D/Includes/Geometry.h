@@ -61,6 +61,11 @@ struct RenderPackage
 		}
 	}
 
+	void addTexture(ID3D11ShaderResourceView* texture)
+	{
+		textures.push_back(texture);
+	}
+
 	int indicesCount;
 	int indicesOffset;
 	bool hasDiffuseTexture;
@@ -106,6 +111,9 @@ struct RenderParameters
 	float fogDensity;
 	int fogType;
 	int showFog;
+	XMFLOAT4X4 worldMatrix;
+	XMFLOAT4X4 viewMatrix;
+	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT4X4 reflectionMatrix;
 };
 
