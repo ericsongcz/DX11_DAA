@@ -166,7 +166,8 @@ private:
 	ID3D11InputLayout* mInputLayout;
 	int mVerticesCount;
 	int mIndicesCount;
-	Vertex* mVertices;
+	//Vertex* mVertices;
+	vector<Vertex> mVertices;
 	UINT* mIndices;
 	MeshData* mMeshdata;
 };

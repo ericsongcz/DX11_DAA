@@ -19,7 +19,7 @@ Geometry::Geometry()
 	mInputLayout(nullptr),
 	mVerticesCount(0),
 	mIndicesCount(0),
-	mVertices(nullptr),
+	//mVertices(nullptr),
 	mIndices(nullptr),
 	mMeshdata(nullptr)
 {
@@ -29,37 +29,37 @@ void Geometry::FillMeshData(MeshData* meshData)
 {
 	clear();
 
-	mMeshdata = meshData;
+	//mMeshdata = meshData;
 
-	mVertices = new Vertex[mMeshdata->verticesCount];
-	mIndices = new UINT[mMeshdata->indicesCount];
-	mVerticesCount = mMeshdata->verticesCount;
-	mIndicesCount = mMeshdata->indicesCount;
+	//mVertices = new Vertex[mMeshdata->verticesCount];
+	//mIndices = new UINT[mMeshdata->indicesCount];
+	//mVerticesCount = mMeshdata->verticesCount;
+	//mIndicesCount = mMeshdata->indicesCount;
 
-	srand((int)time(nullptr));
+	//srand((int)time(nullptr));
 
-	for (int i = 0; i < mVerticesCount; i++)
-	{
-		mVertices[i].position = mMeshdata->vertices[i];
-		mVertices[i].color = XMFLOAT4(Colors::White);
-		mVertices[i].normal = mMeshdata->normals[i];
-		mVertices[i].texcoord = mMeshdata->uvs[i];
-		mVertices[i].tangent = mMeshdata->tangents[i];
-		mVertices[i].binormal = mMeshdata->binormals[i];
-	}
+	//for (int i = 0; i < mVerticesCount; i++)
+	//{
+	//	mVertices[i].position = mMeshdata->vertices[i];
+	//	mVertices[i].color = XMFLOAT4(Colors::White);
+	//	mVertices[i].normal = mMeshdata->normals[i];
+	//	mVertices[i].texcoord = mMeshdata->uvs[i];
+	//	mVertices[i].tangent = mMeshdata->tangents[i];
+	//	mVertices[i].binormal = mMeshdata->binormals[i];
+	//}
 
-	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
+	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
-	//GeometryGenerator geometryGenerator;
-	//GeometryGenerator::MeshData md;
-	////geometryGenerator.CreateSphere(2, 32, 32, meshData);
-	//geometryGenerator.CreateBox(4, 4, 4, md);
+	GeometryGenerator geometryGenerator;
+	GeometryGenerator::MeshData md;
+	//geometryGenerator.CreateSphere(2, 32, 32, meshData);
+	geometryGenerator.CreateBox(4, 4, 4, md);
 
-	//mVerticesCount = md.Vertices.size();
-	//mIndicesCount = md.Indices.size();
+	mVerticesCount = md.Vertices.size();
+	mIndicesCount = md.Indices.size();
 
 	//mVertices = new Vertex[mVerticesCount];
-	//mIndices = new UINT[mIndicesCount];
+	mIndices = new UINT[mIndicesCount];
 
 	//for (int i = 0; i < mVerticesCount; i++)
 	//{
@@ -69,41 +69,56 @@ void Geometry::FillMeshData(MeshData* meshData)
 	//	mVertices[i].texcoord = md.Vertices[i].TexC;
 	//}
 
-	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(md.Indices[0]), sizeof(UINT) * mIndicesCount);
+	Vertex vertex;
+	for (int i = 0; i < mVerticesCount; i++)
+	{
+		vertex.position = md.Vertices[i].Position;
+		vertex.normal = md.Vertices[i].Normal;
+		vertex.tangent = md.Vertices[i].TangentU;
+		vertex.texcoord = md.Vertices[i].TexC;
+		mVertices.push_back(vertex);
+	}
 
-	//meshData->textureFiles.push_back("Fieldstone.tga");
-	//meshData->textureFiles.push_back("FieldstoneBumpDOT3.tga");
+	memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(md.Indices[0]), sizeof(UINT) * mIndicesCount);
 
-	//RenderPackage renderPackage;
-	//renderPackage.diffuseTextureFile = "Fieldstone.tga";
-	//renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
-	//meshData->renderPackages.push_back(renderPackage);
+	mMeshdata = new MeshData();
+
+	mMeshdata->textureFiles.push_back("Fieldstone.tga");
+	mMeshdata->textureFiles.push_back("FieldstoneBumpDOT3.tga");
+
+	RenderPackage renderPackage;
+	renderPackage.diffuseTextureFile = "Fieldstone.tga";
+	renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
+	renderPackage.indicesCount = mIndicesCount;
+	renderPackage.indicesOffset = 0;
+	renderPackage.globalTransform = XMMatrixTranslation(-5.0f, 0.0, 0.0f);
+	mMeshdata->renderPackages.push_back(renderPackage);
 
 	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
 
-	for (int i = 0; i < meshData->textureFiles.size(); i++)
+	for (int i = 0; i < mMeshdata->textureFiles.size(); i++)
 	{
-		shaderReresourceViews[mMeshdata->textureFiles[i]] = CreateShaderResourceViewFromFile(meshData->textureFiles[i], SharedParameters::device);
+		shaderReresourceViews[mMeshdata->textureFiles[i]] = CreateShaderResourceViewFromFile(mMeshdata->textureFiles[i], SharedParameters::device);
 	}
 
-	for (int i = 0; i < meshData->renderPackages.size(); i ++)
+	for (int i = 0; i < mMeshdata->renderPackages.size(); i++)
 	{
 		if (meshData->renderPackages[i].diffuseTextureFile.size() > 0)
 		{
-			meshData->renderPackages[i].diffuseTexture = shaderReresourceViews[meshData->renderPackages[i].diffuseTextureFile];
-			meshData->renderPackages[i].hasDiffuseTexture = true;
+			mMeshdata->renderPackages[i].diffuseTexture = shaderReresourceViews[mMeshdata->renderPackages[i].diffuseTextureFile];
+			mMeshdata->renderPackages[i].hasDiffuseTexture = true;
 		}
 
-		if (meshData->renderPackages[i].normalMapTextureFile.size() > 0)
+		if (mMeshdata->renderPackages[i].normalMapTextureFile.size() > 0)
 		{
-			meshData->renderPackages[i].normalMapTexture = shaderReresourceViews[meshData->renderPackages[i].normalMapTextureFile];
-			meshData->renderPackages[i].hasNormalMapTexture = true;
+			mMeshdata->renderPackages[i].normalMapTexture = shaderReresourceViews[mMeshdata->renderPackages[i].normalMapTextureFile];
+			mMeshdata->renderPackages[i].hasNormalMapTexture = true;
 		}
 
-		meshData->renderPackages[i].RefreshTextures();
+		mMeshdata->renderPackages[i].RefreshTextures();
 	}
 
-	SharedParameters::renderPackages = meshData->renderPackages;
+	SharedParameters::renderPackages = mMeshdata->renderPackages;
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -124,7 +139,7 @@ bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceConte
 	vertexBufferDesc.StructureByteStride = 0;
 
 	D3D11_SUBRESOURCE_DATA vertexData;
-	vertexData.pSysMem = mVertices;
+	vertexData.pSysMem = &mVertices[0];
 	vertexData.SysMemPitch = 0;
 	vertexData.SysMemSlicePitch = 0;
 
@@ -160,7 +175,7 @@ void Geometry::clear()
 {
 	mVerticesCount = 0;
 	mIndicesCount = 0;
-	SafeDelete(mVertices);
+	//SafeDelete(mVertices);
 	SafeDelete(mIndices);
 	SafeDelete(mMeshdata);
 }
