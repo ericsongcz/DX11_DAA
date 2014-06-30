@@ -18,13 +18,13 @@ float4 main(PixelInput input) : SV_TARGET
 	// Calculate the projected reflection texture coordinates.
 	float2 reflectionTexcoord;
 	reflectionTexcoord.x = input.reflectionPosition.x / input.reflectionPosition.w / 2.0 + 0.5f;
-	reflectionTexcoord.y = input.reflectionPosition.y / input.reflectionPosition.w / 2.0 + 0.5f;
+	reflectionTexcoord.y = -input.reflectionPosition.y / input.reflectionPosition.w / 2.0 + 0.5f;
 
 	// Sample the texture pixel from the reflection texture using the projected texture coordinates.
 	float4 reflectionColor = reflectionTexture.Sample(samplerState, reflectionTexcoord);
 
 	// Do a linear interpolation between the two textures for a blend effect.
-	float4 outputColor = lerp(textureColor, reflectionColor, 0.15);
+	float4 outputColor = lerp(textureColor, reflectionColor, 0.15f);
 
 	return outputColor;
 }

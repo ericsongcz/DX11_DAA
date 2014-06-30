@@ -181,6 +181,7 @@ bool ReflectionShader::setShaderParameters(RenderParameters& renderParameters, F
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
+	XMMATRIX reflectionMatrixTemp = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.reflectionMatrix));
 
 	SharedParameters::worldMatrix = worldMatrixTemp;
 
@@ -212,7 +213,7 @@ bool ReflectionShader::setShaderParameters(RenderParameters& renderParameters, F
 
 	reflectionBufferData = (ReflectionBuffer*)reflectionBufferResource.pData;
 
-	reflectionBufferData->reflectionMatrix = renderParameters.reflectionMatrix;
+	XMStoreFloat4x4(&reflectionBufferData->reflectionMatrix, reflectionMatrixTemp);
 
 	mDeviceContext->Unmap(mReflectionBuffer, 0);
 
