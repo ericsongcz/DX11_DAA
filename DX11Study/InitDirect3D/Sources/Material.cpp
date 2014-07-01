@@ -3,6 +3,8 @@
 #include "D3DUtils.h"
 #include "SharedD3DDevice.h"
 
+map<string, ID3D11ShaderResourceView*> Material::mTextureCache = map<string, ID3D11ShaderResourceView*>();
+
 Material::Material()
 	: materialId(0),
 	mDiffuseTextureFile(""),
@@ -31,14 +33,14 @@ Material::~Material()
 void Material::setDiffuseTexture(string diffuseTextureFile)
 {
 	mDiffuseTextureFile = diffuseTextureFile;
-	mDiffuseTexture = CreateShaderResourceViewFromFile(diffuseTextureFile, SharedD3DDevice::device);
+	mDiffuseTexture = getTexture(diffuseTextureFile);
 	mHasDiffuseTexture = true;
 }
 
 void Material::setNormalMapTexture(string normalMapTextureFile)
 {
 	mNormalMapTextureFile = normalMapTextureFile;
-	mNormalMapTexture = CreateShaderResourceViewFromFile(normalMapTextureFile, SharedD3DDevice::device);
+	mNormalMapTexture = getTexture(normalMapTextureFile);
 	mHasNormalMapTexture = true;
 }
 
@@ -83,6 +85,8 @@ ID3D11ShaderResourceView* Material::getTexture(string textureFileName)
 	else
 	{
 		ID3D11ShaderResourceView* srv = CreateShaderResourceViewFromFile(textureFileName, SharedD3DDevice::device);
+		mTextureCache[textureFileName] = srv;
+		return srv;
 	}
 
 	return nullptr;

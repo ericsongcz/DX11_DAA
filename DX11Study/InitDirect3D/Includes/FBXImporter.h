@@ -56,8 +56,6 @@ struct FBXMeshData
 
 	void clear()
 	{
-		SafeDestroy(mSurfaceMaterial);
-		SafeDestroy(mMesh);
 	}
 
 	int mVerticesCount;

@@ -17,9 +17,9 @@ FBXImporter::FBXImporter()
 
 FBXImporter::~FBXImporter()
 {
+	clear();
 	SafeDestroy(mScene);
 	SafeDestroy(mSDKManager);
-	clear();
 }
 
 void FBXImporter::Init()
@@ -330,6 +330,8 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		mMeshData->materialIdOffsets.clear();
 	}
+
+	clear();
 
 	return mMeshData;
 }
@@ -1033,10 +1035,12 @@ void FBXImporter::LoadMaterials(FBXMeshData* fbxMeshData)
 
 			fbxMeshData->mSurfaceMaterial = material;
 
+			fbxMeshData->mMaterial = new Material();
+
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
-			materialIdOffsets[i].material->setDiffuseTexture(fbxMeshData->getDiffuseTexture());
+			materialIdOffsets[i].material = fbxMeshData->mMaterial;
 
 			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getDiffuseTextureFile());
 
@@ -1052,8 +1056,6 @@ void FBXImporter::LoadMaterials(FBXMeshData* fbxMeshData)
 				{
 					textureFiles.push_back(fbxMeshData->getNormalMapTextureFile());
 				}
-
-				materialIdOffsets[i].material->setNormalMapTexture(fbxMeshData->getNormalMapTexture());
 			}
 
 			polygonId += polygonCount;

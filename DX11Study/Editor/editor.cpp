@@ -80,7 +80,7 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("sponza.fbx");
+	mFBXImporter->LoadScene("sponza_split.fbx");
 	mFBXImporter->WalkHierarchy();
 
 	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());

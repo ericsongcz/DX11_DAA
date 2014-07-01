@@ -1,7 +1,9 @@
 #pragma once
 #include <string>
 #include <d3d11.h>
+#include <map>
 
+using std::map;
 using std::string;
 
 class Material
@@ -32,7 +34,7 @@ public:
 	ID3D11ShaderResourceView* mNormalMapTexture;
 	bool mHasDiffuseTexture;
 	bool mHasNormalMapTexture;
-	map<string, ID3D11ShaderResourceView*> mTextureCache;
+	static map<string, ID3D11ShaderResourceView*> mTextureCache;
 };
 
 struct MaterialIdOffset
