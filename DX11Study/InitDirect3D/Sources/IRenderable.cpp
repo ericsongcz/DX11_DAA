@@ -92,5 +92,5 @@ int IRenderable::getIndicesCount() const
 
 void IRenderable::clear()
 {
-	SafeDelete(mMaterial);
+
 }

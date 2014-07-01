@@ -15,15 +15,15 @@ FullScreenQuad::~FullScreenQuad()
 	shutdown();
 }
 
-vector<RenderPackage> FullScreenQuad::getRenderpackge()
+vector<RenderPackage*> FullScreenQuad::getRenderpackge()
 {
-	return mRenderpackage;
+	return mRenderpackages;
 }
 
 bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 {
 	shutdown();
-	mRenderpackage.clear();
+	mRenderpackages.clear();
 
 	float left = ((float)width / 2) * -1;
 	float right = left + (float)width;
@@ -33,18 +33,6 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 	mVerticesCount = 4;
 
 	Vertex* vertices = new Vertex[mVerticesCount];
-
-	//vertices[0].position = XMFLOAT3(left, top, 0.0f);
-	//vertices[0].texcoord = XMFLOAT2(0.0f, 0.0f);
-
-	//vertices[1].position = XMFLOAT3(right, top, 0.0f);
-	//vertices[1].texcoord = XMFLOAT2(1.0f, 0.0f);
-
-	//vertices[2].position = XMFLOAT3(right, bottom, 0.0f);
-	//vertices[2].texcoord = XMFLOAT2(1.0f, 1.0f);
-
-	//vertices[3].position = XMFLOAT3(left, bottom, 0.0f);
-	//vertices[3].texcoord = XMFLOAT2(0.0f, 1.0f);
 
 	vertices[0].position = XMFLOAT3(-1, 1, 0.0f);
 	vertices[0].texcoord = XMFLOAT2(0.0f, 0.0f);
@@ -100,11 +88,11 @@ bool FullScreenQuad::initialize(ID3D11Device* device, int width, int height)
 
 	HR(device->CreateBuffer(&indicesBufferDesc, &indicesData, &mIndexBuffer));
 
-	RenderPackage rp;
-	rp.indicesCount = 6;
-	rp.indicesOffset = 0;
+	RenderPackage* rp = new RenderPackage();
+	rp->indicesCount = 6;
+	rp->indicesOffset = 0;
 
-	mRenderpackage.push_back(rp);
+	mRenderpackages.push_back(rp);
 
 	return true;
 }
@@ -121,6 +109,11 @@ void FullScreenQuad::setupBuffers(ID3D11DeviceContext* deviceContext)
 
 void FullScreenQuad::shutdown()
 {
+	for (int i = 0; i < mRenderpackages.size(); i++)
+	{
+		SafeDelete(mRenderpackages[i]);
+	}
+
 	SafeRelease(mIndexBuffer);
 	SafeRelease(mVertexBuffer);
 }

@@ -37,6 +37,7 @@ struct MaterialIdOffset
 		: polygonCount(0),
 		material(new Material())
 	{}
+
 	int polygonCount;
 	Material* material;
 };

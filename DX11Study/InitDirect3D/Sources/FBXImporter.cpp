@@ -278,13 +278,13 @@ MeshData* FBXImporter::GetMeshInfo()
 		// 计算每个RenderPackage渲染所需的索引数量和索引起始位置(偏移)。
 		if (isByPolygon && fbxMeshData->mHasDiffuseTexture)
 		{
-			vector<MaterialIdOffset> materialIdOffsets = mMeshData->materialIdOffsets;
+			vector<MaterialIdOffset*> materialIdOffsets = mMeshData->materialIdOffsets;
 
 			for (int i = 0; i < materialIdOffsets.size(); i++)
 			{
 				RenderPackage renderPacakge;
 				renderPacakge.globalTransform = fbxMeshData->globalTransform;
-				renderPacakge.indicesCount = materialIdOffsets[i].polygonCount * 3;
+				renderPacakge.indicesCount = materialIdOffsets[i]->polygonCount * 3;
 	
 				if (i == 0)
 				{
@@ -295,7 +295,7 @@ MeshData* FBXImporter::GetMeshInfo()
 					renderPacakge.indicesOffset += indicesIndexOffset;
 				}
 
-				renderPacakge.material = materialIdOffsets[i].material;
+				renderPacakge.material = materialIdOffsets[i]->material;
 
 				mMeshData->renderPackages.push_back(renderPacakge);
 
@@ -886,11 +886,11 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 			{
 				int materialId = materialIndices->GetAt(0);
 				int polygonCount = 0;
-				vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
+				vector<MaterialIdOffset*>& offsets = mMeshData->materialIdOffsets;
 
 				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
 				{
-					MaterialIdOffset offset;
+					MaterialIdOffset* offset = new MaterialIdOffset();
 					int materialIndex = materialIndices->GetAt(triangleIndex);
 
 					// 比较当前materialId和上次循环的materialId，
@@ -898,8 +898,8 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					// 我们只需要增加三角形计数，保存materialId。
 					if (materialId == materialIndex)
 					{
-						offset.polygonCount++;
-						offset.material->materialId = materialIndex;
+						offset->polygonCount++;
+						offset->material->materialId = materialIndex;
 
 						// 如果已经遍历最后一个三角形，保存材质偏移信息。n
 						if (triangleIndex == triangleCount - 1)
@@ -913,9 +913,9 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					{
 
 						offsets.push_back(offset);
-						offset.material->materialId = materialIndex;
-						offset.polygonCount = 0;
-						offset.polygonCount++;
+						offset->material->materialId = materialIndex;
+						offset->polygonCount = 0;
+						offset->polygonCount++;
 					}
 
 					materialId = materialIndex;
@@ -931,11 +931,11 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 
 			int materialIndex = materialIndices->GetAt(0);
 
-			MaterialIdOffset offset;
-			vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
+			MaterialIdOffset* offset = new MaterialIdOffset();
+			vector<MaterialIdOffset*>& offsets = mMeshData->materialIdOffsets;
 
-			offset.material->materialId = materialIndex;
-			offset.polygonCount = triangleCount;
+			offset->material->materialId = materialIndex;
+			offset->polygonCount = triangleCount;
 
 			offsets.push_back(offset);
 		}
@@ -1015,24 +1015,23 @@ void FBXImporter::LoadMaterials(FBXMeshData* fbxMeshData)
 		int polygonId = 0;
 		polygonCount = 0;
 		vector<string>& textureFiles = mMeshData->textureFiles;
-		vector<MaterialIdOffset>& materialIdOffsets = mMeshData->materialIdOffsets;
-		fbxMeshData->mMaterial = new Material();
+		vector<MaterialIdOffset*>& materialIdOffsets = mMeshData->materialIdOffsets;
 
 		for (int i = 0; i < materialIdOffsets.size(); i++)
 		{
 			FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(0);
 			FbxSurfaceMaterial* material = NULL;
-			materialId = mMeshData->materialIdOffsets[i].material->materialId;
+			materialId = mMeshData->materialIdOffsets[i]->material->materialId;
 
 			material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(polygonId));
-			polygonCount = materialIdOffsets[i].polygonCount;
+			polygonCount = materialIdOffsets[i]->polygonCount;
 
 			fbxMeshData->mSurfaceMaterial = material;
 
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
-			materialIdOffsets[i].material->setDiffuseTexture(fbxMeshData->getDiffuseTextureFile());
+			materialIdOffsets[i]->material->setDiffuseTexture(fbxMeshData->getDiffuseTextureFile());
 
 			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getDiffuseTextureFile());
 
@@ -1049,7 +1048,7 @@ void FBXImporter::LoadMaterials(FBXMeshData* fbxMeshData)
 					textureFiles.push_back(fbxMeshData->getNormalMapTextureFile());
 				}
 
-				materialIdOffsets[i].material->setNormalTexture(fbxMeshData->getNormalMapTextureFile());
+				materialIdOffsets[i]->material->setNormalTexture(fbxMeshData->getNormalMapTextureFile());
 			}
 
 			polygonId += polygonCount;

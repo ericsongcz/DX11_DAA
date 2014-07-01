@@ -5,6 +5,7 @@
 #include <string>
 #include <DirectXMath.h>
 #include "Material.h"
+#include "D3DUtils.h"
 
 using namespace DirectX;
 using std::vector;
@@ -41,6 +42,12 @@ struct RenderPackage
 		maskTexture(nullptr)
 	{
 		XMStoreFloat4x4(&globalTransform, XMMatrixIdentity());
+		material = new Material();
+	}
+
+	~RenderPackage()
+	{
+		clear();
 	}
 
 	void RefreshTextures()
@@ -69,6 +76,10 @@ struct RenderPackage
 	bool hasNormalMapTexture() const
 	{
 		return material->hasNormalMapTexture();
+	}
+
+	void clear()
+	{
 	}
 
 	int indicesCount;
@@ -129,6 +140,11 @@ struct MeshData
 	{
 	}
 
+	~MeshData()
+	{
+
+	}
+
 	vector<XMFLOAT3> vertices;
 	vector<XMFLOAT3> normals;
 	vector<XMFLOAT3> tangents;
@@ -143,5 +159,5 @@ struct MeshData
 	bool hasTexture;
 	vector<RenderPackage> renderPackages;
 	vector<Material*> triangleMaterialIndices;
-	vector<MaterialIdOffset> materialIdOffsets;
+	vector<MaterialIdOffset*> materialIdOffsets;
 };

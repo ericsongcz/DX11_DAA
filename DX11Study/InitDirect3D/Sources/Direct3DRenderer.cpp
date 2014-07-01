@@ -444,9 +444,9 @@ void Direct3DRenderer::renderQuad(RenderParameters& renderParameters)
 {
 	mFullScreenQuad->setupBuffers(mDeviceContext);
 
-	vector<RenderPackage> renderPackages = mFullScreenQuad->getRenderpackge();
+	vector<RenderPackage*> renderPackages = mFullScreenQuad->getRenderpackge();
 
-	renderBuffer(renderPackages[0].indicesCount, renderPackages[0].indicesOffset, 0);
+	renderBuffer(renderPackages[0]->indicesCount, renderPackages[0]->indicesOffset, 0);
 }
 
 void Direct3DRenderer::enableOnZTest(bool on)

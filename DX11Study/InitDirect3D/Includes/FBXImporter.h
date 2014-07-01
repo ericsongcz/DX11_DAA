@@ -36,7 +36,6 @@ struct FBXMeshData
 
 	void clear()
 	{
-		SafeDelete(mMaterial);
 		SafeDestroy(mSurfaceMaterial);
 		SafeDestroy(mMesh);
 	}
