@@ -84,8 +84,6 @@ struct RenderPackage
 
 	int indicesCount;
 	int indicesOffset;
-	string diffuseTextureFile;
-	string normalMapTextureFile;
 	string specularTextureFile;
 	string maskTextureFile;
 	XMFLOAT4X4 globalTransform;
@@ -135,14 +133,12 @@ struct MeshData
 		: verticesCount(0),
 		indicesCount(0),
 		indicesOffset(0),
-		meshesCount(0),
-		hasTexture(false)
+		meshesCount(0)
 	{
 	}
 
 	~MeshData()
 	{
-
 	}
 
 	vector<XMFLOAT3> vertices;
@@ -156,8 +152,6 @@ struct MeshData
 	vector<int> indicesOffset;
 	vector<string> textureFiles;
 	int meshesCount;
-	bool hasTexture;
 	vector<RenderPackage> renderPackages;
-	vector<Material*> triangleMaterialIndices;
-	vector<MaterialIdOffset*> materialIdOffsets;
+	vector<MaterialIdOffset> materialIdOffsets;
 };

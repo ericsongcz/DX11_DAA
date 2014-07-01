@@ -35,11 +35,21 @@ void Material::setDiffuseTexture(string diffuseTextureFile)
 	mHasDiffuseTexture = true;
 }
 
-void Material::setNormalTexture(string normalMapTextureFile)
+void Material::setNormalMapTexture(string normalMapTextureFile)
 {
 	mNormalMapTextureFile = normalMapTextureFile;
 	mNormalMapTexture = CreateShaderResourceViewFromFile(normalMapTextureFile, SharedD3DDevice::device);
 	mHasNormalMapTexture = true;
+}
+
+void Material::setDiffuseTexture(ID3D11ShaderResourceView* diffuseTexture)
+{
+	mDiffuseTexture = diffuseTexture;
+}
+
+void Material::setNormalMapTexture(ID3D11ShaderResourceView* normalMapTexture)
+{
+	mNormalMapTexture = normalMapTexture;
 }
 
 bool Material::hasDiffuseTexture() const
@@ -60,6 +70,22 @@ string Material::getDiffuseTextureFile() const
 string Material::getNormalMapTextureFile() const
 {
 	return mNormalMapTextureFile;
+}
+
+ID3D11ShaderResourceView* Material::getTexture(string textureFileName)
+{
+	auto iter = mTextureCache.find(textureFileName);
+
+	if (iter != mTextureCache.end())
+	{
+		return iter->second;
+	}
+	else
+	{
+		ID3D11ShaderResourceView* srv = CreateShaderResourceViewFromFile(textureFileName, SharedD3DDevice::device);
+	}
+
+	return nullptr;
 }
 
 ID3D11ShaderResourceView* Material::getDiffuseTexture() const

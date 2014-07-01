@@ -313,7 +313,7 @@ void Direct3DRenderer::switchFillMode()
 
 void Direct3DRenderer::render(RenderParameters& renderParameters)
 {
-	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
+	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
 	int renderPackageSize = renderPackages.size();
 
 	for (int i = 0; i < renderPackageSize; i++)
@@ -475,7 +475,7 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 
 void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 {
-	vector<RenderPackage> renderPackages = SharedParameters::renderPackages;
+	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
 	int renderPackageSize = renderPackages.size();
 
 	for (int i = 0; i < renderPackageSize; i++)

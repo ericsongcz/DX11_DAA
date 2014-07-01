@@ -12,11 +12,14 @@ public:
 	~Material();
 
 	void setDiffuseTexture(string diffuseTextureFile);
-	void setNormalTexture(string normalMapTextureFile);
+	void setNormalMapTexture(string normalMapTextureFile);
+	void setDiffuseTexture(ID3D11ShaderResourceView* diffuseTexture);
+	void setNormalMapTexture(ID3D11ShaderResourceView* normalMapTexture);
 	bool hasDiffuseTexture() const;
 	bool hasNormalMapTexture() const;
 	string getDiffuseTextureFile() const;
 	string getNormalMapTextureFile() const;
+	ID3D11ShaderResourceView* getTexture(string textureFileName);
 	ID3D11ShaderResourceView* getDiffuseTexture() const;
 	ID3D11ShaderResourceView* getNormalMapTexture() const;
 	void clear();
@@ -29,14 +32,19 @@ public:
 	ID3D11ShaderResourceView* mNormalMapTexture;
 	bool mHasDiffuseTexture;
 	bool mHasNormalMapTexture;
+	map<string, ID3D11ShaderResourceView*> mTextureCache;
 };
 
 struct MaterialIdOffset
 {
 	MaterialIdOffset()
-		: polygonCount(0),
-		material(new Material())
+		: polygonCount(0)
 	{}
+
+	~MaterialIdOffset()
+	{
+
+	}
 
 	int polygonCount;
 	Material* material;

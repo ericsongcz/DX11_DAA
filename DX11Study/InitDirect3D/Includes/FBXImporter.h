@@ -34,6 +34,26 @@ struct FBXMeshData
 		return mMaterial->getNormalMapTextureFile();
 	}
 
+	ID3D11ShaderResourceView* getDiffuseTexture() const
+	{
+		return mMaterial->getDiffuseTexture();
+	}
+
+	ID3D11ShaderResourceView* getNormalMapTexture() const
+	{
+		return mMaterial->getNormalMapTexture();
+	}
+
+	bool hasDiffuseTexture() const
+	{
+		return mMaterial->hasDiffuseTexture();
+	}
+
+	bool hasNormalMapTexture() const
+	{
+		return mMaterial->hasNormalMapTexture();
+	}
+
 	void clear()
 	{
 		SafeDestroy(mSurfaceMaterial);
@@ -51,8 +71,6 @@ struct FBXMeshData
 	vector<XMFLOAT3> mTangents;
 	vector<XMFLOAT3> mBinormals;
 	vector<XMFLOAT2> mUVs;
-	bool mHasDiffuseTexture;
-	bool mHasNormalMapTexture;
 	XMFLOAT4X4 globalTransform;
 	FbxMesh* mMesh;
 	FbxSurfaceMaterial* mSurfaceMaterial;

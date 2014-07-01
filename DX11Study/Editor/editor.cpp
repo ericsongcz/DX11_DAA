@@ -80,7 +80,7 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("NormalMap2.fbx");
+	mFBXImporter->LoadScene("sponza.fbx");
 	mFBXImporter->WalkHierarchy();
 
 	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
