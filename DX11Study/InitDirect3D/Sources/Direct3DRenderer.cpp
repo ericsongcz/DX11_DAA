@@ -2,6 +2,7 @@
 #include "Direct3DRenderer.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
+#include "SharedD3DDevice.h"
 
 Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, bool fullScreen)
   : mScreenWidth(width),
@@ -82,8 +83,8 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	HR(D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevels, 3,
 		D3D11_SDK_VERSION, &swapChainDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 
-	SharedParameters::device = mDevice;
-	SharedParameters::deviceContext = mDeviceContext;
+	SharedD3DDevice::device = mDevice;
+	SharedD3DDevice::deviceContext = mDeviceContext;
 
 	ID3D11Texture2D* backBuffer = nullptr;
 	mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
@@ -322,13 +323,13 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 		if (SharedParameters::showTexture)
 		{
-			if (renderPackages[i].hasDiffuseTexture)
+			if (renderPackages[i].hasDiffuseTexture())
 			{
 				renderParameters.hasDiffuseTexture = true;
 			}
 		}
 
-		if (renderPackages[i].hasNormalMapTexture)
+		if (renderPackages[i].hasNormalMapTexture())
 		{
 			renderParameters.hasNormalMapTexture = true;
 		}
@@ -388,13 +389,13 @@ void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameter
 
 		if (SharedParameters::showTexture)
 		{
-			if (renderPackages[i].hasDiffuseTexture)
+			if (renderPackages[i].hasDiffuseTexture())
 			{
 				renderParameters.hasDiffuseTexture = true;
 			}
 		}
 
-		if (renderPackages[i].hasNormalMapTexture)
+		if (renderPackages[i].hasNormalMapTexture())
 		{
 			renderParameters.hasNormalMapTexture = true;
 		}
@@ -484,13 +485,13 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 
 		if (SharedParameters::showTexture)
 		{
-			if (renderPackages[i].hasDiffuseTexture)
+			if (renderPackages[i].hasDiffuseTexture())
 			{
 				renderParameters.hasDiffuseTexture = true;
 			}
 		}
 
-		if (renderPackages[i].hasNormalMapTexture)
+		if (renderPackages[i].hasNormalMapTexture())
 		{
 			renderParameters.hasNormalMapTexture = true;
 		}

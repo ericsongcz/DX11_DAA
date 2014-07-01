@@ -88,6 +88,15 @@ void SafeDelete(T type)
 	}
 }
 
+template<typename T>
+void SafeDestroy(T type)
+{
+	if (type != nullptr)
+	{
+		type->Destroy();
+	}
+}
+
 void Log(const char* foramt, ...);
 void DisplayVector(float x, float y, float z);
 

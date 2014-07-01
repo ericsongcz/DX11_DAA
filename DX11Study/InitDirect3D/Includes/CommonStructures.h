@@ -36,11 +36,7 @@ struct RenderPackage
 	RenderPackage()
 		: indicesCount(0),
 		indicesOffset(0),
-		hasDiffuseTexture(false),
-		hasNormalMapTexture(false),
 		ambientTexture(nullptr),
-		diffuseTexture(nullptr),
-		normalMapTexture(nullptr),
 		specularTexture(nullptr),
 		maskTexture(nullptr)
 	{
@@ -49,14 +45,14 @@ struct RenderPackage
 
 	void RefreshTextures()
 	{
-		if (diffuseTexture != nullptr)
+		if (material->getDiffuseTexture() != nullptr)
 		{
-			textures.push_back(diffuseTexture);
+			textures.push_back(material->getDiffuseTexture());
 		}
 
-		if (normalMapTexture != nullptr)
+		if (material->getNormalMapTexture() != nullptr)
 		{
-			textures.push_back(normalMapTexture);
+			textures.push_back(material->getNormalMapTexture());
 		}
 	}
 
@@ -65,19 +61,24 @@ struct RenderPackage
 		textures.push_back(texture);
 	}
 
+	bool hasDiffuseTexture() const
+	{
+		return material->hasDiffuseTexture();
+	}
+
+	bool hasNormalMapTexture() const
+	{
+		return material->hasNormalMapTexture();
+	}
+
 	int indicesCount;
 	int indicesOffset;
-	bool hasDiffuseTexture;
-	bool hasNormalMapTexture;
 	string diffuseTextureFile;
 	string normalMapTextureFile;
 	string specularTextureFile;
 	string maskTextureFile;
-
 	XMFLOAT4X4 globalTransform;
 	ID3D11ShaderResourceView* ambientTexture;
-	ID3D11ShaderResourceView* diffuseTexture;
-	ID3D11ShaderResourceView* normalMapTexture;
 	ID3D11ShaderResourceView* specularTexture;
 	ID3D11ShaderResourceView* maskTexture;
 	vector<ID3D11ShaderResourceView*> textures;

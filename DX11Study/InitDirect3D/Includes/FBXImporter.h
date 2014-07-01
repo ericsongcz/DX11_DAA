@@ -9,16 +9,37 @@
 struct FBXMeshData
 {
 	FBXMeshData()
-	  : mVerticesCount(0),
+		: mVerticesCount(0),
 		mIndicesCount(0),
 		mTrianglesCount(0),
 		mTangentCount(0),
 		mBinormalCount(0),
-	    mHasDiffuseTexture(false),
-	    mHasNormalMapTexture(false),
 		mMesh(nullptr),
-		mSurfaceMaterial(nullptr)
+		mSurfaceMaterial(nullptr),
+		mMaterial(new Material())
 	{}
+
+	~FBXMeshData()
+	{
+		clear();
+	}
+
+	string getDiffuseTextureFile() const
+	{
+		return mMaterial->getDiffuseTextureFile();
+	}
+
+	string getNormalMapTextureFile() const
+	{
+		return mMaterial->getNormalMapTextureFile();
+	}
+
+	void clear()
+	{
+		SafeDelete(mMaterial);
+		SafeDestroy(mSurfaceMaterial);
+		SafeDestroy(mMesh);
+	}
 
 	int mVerticesCount;
 	int mIndicesCount;
@@ -36,10 +57,9 @@ struct FBXMeshData
 	XMFLOAT4X4 globalTransform;
 	FbxMesh* mMesh;
 	FbxSurfaceMaterial* mSurfaceMaterial;
-	string diffuseTextureFile;
-	string normalMapTextureFile;
-	string specularTextureFile;
-	string maskTextureFile;
+	Material* mMaterial;
+	string mSpecularTextureFile;
+	string mMaskTextureFile;
 };
 
 class FBXImporter
@@ -67,37 +87,37 @@ public:
 	MeshData* GetMeshInfo();
 
 	// 读取网格顶点信息。
-	void ReadVertices(FBXMeshData& fbxMeshData);
+	void ReadVertices(FBXMeshData* fbxMeshData);
 
 	// 读取网格索引信息。
-	void ReadIndices(FBXMeshData& fbxMeshData);
+	void ReadIndices(FBXMeshData* fbxMeshData);
 
 	// 读取网格的法线信息。
-	void ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex); 
+	void ReadNormals(FBXMeshData* fbxMeshData, int contorlPointIndex, int normalIndex); 
 
 	// 读取网格的切线信息。
-	void ReadTangents(FBXMeshData& fbxMeshData, int contorlPointIndex, int tangentIndex);
+	void ReadTangents(FBXMeshData* fbxMeshData, int contorlPointIndex, int tangentIndex);
 
 	// 读取网格的副法线信息。
-	void ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int binormalIndex);
+	void ReadBinormals(FBXMeshData* fbxMeshData, int controlPointIndex, int binormalIndex);
 
 	// 读取网格的纹理坐标。
-	void ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int textureUVIndex, int index, int uvLayer);
+	void ReadUVs(FBXMeshData* fbxMeshData, int controlPointIndex, int textureUVIndex, int index, int uvLayer);
 
 	// 根据法线拆分顶点。
-	void SplitVertexByNormal(FBXMeshData& fbxMeshData);	
+	void SplitVertexByNormal(FBXMeshData* fbxMeshData);	
 
 	// 根据切线拆分顶点(?)。
-	void SplitVertexByTangent(FBXMeshData& fbxMeshData);
+	void SplitVertexByTangent(FBXMeshData* fbxMeshData);
 
 	// 根据切线拆分顶点(?)。
-	void SplitVertexByBinormal(FBXMeshData& fbxMeshData);
+	void SplitVertexByBinormal(FBXMeshData* fbxMeshData);
 
 	// 根据UV拆分顶点。
-	void SplitVertexByUV(FBXMeshData& fbxMeshData);
+	void SplitVertexByUV(FBXMeshData* fbxMeshData);
 
 	// 计算多边形法线。
-	void ComputeNormals(FBXMeshData& fbxMeshData);
+	void ComputeNormals(FBXMeshData* fbxMeshData);
 
 	// FbxMatrix到XXMMATRIX的转换。
 	void FbxMatrixToXMMATRIX(XMMATRIX& out, const FbxMatrix& in);
@@ -107,17 +127,19 @@ public:
 	void ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount);
 
 	// 获取FbxSurfaceMaterial实例。
-	void LoadMaterials(FBXMeshData& fbxMeshData);
+	void LoadMaterials(FBXMeshData* fbxMeshData);
 
-	void LoadMaterialAttributes(FBXMeshData& fbxMeshData);
+	void LoadMaterialAttributes(FBXMeshData* fbxMeshData);
 
 	// 获取对应FbxSurfaceTexture中对应的纹理。
-	void LoadMaterialTexture(FBXMeshData& fbxMeshData, const char* textureType);
+	void LoadMaterialTexture(FBXMeshData* fbxMeshData, const char* textureType);
+
+	void clear();
 private:
 	FbxManager* mSDKManager;
 	FbxScene* mScene;
 	MeshData* mMeshData;
-	vector<FBXMeshData> mFBXMeshDatas;
+	vector<FBXMeshData*> mFBXMeshDatas;
 	bool isByPolygon;
 	bool isAllSame;
 };

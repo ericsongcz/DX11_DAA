@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "IRenderable.h"
+#include "D3DUtils.h"
 
 IRenderable::IRenderable()
 	: mMaterial(nullptr)
@@ -9,7 +10,7 @@ IRenderable::IRenderable()
 
 IRenderable::~IRenderable()
 {
-
+	clear();
 }
 
 void IRenderable::addVertex(const Vertex& vertex)
@@ -59,6 +60,11 @@ void IRenderable::setMaterial(Material* material)
 	mMaterial = material;
 }
 
+Material* IRenderable::getMaterial() const
+{
+	return mMaterial;
+}
+
 DirectX::XMMATRIX IRenderable::getTransform()
 {
 	return XMLoadFloat4x4(&mTransform);
@@ -82,4 +88,9 @@ int IRenderable::getVerticesCount() const
 int IRenderable::getIndicesCount() const
 {
 	return mIndicesCount;
+}
+
+void IRenderable::clear()
+{
+	SafeDelete(mMaterial);
 }

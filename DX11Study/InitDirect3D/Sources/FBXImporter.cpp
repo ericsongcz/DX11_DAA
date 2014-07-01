@@ -17,6 +17,7 @@ FBXImporter::FBXImporter()
 
 FBXImporter::~FBXImporter()
 {
+	clear();
 }
 
 void FBXImporter::Init()
@@ -124,8 +125,8 @@ void FBXImporter::ProcessMesh(FbxNodeAttribute* nodeAttribute)
 		mesh = (FbxMesh*)nodeAttribute;
 	}
 
-	FBXMeshData fbxMeshData;
-	fbxMeshData.mMesh = mesh;
+	FBXMeshData* fbxMeshData = new FBXMeshData();
+	fbxMeshData->mMesh = mesh;
 	mFBXMeshDatas.push_back(fbxMeshData);
 
 	Log("TriangleCount:%d\n", mesh->GetPolygonCount());
@@ -146,11 +147,11 @@ MeshData* FBXImporter::GetMeshInfo()
 
 	for (int meshIndex = 0; meshIndex < mFBXMeshDatas.size(); meshIndex++)
 	{
-		FbxMesh* mesh = mFBXMeshDatas[meshIndex].mMesh;
-		FBXMeshData& fbxMeshData = mFBXMeshDatas[meshIndex];
-		fbxMeshData.mVerticesCount = mesh->GetControlPointsCount();
-		fbxMeshData.mIndicesCount = mesh->GetPolygonVertexCount();
-		fbxMeshData.mTrianglesCount = mesh->GetPolygonCount();
+		FbxMesh* mesh = mFBXMeshDatas[meshIndex]->mMesh;
+		FBXMeshData* fbxMeshData = mFBXMeshDatas[meshIndex];
+		fbxMeshData->mVerticesCount = mesh->GetControlPointsCount();
+		fbxMeshData->mIndicesCount = mesh->GetPolygonVertexCount();
+		fbxMeshData->mTrianglesCount = mesh->GetPolygonCount();
 
 		// 获取3dsmax中的全局变换矩阵，稍后可以在DX中还原。
 		FbxMatrix gloableTransform = mesh->GetNode()->EvaluateGlobalTransform();
@@ -173,9 +174,9 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		matrixL2W *= matrixGeo;
 
-		XMMATRIX globalTransform = XMLoadFloat4x4(&fbxMeshData.globalTransform);
+		XMMATRIX globalTransform = XMLoadFloat4x4(&fbxMeshData->globalTransform);
 		FbxMatrixToXMMATRIX(globalTransform, matrixL2W);
-		XMStoreFloat4x4(&fbxMeshData.globalTransform, globalTransform);
+		XMStoreFloat4x4(&fbxMeshData->globalTransform, globalTransform);
 
 		// 读取顶点。
 		ReadVertices(fbxMeshData);
@@ -207,7 +208,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		//	int polygonCount;
 		//	Material material;
 		//};
-		ConnectMaterialsToMesh(mesh, fbxMeshData.mTrianglesCount);
+		ConnectMaterialsToMesh(mesh, fbxMeshData->mTrianglesCount);
 
 		// 根据ConnectMaterialsToMesh得到的信息读取材质纹理信息，同样存入vector<MaterialIdOffset>容器。
 		LoadMaterials(fbxMeshData);
@@ -215,7 +216,7 @@ MeshData* FBXImporter::GetMeshInfo()
 		int triangleCount = mesh->GetPolygonCount();
 		int controlPointIndex = 0;
 		int normalIndex = 0;
-		fbxMeshData.mUVs.resize(fbxMeshData.mIndicesCount, XMFLOAT2(-1.0f, -1.0f));
+		fbxMeshData->mUVs.resize(fbxMeshData->mIndicesCount, XMFLOAT2(-1.0f, -1.0f));
 
 		// Extract normals and uvs from FbxMesh.
 		for (int i = 0; i < triangleCount; i++)
@@ -229,7 +230,7 @@ MeshData* FBXImporter::GetMeshInfo()
 				ReadNormals(fbxMeshData, controlPointIndex, normalIndex);
 
 				// 有纹理我们才读取uv，tangent以及binormal。
-				if (fbxMeshData.mHasDiffuseTexture)
+				if (fbxMeshData->mHasDiffuseTexture)
 				{
 					ReadUVs(fbxMeshData, controlPointIndex, normalIndex, mesh->GetTextureUVIndex(i, j), 0);
 					ReadTangents(fbxMeshData, controlPointIndex, normalIndex);
@@ -242,47 +243,47 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		SplitVertexByNormal(fbxMeshData);
 
-		if (fbxMeshData.mHasDiffuseTexture)
+		if (fbxMeshData->mHasDiffuseTexture)
 		{
 			SplitVertexByUV(fbxMeshData);
 		}
 		else
 		{
-			fbxMeshData.mUVs.resize(fbxMeshData.mVerticesCount);
+			fbxMeshData->mUVs.resize(fbxMeshData->mVerticesCount);
 		}
 
-		if (fbxMeshData.mHasNormalMapTexture)
+		if (fbxMeshData->mHasNormalMapTexture)
 		{
 			SplitVertexByTangent(fbxMeshData);
 			SplitVertexByBinormal(fbxMeshData);
 		}
 		else
 		{
-			fbxMeshData.mTangents.resize(fbxMeshData.mVerticesCount);
-			fbxMeshData.mBinormals.resize(fbxMeshData.mVerticesCount);
+			fbxMeshData->mTangents.resize(fbxMeshData->mVerticesCount);
+			fbxMeshData->mBinormals.resize(fbxMeshData->mVerticesCount);
 		}
 
 		// 如果.fbx包含一个以上的mesh，需要计算当前FBXMeshData的索引在全局索引中的位置。
-		for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+		for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 		{
-			fbxMeshData.mIndices[i] = fbxMeshData.mIndices[i] + verticesIndexOffset;
+			fbxMeshData->mIndices[i] = fbxMeshData->mIndices[i] + verticesIndexOffset;
 		}
 
-		mMeshData->verticesCount += fbxMeshData.mVerticesCount;
-		mMeshData->indicesCount += fbxMeshData.mIndicesCount;
+		mMeshData->verticesCount += fbxMeshData->mVerticesCount;
+		mMeshData->indicesCount += fbxMeshData->mIndicesCount;
 		mMeshData->meshesCount++;
 
 		// 多材质的情况。
 		// 根据之前填充的materialIdOffsets容器保存的materialId和三角形的对应关系，
 		// 计算每个RenderPackage渲染所需的索引数量和索引起始位置(偏移)。
-		if (isByPolygon && fbxMeshData.mHasDiffuseTexture)
+		if (isByPolygon && fbxMeshData->mHasDiffuseTexture)
 		{
 			vector<MaterialIdOffset> materialIdOffsets = mMeshData->materialIdOffsets;
 
 			for (int i = 0; i < materialIdOffsets.size(); i++)
 			{
 				RenderPackage renderPacakge;
-				renderPacakge.globalTransform = fbxMeshData.globalTransform;
+				renderPacakge.globalTransform = fbxMeshData->globalTransform;
 				renderPacakge.indicesCount = materialIdOffsets[i].polygonCount * 3;
 	
 				if (i == 0)
@@ -294,8 +295,7 @@ MeshData* FBXImporter::GetMeshInfo()
 					renderPacakge.indicesOffset += indicesIndexOffset;
 				}
 
-				renderPacakge.diffuseTextureFile = materialIdOffsets[i].material.diffuseTextureFile;
-				renderPacakge.normalMapTextureFile = materialIdOffsets[i].material.normalMapTextureFile;
+				renderPacakge.material = materialIdOffsets[i].material;
 
 				mMeshData->renderPackages.push_back(renderPacakge);
 
@@ -306,26 +306,25 @@ MeshData* FBXImporter::GetMeshInfo()
 		// 单一材质的情况。
 		{
 			RenderPackage renderPackage;
-			renderPackage.indicesCount = fbxMeshData.mIndicesCount;
+			renderPackage.indicesCount = fbxMeshData->mIndicesCount;
 			renderPackage.indicesOffset = indicesIndexOffset;
-			renderPackage.diffuseTextureFile = fbxMeshData.diffuseTextureFile;
-			renderPackage.normalMapTextureFile = fbxMeshData.normalMapTextureFile;
-			renderPackage.globalTransform = fbxMeshData.globalTransform;
+			renderPackage.material = fbxMeshData->mMaterial;
+			renderPackage.globalTransform = fbxMeshData->globalTransform;
 
 			mMeshData->renderPackages.push_back(renderPackage);
 
-			indicesIndexOffset += fbxMeshData.mIndices.size();
+			indicesIndexOffset += fbxMeshData->mIndices.size();
 		}
 
-		verticesIndexOffset += fbxMeshData.mVertices.size();
+		verticesIndexOffset += fbxMeshData->mVertices.size();
 
 		// 将当前mesh的数据追加到全局数据容器。
-		Merge(mMeshData->vertices, fbxMeshData.mVertices);
-		Merge(mMeshData->indices, fbxMeshData.mIndices);
-		Merge(mMeshData->normals, fbxMeshData.mNormals);
-		Merge(mMeshData->uvs, fbxMeshData.mUVs);
-		Merge(mMeshData->tangents, fbxMeshData.mTangents);
-		Merge(mMeshData->binormals, fbxMeshData.mBinormals);
+		Merge(mMeshData->vertices, fbxMeshData->mVertices);
+		Merge(mMeshData->indices, fbxMeshData->mIndices);
+		Merge(mMeshData->normals, fbxMeshData->mNormals);
+		Merge(mMeshData->uvs, fbxMeshData->mUVs);
+		Merge(mMeshData->tangents, fbxMeshData->mTangents);
+		Merge(mMeshData->binormals, fbxMeshData->mBinormals);
 		mMeshData->materialIdOffsets.clear();
 	}
 
@@ -334,12 +333,12 @@ MeshData* FBXImporter::GetMeshInfo()
 	return mMeshData;
 }
 
-void FBXImporter::ReadVertices(FBXMeshData& fbxMeshData)
+void FBXImporter::ReadVertices(FBXMeshData* fbxMeshData)
 {
 	// Extract vertices from FbxMesh.
-	FbxVector4* meshVertices = fbxMeshData.mMesh->GetControlPoints();
+	FbxVector4* meshVertices = fbxMeshData->mMesh->GetControlPoints();
 
-	for (int i = 0; i < fbxMeshData.mVerticesCount; i++)
+	for (int i = 0; i < fbxMeshData->mVerticesCount; i++)
 	{
 		XMFLOAT3 vertex;
 
@@ -347,26 +346,26 @@ void FBXImporter::ReadVertices(FBXMeshData& fbxMeshData)
 		vertex.y = static_cast<float>(meshVertices[i][1]);
 		vertex.z = static_cast<float>(meshVertices[i][2]);
 
-		fbxMeshData.mVertices.push_back(vertex);
+		fbxMeshData->mVertices.push_back(vertex);
 	}
 }
 
-void FBXImporter::ReadIndices(FBXMeshData& fbxMeshData)
+void FBXImporter::ReadIndices(FBXMeshData* fbxMeshData)
 {
 	// Extract indices form FbxMesh.
-	int* meshIndices = fbxMeshData.mMesh->GetPolygonVertices();
+	int* meshIndices = fbxMeshData->mMesh->GetPolygonVertices();
 
 	// Convert to 16bit index if possible to save memory.
-	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 	{
-		fbxMeshData.mIndices.push_back(meshIndices[i]);
+		fbxMeshData->mIndices.push_back(meshIndices[i]);
 	}
 }
 
-void FBXImporter::ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, int normalIndex)
+void FBXImporter::ReadNormals(FBXMeshData* fbxMeshData, int contorlPointIndex, int normalIndex)
 {
-	FbxMesh* mesh = fbxMeshData.mMesh;
-	vector<XMFLOAT3>& normals = fbxMeshData.mNormals;
+	FbxMesh* mesh = fbxMeshData->mMesh;
+	vector<XMFLOAT3>& normals = fbxMeshData->mNormals;
 
 	if (mesh->GetElementNormalCount() < 1)
 	{
@@ -440,9 +439,9 @@ void FBXImporter::ReadNormals(FBXMeshData& fbxMeshData, int contorlPointIndex, i
 	}
 }
 
-void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex)
+void FBXImporter::ReadTangents(FBXMeshData* fbxMeshData, int controlPointIndex, int tangentIndex)
 {
-	FbxMesh* mesh = fbxMeshData.mMesh;
+	FbxMesh* mesh = fbxMeshData->mMesh;
 
 	if (mesh->GetElementTangentCount() < 1)
 	{
@@ -464,7 +463,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 			tangent.x = static_cast<float>(fbxTangent[0]);
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
-			fbxMeshData.mTangents.push_back(tangent);
+			fbxMeshData->mTangents.push_back(tangent);
 		}
 
 		break;
@@ -477,7 +476,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 			tangent.x = static_cast<float>(fbxTangent[0]);
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
-			fbxMeshData.mTangents.push_back(tangent);
+			fbxMeshData->mTangents.push_back(tangent);
 		}
 
 		break;
@@ -498,7 +497,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 			tangent.x = static_cast<float>(fbxTangent[0]);
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
-			fbxMeshData.mTangents.push_back(tangent);
+			fbxMeshData->mTangents.push_back(tangent);
 		}
 			
 		break;
@@ -510,7 +509,7 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 			tangent.x = static_cast<float>(fbxTangent[0]);
 			tangent.y = static_cast<float>(fbxTangent[1]);
 			tangent.z = static_cast<float>(fbxTangent[2]);
-			fbxMeshData.mTangents.push_back(tangent);
+			fbxMeshData->mTangents.push_back(tangent);
 		}
 		
 		break;
@@ -525,9 +524,9 @@ void FBXImporter::ReadTangents(FBXMeshData& fbxMeshData, int controlPointIndex, 
 	}
 }
 
-void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex, int tangentIndex)
+void FBXImporter::ReadBinormals(FBXMeshData* fbxMeshData, int controlPointIndex, int tangentIndex)
 {
-	FbxMesh* mesh = fbxMeshData.mMesh;
+	FbxMesh* mesh = fbxMeshData->mMesh;
 
 	if (mesh->GetElementTangentCount() < 1)
 	{
@@ -549,7 +548,7 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 			binormal.x = static_cast<float>(fbxBinormal[0]);
 			binormal.y = static_cast<float>(fbxBinormal[1]);
 			binormal.z = static_cast<float>(fbxBinormal[2]);
-			fbxMeshData.mBinormals.push_back(binormal);
+			fbxMeshData->mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -562,7 +561,7 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 			binormal.x = static_cast<float>(fbxBinormal[0]);
 			binormal.y = static_cast<float>(fbxBinormal[1]);
 			binormal.z = static_cast<float>(fbxBinormal[2]);
-			fbxMeshData.mBinormals.push_back(binormal);
+			fbxMeshData->mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -582,7 +581,7 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 			binormal.x = static_cast<float>(fbxBinormal[0]);
 			binormal.y = static_cast<float>(fbxBinormal[1]);
 			binormal.z = static_cast<float>(fbxBinormal[2]);
-			fbxMeshData.mBinormals.push_back(binormal);
+			fbxMeshData->mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -594,7 +593,7 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 			binormal.x = static_cast<float>(fbxBinormal[0]);
 			binormal.y = static_cast<float>(fbxBinormal[1]);
 			binormal.z = static_cast<float>(fbxBinormal[2]);
-			fbxMeshData.mBinormals.push_back(binormal);
+			fbxMeshData->mBinormals.push_back(binormal);
 		}
 
 			break;
@@ -609,10 +608,10 @@ void FBXImporter::ReadBinormals(FBXMeshData& fbxMeshData, int controlPointIndex,
 	}
 }
 
-void FBXImporter::ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int index, int textureUVIndex, int uvLayer)
+void FBXImporter::ReadUVs(FBXMeshData* fbxMeshData, int controlPointIndex, int index, int textureUVIndex, int uvLayer)
 {
-	FbxMesh* mesh = fbxMeshData.mMesh;
-	vector<XMFLOAT2>& uvs = fbxMeshData.mUVs;
+	FbxMesh* mesh = fbxMeshData->mMesh;
+	vector<XMFLOAT2>& uvs = fbxMeshData->mUVs;
 
 	if (uvLayer >= 2 || mesh->GetElementUVCount() <= uvLayer)
 	{
@@ -669,162 +668,162 @@ void FBXImporter::ReadUVs(FBXMeshData& fbxMeshData, int controlPointIndex, int i
 	}
 }
 
-void FBXImporter::SplitVertexByNormal(FBXMeshData& fbxMeshData)
+void FBXImporter::SplitVertexByNormal(FBXMeshData* fbxMeshData)
 {
 	vector<XMFLOAT3> normals;
-	normals.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+	normals.resize(fbxMeshData->mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
-	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+	vector<UINT>& indicesBuffer = fbxMeshData->mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData->mVertices;
 
 	// 遍历索引，根据法线来划分顶点，使得每个顶点包含唯一的法线(顶点会有冗余)。
 	// 基本思路就是先建一个和顶点数组相同尺寸的法线数组，然后按照索引顺序来填充这个数组。
 	// 在遍历的过程中，我们会遇到顶点位置相同，但是法线不同的情况，这个时候我们就
 	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
 	// 我们将这个新顶点对应的法线存入法线数组。
-	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(normals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{              
-			normals[indicesBuffer[i]] = fbxMeshData.mNormals[i];
+			normals[indicesBuffer[i]] = fbxMeshData->mNormals[i];
 		}
-		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], fbxMeshData.mNormals[i]))
+		else if (!XMFLOAT3Equal(normals[indicesBuffer[i]], fbxMeshData->mNormals[i]))
 		{
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
-			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData->mVerticesCount + 1);
+			verticesBuffer[fbxMeshData->mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = fbxMeshData.mVerticesCount;
-			fbxMeshData.mVerticesCount++;
+			indicesBuffer[i] = fbxMeshData->mVerticesCount;
+			fbxMeshData->mVerticesCount++;
 
 			// 保存法线。
-			normals.push_back(fbxMeshData.mNormals[i]);
+			normals.push_back(fbxMeshData->mNormals[i]);
 		}
 	}
 
-	fbxMeshData.mNormals = normals;
+	fbxMeshData->mNormals = normals;
 }
 
-void FBXImporter::SplitVertexByTangent(FBXMeshData& fbxMeshData)
+void FBXImporter::SplitVertexByTangent(FBXMeshData* fbxMeshData)
 {
 	vector<XMFLOAT3> tangents;
-	tangents.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+	tangents.resize(fbxMeshData->mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
-	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+	vector<UINT>& indicesBuffer = fbxMeshData->mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData->mVertices;
 
 	// 遍历索引，根据法线来划分顶点，使得每个顶点包含唯一的切线(顶点会有冗余)。
 	// 基本思路就是先建一个和顶点数组相同尺寸的切线数组，然后按照索引顺序来填充这个数组。
 	// 在遍历的过程中，我们会遇到顶点位置相同，但是切线不同的情况，这个时候我们就
 	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
 	// 我们将这个新顶点对应的切线存入切线数组。
-	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(tangents[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{
-			tangents[indicesBuffer[i]] = fbxMeshData.mTangents[i];
+			tangents[indicesBuffer[i]] = fbxMeshData->mTangents[i];
 		}
-		else if (!XMFLOAT3Equal(tangents[indicesBuffer[i]], fbxMeshData.mTangents[i]))
+		else if (!XMFLOAT3Equal(tangents[indicesBuffer[i]], fbxMeshData->mTangents[i]))
 		{
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
-			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData->mVerticesCount + 1);
+			verticesBuffer[fbxMeshData->mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = fbxMeshData.mVerticesCount;
-			fbxMeshData.mVerticesCount++;
+			indicesBuffer[i] = fbxMeshData->mVerticesCount;
+			fbxMeshData->mVerticesCount++;
 
 			// 保存法线。
-			tangents.push_back(fbxMeshData.mTangents[i]);
+			tangents.push_back(fbxMeshData->mTangents[i]);
 		}
 	}
 
-	fbxMeshData.mTangents = tangents;
+	fbxMeshData->mTangents = tangents;
 }
 
-void FBXImporter::SplitVertexByBinormal(FBXMeshData& fbxMeshData)
+void FBXImporter::SplitVertexByBinormal(FBXMeshData* fbxMeshData)
 {
 	vector<XMFLOAT3> binormals;
-	binormals.resize(fbxMeshData.mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
+	binormals.resize(fbxMeshData->mVerticesCount, XMFLOAT3(0.0f, 0.0f, 0.0f));
 
-	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
-	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+	vector<UINT>& indicesBuffer = fbxMeshData->mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData->mVertices;
 
 	// 遍历索引，根据副法线来划分顶点，使得每个顶点包含唯一的副法线(顶点会有冗余)。
 	// 基本思路就是先建一个和顶点数组相同尺寸的副法线数组，然后按照索引顺序来填充这个数组。
 	// 在遍历的过程中，我们会遇到顶点位置相同，但是副法线不同的情况，这个时候我们就
 	// 扩充顶点数组，将这个顶点复制一个追加到顶点数组尾部，然后更新对应的索引，同时
 	// 我们将这个新顶点对应的副法线存入副法线数组。
-	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 	{
 		if (XMFLOAT3Equal(binormals[indicesBuffer[i]], XMFLOAT3(0.0f, 0.0f, 0.0f)))
 		{
-			binormals[indicesBuffer[i]] = fbxMeshData.mBinormals[i];
+			binormals[indicesBuffer[i]] = fbxMeshData->mBinormals[i];
 		}
-		else if (!XMFLOAT3Equal(binormals[indicesBuffer[i]], fbxMeshData.mBinormals[i]))
+		else if (!XMFLOAT3Equal(binormals[indicesBuffer[i]], fbxMeshData->mBinormals[i]))
 		{
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
-			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData->mVerticesCount + 1);
+			verticesBuffer[fbxMeshData->mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = fbxMeshData.mVerticesCount;
-			fbxMeshData.mVerticesCount++;
+			indicesBuffer[i] = fbxMeshData->mVerticesCount;
+			fbxMeshData->mVerticesCount++;
 
 			// 保存法线。
-			binormals.push_back(fbxMeshData.mBinormals[i]);
+			binormals.push_back(fbxMeshData->mBinormals[i]);
 		}
 	}
 
-	fbxMeshData.mBinormals = binormals;
+	fbxMeshData->mBinormals = binormals;
 }
 
-void FBXImporter::SplitVertexByUV(FBXMeshData& fbxMeshData)
+void FBXImporter::SplitVertexByUV(FBXMeshData* fbxMeshData)
 {
 	vector<XMFLOAT2> uvs;
-	uvs.resize(fbxMeshData.mVerticesCount, XMFLOAT2(-1.0f, -1.0f));
+	uvs.resize(fbxMeshData->mVerticesCount, XMFLOAT2(-1.0f, -1.0f));
 
-	vector<UINT>& indicesBuffer = fbxMeshData.mIndices;
-	vector<XMFLOAT3>& verticesBuffer = fbxMeshData.mVertices;
+	vector<UINT>& indicesBuffer = fbxMeshData->mIndices;
+	vector<XMFLOAT3>& verticesBuffer = fbxMeshData->mVertices;
 	
 	// 在SplitVertexByNormal这一步后执行。
 	// 原因是UV可能会使顶点进一步冗余，而法线数量在上一步已经可以确定。
 	// 遍历索引，根据UV来划分顶点，使得每个顶点都包含唯一的UV(顶点数可能会进一步冗余)。
 	// 思路和根据法线划分顶点类似。
-	for (int i = 0; i < fbxMeshData.mIndicesCount; i++)
+	for (int i = 0; i < fbxMeshData->mIndicesCount; i++)
 	{
 		if (XMFLOAT2Equal(uvs[indicesBuffer[i]], XMFLOAT2(-1.0f, -1.0f)))
 		{
-			uvs[indicesBuffer[i]] = fbxMeshData.mUVs[i];
+			uvs[indicesBuffer[i]] = fbxMeshData->mUVs[i];
 		} 
-		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], fbxMeshData.mUVs[i]))
+		else if (!XMFLOAT2Equal(uvs[indicesBuffer[i]], fbxMeshData->mUVs[i]))
 		{			
 			// 扩大顶点数组，将新的顶点追加到末尾。
-			verticesBuffer.resize(fbxMeshData.mVerticesCount + 1);
-			verticesBuffer[fbxMeshData.mVerticesCount] = verticesBuffer[indicesBuffer[i]];
+			verticesBuffer.resize(fbxMeshData->mVerticesCount + 1);
+			verticesBuffer[fbxMeshData->mVerticesCount] = verticesBuffer[indicesBuffer[i]];
 
 			// 因为顶点数增加了，所以我们还需要扩大法线数组，思路和划分顶点一样。
-			fbxMeshData.mNormals.resize(fbxMeshData.mVerticesCount + 1);
-			fbxMeshData.mNormals[fbxMeshData.mVerticesCount] = fbxMeshData.mNormals[indicesBuffer[i]];
+			fbxMeshData->mNormals.resize(fbxMeshData->mVerticesCount + 1);
+			fbxMeshData->mNormals[fbxMeshData->mVerticesCount] = fbxMeshData->mNormals[indicesBuffer[i]];
 
 			// 然后更新这个顶点的索引。
-			indicesBuffer[i] = fbxMeshData.mVerticesCount;
+			indicesBuffer[i] = fbxMeshData->mVerticesCount;
 
 			// 更新顶点数。
-			fbxMeshData.mVerticesCount++;
+			fbxMeshData->mVerticesCount++;
 
 			// 保存ＵＶ。
-			uvs.push_back(fbxMeshData.mUVs[i]);
+			uvs.push_back(fbxMeshData->mUVs[i]);
 		}
 	}
 
-	fbxMeshData.mUVs = uvs;
+	fbxMeshData->mUVs = uvs;
 }
 
-void FBXImporter::ComputeNormals(FBXMeshData& fbxMeshData)
+void FBXImporter::ComputeNormals(FBXMeshData* fbxMeshData)
 {
-	for (int i = 0; i < fbxMeshData.mTrianglesCount; i++)
+	for (int i = 0; i < fbxMeshData->mTrianglesCount; i++)
 	{
 		// Indices of the ith triangle.
 		UINT i0 = mMeshData->indices[i * 3];
@@ -849,7 +848,7 @@ void FBXImporter::ComputeNormals(FBXMeshData& fbxMeshData)
 		XMFLOAT3Add(mMeshData->normals[i2], mMeshData->normals[i2], normal);
 	}
 
-	for (int i = 0; i <fbxMeshData.mVerticesCount; i++)
+	for (int i = 0; i <fbxMeshData->mVerticesCount; i++)
 	{
 		XMFLOAT3Normalize(mMeshData->normals[i], mMeshData->normals[i]);
 	}
@@ -887,11 +886,11 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 			{
 				int materialId = materialIndices->GetAt(0);
 				int polygonCount = 0;
-				MaterialIdOffset offset;
 				vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
 
 				for (int triangleIndex = 0; triangleIndex < triangleCount; triangleIndex++)
 				{
+					MaterialIdOffset offset;
 					int materialIndex = materialIndices->GetAt(triangleIndex);
 
 					// 比较当前materialId和上次循环的materialId，
@@ -900,9 +899,9 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					if (materialId == materialIndex)
 					{
 						offset.polygonCount++;
-						offset.material.materialId = materialIndex;
+						offset.material->materialId = materialIndex;
 
-						// 如果已经遍历最后一个三角形，保存材质偏移信息。
+						// 如果已经遍历最后一个三角形，保存材质偏移信息。n
 						if (triangleIndex == triangleCount - 1)
 						{
 							offsets.push_back(offset);
@@ -914,7 +913,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 					{
 
 						offsets.push_back(offset);
-						offset.material.materialId = materialIndex;
+						offset.material->materialId = materialIndex;
 						offset.polygonCount = 0;
 						offset.polygonCount++;
 					}
@@ -935,7 +934,7 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 			MaterialIdOffset offset;
 			vector<MaterialIdOffset>& offsets = mMeshData->materialIdOffsets;
 
-			offset.material.materialId = materialIndex;
+			offset.material->materialId = materialIndex;
 			offset.polygonCount = triangleCount;
 
 			offsets.push_back(offset);
@@ -948,10 +947,10 @@ void FBXImporter::ConnectMaterialsToMesh(FbxMesh* mesh, int triangleCount)
 	}
 }
 
-void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
+void FBXImporter::LoadMaterials(FBXMeshData* fbxMeshData)
 {
 	FbxNode* node = nullptr;
-	FbxMesh* mesh = fbxMeshData.mMesh;
+	FbxMesh* mesh = fbxMeshData->mMesh;
 	int materialCount = 0;
 	int polygonCount = mesh->GetPolygonCount();
 
@@ -981,29 +980,28 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 			if (materialElement->GetMappingMode() == FbxGeometryElement::eAllSame)
 			{
 				FbxSurfaceMaterial* material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(0));
-				fbxMeshData.mSurfaceMaterial = material;
+				fbxMeshData->mSurfaceMaterial = material;
+
 				int materialId = materialElement->GetIndexArray().GetAt(0);
 				if (materialId >= 0)
 				{
-					fbxMeshData.diffuseTextureFile.clear();
-					fbxMeshData.normalMapTextureFile.clear();
 					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 					LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
 					vector<string>& textureFiles = mMeshData->textureFiles;
-					auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
+					auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getDiffuseTextureFile());
 
 					if (iter == textureFiles.end())
 					{
-						textureFiles.push_back(fbxMeshData.diffuseTextureFile);
+						textureFiles.push_back(fbxMeshData->getDiffuseTextureFile());
 					}
 
-					if (fbxMeshData.normalMapTextureFile.size() > 0)
+					if (fbxMeshData->getNormalMapTextureFile().size() > 0)
 					{
-						iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.normalMapTextureFile);
+						iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getNormalMapTextureFile());
 						if (iter == textureFiles.end())
 						{
-							textureFiles.push_back(fbxMeshData.normalMapTextureFile);
+							textureFiles.push_back(fbxMeshData->getNormalMapTextureFile());
 						}
 					}
 				}
@@ -1018,41 +1016,40 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 		polygonCount = 0;
 		vector<string>& textureFiles = mMeshData->textureFiles;
 		vector<MaterialIdOffset>& materialIdOffsets = mMeshData->materialIdOffsets;
+		fbxMeshData->mMaterial = new Material();
 
 		for (int i = 0; i < materialIdOffsets.size(); i++)
 		{
 			FbxGeometryElementMaterial* materialElement = mesh->GetElementMaterial(0);
 			FbxSurfaceMaterial* material = NULL;
-			materialId = mMeshData->materialIdOffsets[i].material.materialId;
+			materialId = mMeshData->materialIdOffsets[i].material->materialId;
 
 			material = mesh->GetNode()->GetMaterial(materialElement->GetIndexArray().GetAt(polygonId));
 			polygonCount = materialIdOffsets[i].polygonCount;
 
-			fbxMeshData.mSurfaceMaterial = material;
+			fbxMeshData->mSurfaceMaterial = material;
 
-			fbxMeshData.diffuseTextureFile.clear();
-			fbxMeshData.normalMapTextureFile.clear();
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sDiffuse);
 			LoadMaterialTexture(fbxMeshData, FbxSurfaceMaterial::sBump);
 
-			materialIdOffsets[i].material.diffuseTextureFile = fbxMeshData.diffuseTextureFile;
+			materialIdOffsets[i].material->setDiffuseTexture(fbxMeshData->getDiffuseTextureFile());
 
-			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.diffuseTextureFile);
+			auto iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getDiffuseTextureFile());
 
 			if (iter == textureFiles.end())
 			{
-				textureFiles.push_back(fbxMeshData.diffuseTextureFile);
+				textureFiles.push_back(fbxMeshData->getDiffuseTextureFile());
 			}
 
-			if (fbxMeshData.normalMapTextureFile.size() > 0)
+			if (fbxMeshData->getNormalMapTextureFile().size() > 0)
 			{
-				iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData.normalMapTextureFile);
+				iter = find(textureFiles.begin(), textureFiles.end(), fbxMeshData->getNormalMapTextureFile());
 				if (iter == textureFiles.end())
 				{
-					textureFiles.push_back(fbxMeshData.normalMapTextureFile);
+					textureFiles.push_back(fbxMeshData->getNormalMapTextureFile());
 				}
 
-				materialIdOffsets[i].material.normalMapTextureFile = fbxMeshData.normalMapTextureFile;
+				materialIdOffsets[i].material->setNormalTexture(fbxMeshData->getNormalMapTextureFile());
 			}
 
 			polygonId += polygonCount;
@@ -1060,10 +1057,10 @@ void FBXImporter::LoadMaterials(FBXMeshData& fbxMeshData)
 	}
 }
 
-void FBXImporter::LoadMaterialAttributes(FBXMeshData& fbxMeshData)
+void FBXImporter::LoadMaterialAttributes(FBXMeshData* fbxMeshData)
 {
 	// Get the name of material.
-	FbxSurfaceMaterial* surfaceMaterial = fbxMeshData.mSurfaceMaterial;
+	FbxSurfaceMaterial* surfaceMaterial = fbxMeshData->mSurfaceMaterial;
 	const char* materialName = surfaceMaterial->GetName();
 
 	// Phong material
@@ -1108,28 +1105,16 @@ void FBXImporter::LoadMaterialAttributes(FBXMeshData& fbxMeshData)
 	}
 }
 
-void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData, const char* textureType)
+void FBXImporter::LoadMaterialTexture(FBXMeshData* fbxMeshData, const char* textureType)
 {
 	FbxProperty property;
 
 	// #NoteReference to DisplayMesh.cxx in FBX SDK samples.Note#
-	property = fbxMeshData.mSurfaceMaterial->FindProperty(textureType);
+	property = fbxMeshData->mSurfaceMaterial->FindProperty(textureType);
 
 	if (property.IsValid())
 	{
 		int textureCount = property.GetSrcObjectCount<FbxTexture>();
-
-		if (textureCount > 0)
-		{
-			if (strcmp(textureType, FbxSurfaceMaterial::sDiffuse) == 0)
-			{
-				fbxMeshData.mHasDiffuseTexture = true;
-			}
-			else if (strcmp(textureType, FbxSurfaceMaterial::sBump) == 0)
-			{
-				fbxMeshData.mHasNormalMapTexture = true;
-			}
-		}
 
 		for (int i = 0; i < textureCount; i++)
 		{
@@ -1141,13 +1126,20 @@ void FBXImporter::LoadMaterialTexture(FBXMeshData& fbxMeshData, const char* text
 
 				if (strcmp(textureType, FbxSurfaceMaterial::sDiffuse) == 0)
 				{
-					fbxMeshData.diffuseTextureFile = fileTexture->GetFileName();
+					fbxMeshData->mMaterial->setDiffuseTexture(fileTexture->GetFileName());
 				}
 				else if (strcmp(textureType, FbxSurfaceMaterial::sBump) == 0)
 				{
-					fbxMeshData.normalMapTextureFile = fileTexture->GetFileName();
+					fbxMeshData->mMaterial->setNormalTexture(fileTexture->GetFileName());
 				}
 			}
 		}
 	}
+}
+
+void FBXImporter::clear()
+{
+	SafeDelete(mMeshData);
+	SafeDestroy(mScene);
+	SafeDestroy(mSDKManager);
 }

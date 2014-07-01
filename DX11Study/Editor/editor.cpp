@@ -2,6 +2,7 @@
 #include "editor.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
+#include "SharedD3DDevice.h"
 #include <iostream>
 
 using namespace std;
@@ -84,7 +85,7 @@ Editor::Editor(QWidget *parent)
 
 	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
 
-	if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
+	if (!mGeometry->Initialize(SharedD3DDevice::device, SharedD3DDevice::deviceContext))
 	{
 		return;
 	}
@@ -109,6 +110,9 @@ Editor::Editor(QWidget *parent)
 Editor::~Editor()
 {
 	FreeConsole();
+	SafeDelete(mFBXImporter);
+	SafeDelete(mGeometry);
+	SafeDelete(mCamera);
 	SafeDelete(mRenderer);
 }
 
@@ -248,10 +252,10 @@ void Editor::drawScene()
 		mRenderer->renderToDeferredBuffers(renderParameters);
 	}
 
-	SharedParameters::renderPackages.clear();
-	SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
-	mRenderer->renderToTexture(renderParameters);
+	//SharedParameters::renderPackages.clear();
+	//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
+	//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+	//mRenderer->renderToTexture(renderParameters);
 
 	mRenderer->beginScene();
 
@@ -267,20 +271,20 @@ void Editor::drawScene()
 
 			mRenderer->enableOnZTest(true);
 
-			mGeometry->setupBuffers(SharedParameters::deviceContext);
+			mGeometry->setupBuffers(SharedD3DDevice::deviceContext);
 		}
 		else
 		{
 			//mRenderer->enableAlphaBlend(true);
-			XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
-			SharedParameters::renderPackages.clear();
-			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
+			//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
+			//SharedParameters::renderPackages.clear();
+			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
 			mRenderer->render(renderParameters);
 
-			SharedParameters::renderPackages.clear();
-			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
-			XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
-			mRenderer->renderReflection(renderParameters);
+			//SharedParameters::renderPackages.clear();
+			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
+			//XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+			//mRenderer->renderReflection(renderParameters);
 			//mRenderer->enableAlphaBlend(false);
 		}
 	}
@@ -303,7 +307,7 @@ void Editor::loadModel()
 
 		mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
 
-		if (!mGeometry->Initialize(SharedParameters::device, SharedParameters::deviceContext))
+		if (!mGeometry->Initialize(SharedD3DDevice::device, SharedD3DDevice::deviceContext))
 		{
 			return;
 		}

@@ -173,6 +173,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\RenderToTexture.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Shader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\ShaderUtils.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\SharedD3DDevice.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedInputLayouts.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedParameters.cpp" />
     <ClCompile Include="d3drenderingwidget.cpp" />
@@ -234,6 +235,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\RenderToTexture.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\ShaderUntils.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\SharedD3DDevice.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedParameters.h" />
     <ClInclude Include="..\InitDirect3D\Includes\stdafx.h" />

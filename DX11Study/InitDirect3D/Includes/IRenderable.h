@@ -1,3 +1,17 @@
+/*!
+ * \file IRenderable.h
+ * \date 2014/07/01 15:20
+ *
+ * \author Song Li
+ * Contact: erosnick@gmail.com
+ *
+ * \brief IRenderable封装了渲染单个网格所需的几何信息以及材质信息，与具体底层渲染API隔离。
+ *
+ * TODO: long description
+ *
+ * \note
+*/
+
 #pragma once
 #include <string>
 #include <vector>
@@ -20,11 +34,13 @@ public:
 	virtual void setPosition(float x, float y, float z);
 	virtual void setPosition(const CXMVECTOR& position);
 	virtual void setMaterial(Material* material);
+	virtual Material* getMaterial() const;
 	virtual XMMATRIX getTransform();
 	const vector<Vertex>& getVerticesList() const;
 	const vector<UINT>& getIndicesList() const;
 	int getVerticesCount() const;
 	int getIndicesCount() const;
+	void clear();
 protected:
 	int mVerticesCount;
 	int mIndicesCount;

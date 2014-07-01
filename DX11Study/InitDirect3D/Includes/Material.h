@@ -7,26 +7,36 @@ using std::string;
 class Material
 {
 public:
-	Material() {}
+	Material();
 	Material(int id, string diffuse, string normalMap);
+	~Material();
 
-	void setDiffuseTexture(string diffuse);
-	void setNormalTexture(string normalMap);
+	void setDiffuseTexture(string diffuseTextureFile);
+	void setNormalTexture(string normalMapTextureFile);
+	bool hasDiffuseTexture() const;
+	bool hasNormalMapTexture() const;
+	string getDiffuseTextureFile() const;
+	string getNormalMapTextureFile() const;
+	ID3D11ShaderResourceView* getDiffuseTexture() const;
+	ID3D11ShaderResourceView* getNormalMapTexture() const;
+	void clear();
 
-private:
 	int materialId;
-	string diffuseTextureFile;
-	string normalMapTextureFile;
+	string mDiffuseTextureFile;
+	string mNormalMapTextureFile;
 
-	ID3D11ShaderResourceView* diffuseTexture;
-	ID3D11ShaderResourceView* normalMapTexture;
+	ID3D11ShaderResourceView* mDiffuseTexture;
+	ID3D11ShaderResourceView* mNormalMapTexture;
+	bool mHasDiffuseTexture;
+	bool mHasNormalMapTexture;
 };
 
 struct MaterialIdOffset
 {
 	MaterialIdOffset()
-		: polygonCount(0)
+		: polygonCount(0),
+		material(new Material())
 	{}
 	int polygonCount;
-	Material material;
+	Material* material;
 };
