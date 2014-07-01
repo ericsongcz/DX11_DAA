@@ -5,6 +5,7 @@
 #include <string>
 #include "GeometryGenerator.h"
 #include "CommonStructures.h"
+#include "IRenderable.h"
 
 using namespace DirectX;
 using std::vector;
@@ -20,6 +21,8 @@ public:
 	bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext);
 	void setupBuffers(ID3D11DeviceContext* deviceContext);
 	MeshData* GetMeshData() const;
+	void addRenderable(IRenderable* renderable);
+	void prepareRenderPackages();
 	void clear();
 private:
 	ID3D11Device* mDevice;
@@ -31,5 +34,9 @@ private:
 	int mIndicesCount;
 	vector<Vertex> mVertices;
 	vector<UINT> mIndices;
+	vector<IRenderable*> mRenderables;
+	vector<RenderPackage> mRenderPackages;
+	int mVerticesOffset;
+	int mIndicesOffset;
 	MeshData* mMeshdata;
 };

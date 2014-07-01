@@ -2,8 +2,13 @@
 
 #include <d3d11.h>
 #include <vector>
+#include <string>
+#include <DirectXMath.h>
+#include "Material.h"
 
+using namespace DirectX;
 using std::vector;
+using std::string;
 
 struct Vertex
 {
@@ -26,30 +31,6 @@ struct Vertex
 	XMFLOAT2 texcoord;
 };
 
-
-struct Material
-{
-	Material() {}
-	Material(int id, string diffuse, string normalMap)
-		: materialId(id),
-		diffuseTextureFile(diffuse),
-		normalMapTextureFile(normalMap)
-	{}
-
-	int materialId;
-	string diffuseTextureFile;
-	string normalMapTextureFile;
-};
-
-struct MaterialIdOffset
-{
-	MaterialIdOffset()
-		: polygonCount(0)
-	{}
-	int polygonCount;
-	Material material;
-};
-
 struct RenderPackage
 {
 	RenderPackage()
@@ -61,9 +42,10 @@ struct RenderPackage
 		diffuseTexture(nullptr),
 		normalMapTexture(nullptr),
 		specularTexture(nullptr),
-		maskTexture(nullptr),
-		globalTransform(XMMatrixIdentity())
-	{}
+		maskTexture(nullptr)
+	{
+		XMStoreFloat4x4(&globalTransform, XMMatrixIdentity());
+	}
 
 	void RefreshTextures()
 	{
@@ -92,13 +74,14 @@ struct RenderPackage
 	string specularTextureFile;
 	string maskTextureFile;
 
-	XMMATRIX globalTransform;
+	XMFLOAT4X4 globalTransform;
 	ID3D11ShaderResourceView* ambientTexture;
 	ID3D11ShaderResourceView* diffuseTexture;
 	ID3D11ShaderResourceView* normalMapTexture;
 	ID3D11ShaderResourceView* specularTexture;
 	ID3D11ShaderResourceView* maskTexture;
 	vector<ID3D11ShaderResourceView*> textures;
+	Material* material;
 };
 
 struct RenderParameters
@@ -154,7 +137,6 @@ struct MeshData
 	UINT verticesCount;
 	UINT indicesCount;
 	vector<int> indicesOffset;
-	vector<XMMATRIX> globalTransforms;
 	vector<string> textureFiles;
 	int meshesCount;
 	bool hasTexture;

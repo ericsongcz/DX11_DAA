@@ -18,6 +18,7 @@
 #include "D3DUtils.h"
 #include <vector>
 #include "CommonStructures.h"
+#include "Entity.h"
 
 using std::vector;
 
@@ -34,7 +35,7 @@ public:
 	///<summary>
 	/// Creates a box centered at the origin with the given dimensions.
 	///</summary>
-	void CreateBox(float width, float height, float depth, MeshData& meshData);
+	Entity* CreateBox(float width, float height, float depth, MeshData& meshData);
 
 	///<summary>
 	/// Creates a sphere centered at the origin with the given radius.  The

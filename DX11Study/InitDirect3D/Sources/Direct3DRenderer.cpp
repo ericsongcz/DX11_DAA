@@ -317,7 +317,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 	for (int i = 0; i < renderPackageSize; i++)
 	{
-		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
 		if (SharedParameters::showTexture)
@@ -383,7 +383,7 @@ void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameter
 
 	for (int i = 0; i < renderPackageSize; i++)
 	{
-		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
 		if (SharedParameters::showTexture)
@@ -479,7 +479,7 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 
 	for (int i = 0; i < renderPackageSize; i++)
 	{
-		XMMATRIX worldMatrix = renderPackages[i].globalTransform;
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
 		if (SharedParameters::showTexture)

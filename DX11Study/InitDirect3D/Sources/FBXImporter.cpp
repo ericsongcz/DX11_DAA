@@ -173,7 +173,9 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		matrixL2W *= matrixGeo;
 
-		FbxMatrixToXMMATRIX(fbxMeshData.globalTransform, matrixL2W);
+		XMMATRIX globalTransform = XMLoadFloat4x4(&fbxMeshData.globalTransform);
+		FbxMatrixToXMMATRIX(globalTransform, matrixL2W);
+		XMStoreFloat4x4(&fbxMeshData.globalTransform, globalTransform);
 
 		// 读取顶点。
 		ReadVertices(fbxMeshData);
@@ -268,7 +270,6 @@ MeshData* FBXImporter::GetMeshInfo()
 
 		mMeshData->verticesCount += fbxMeshData.mVerticesCount;
 		mMeshData->indicesCount += fbxMeshData.mIndicesCount;
-		mMeshData->globalTransforms.push_back(fbxMeshData.globalTransform);
 		mMeshData->meshesCount++;
 
 		// 多材质的情况。

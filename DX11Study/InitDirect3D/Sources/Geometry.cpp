@@ -27,13 +27,10 @@ void Geometry::FillMeshData(MeshData* meshData)
 	clear();
 
 	//mMeshdata = meshData;
-
-	//mVertices = new Vertex[mMeshdata->verticesCount];
-	//mIndices = new UINT[mMeshdata->indicesCount];
+	//mVertices.resize(mMeshdata->verticesCount);
+	//mIndices.resize(mMeshdata->indicesCount);
 	//mVerticesCount = mMeshdata->verticesCount;
 	//mIndicesCount = mMeshdata->indicesCount;
-
-	//srand((int)time(nullptr));
 
 	//for (int i = 0; i < mVerticesCount; i++)
 	//{
@@ -45,12 +42,14 @@ void Geometry::FillMeshData(MeshData* meshData)
 	//	mVertices[i].binormal = mMeshdata->binormals[i];
 	//}
 
-	//memcpy_s(mIndices, sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
+	//memcpy_s(&mIndices[0], sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
 	GeometryGenerator geometryGenerator;
 	GeometryGenerator::MeshData md;
 	//geometryGenerator.CreateSphere(2, 32, 32, md);
-	geometryGenerator.CreateBox(4, 4, 4, md);
+	Entity* entity = geometryGenerator.CreateBox(4, 4, 4, md);
+
+	addRenderable(entity);
 
 	mVerticesCount += md.Vertices.size();
 	mVertices.resize(mVerticesCount);
@@ -74,10 +73,12 @@ void Geometry::FillMeshData(MeshData* meshData)
 	renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
 	renderPackage.indicesCount = md.Indices.size();
 	renderPackage.indicesOffset = indicesOffset;
-	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 5.0f, 0.0f);
+	XMStoreFloat4x4(&renderPackage.globalTransform, XMMatrixTranslation(0.0f, 4.0f, 0.0f));
 	mMeshdata->renderPackages.push_back(renderPackage);
 
-	geometryGenerator.CreateBox(16, 0.5f, 16, md);
+	entity = geometryGenerator.CreateBox(16, 0.0f, 16, md);
+
+	addRenderable(entity);
 
 	mVerticesCount += md.Vertices.size();
 	mVertices.resize(mVerticesCount);
@@ -99,7 +100,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 	renderPackage.normalMapTextureFile = "";
 	renderPackage.indicesCount = md.Indices.size();
 	renderPackage.indicesOffset = indicesOffset;
-	renderPackage.globalTransform = XMMatrixTranslation(0.0f, 1.5f, 0.0f);
+	XMStoreFloat4x4(&renderPackage.globalTransform, XMMatrixTranslation(0.0f, 1.5f, 0.0f));
 	mMeshdata->renderPackages.push_back(renderPackage);
 
 	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
@@ -194,4 +195,41 @@ void Geometry::setupBuffers(ID3D11DeviceContext* deviceContext)
 	deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	deviceContext->IASetVertexBuffers(0, 1, &mVertexBuffer, &strides, &offset);
 	deviceContext->IASetIndexBuffer(mIndexBuffer, DXGI_FORMAT_R32_UINT, offset);
+}
+
+void Geometry::addRenderable(IRenderable* renderable)
+{
+	mRenderables.push_back(renderable);
+}
+
+void Geometry::prepareRenderPackages()
+{
+	for (int i = 0; i < mRenderables.size(); i++)
+	{
+		int verticesCount = mRenderables[i]->getVerticesCount();
+		int indicesCount = mRenderables[i]->getIndicesCount();
+		vector<Vertex> vertices = mRenderables[i]->getVerticesList();
+		vector<UINT> indices = mRenderables[i]->getIndicesList();
+
+		mVerticesCount += verticesCount;
+		mVertices.resize(mVerticesCount);
+		mIndicesCount += indicesCount;
+		mIndices.resize(mIndicesCount);
+
+		mVerticesOffset = mVerticesCount - verticesCount;
+		mIndicesOffset = mIndicesCount - indicesCount;
+
+		for (int j = 0; j < indicesCount; i++)
+		{
+			indices[j] += mVerticesOffset;
+		}
+
+		memcpy_s(&mVertices[mVerticesOffset], sizeof(Vertex) * verticesCount, &vertices[0], sizeof(Vertex) * verticesCount);
+		memcpy_s(&mIndices[mIndicesOffset], sizeof(UINT) * indicesCount, &indices[0], sizeof(UINT) * indicesCount);
+
+		RenderPackage renderPackage;
+		XMStoreFloat4x4(&renderPackage.globalTransform, mRenderables[i]->getTransform());
+		renderPackage.indicesCount = indicesCount;
+		renderPackage.indicesOffset = mIndicesOffset;
+	}
 }

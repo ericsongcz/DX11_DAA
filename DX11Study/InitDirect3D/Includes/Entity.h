@@ -7,7 +7,6 @@ public:
 	Entity();
 	~Entity();
 
-	RenderPackage getRenderPackage() const;
 private:
 
 };

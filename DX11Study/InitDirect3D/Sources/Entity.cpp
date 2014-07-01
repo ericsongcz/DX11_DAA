@@ -8,8 +8,3 @@ Entity::Entity()
 Entity::~Entity()
 {
 }
-
-RenderPackage Entity::getRenderPackage() const
-{
-	return mRenderPackage;
-}

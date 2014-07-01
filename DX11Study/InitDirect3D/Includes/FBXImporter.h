@@ -33,7 +33,7 @@ struct FBXMeshData
 	vector<XMFLOAT2> mUVs;
 	bool mHasDiffuseTexture;
 	bool mHasNormalMapTexture;
-	XMMATRIX globalTransform;
+	XMFLOAT4X4 globalTransform;
 	FbxMesh* mMesh;
 	FbxSurfaceMaterial* mSurfaceMaterial;
 	string diffuseTextureFile;
