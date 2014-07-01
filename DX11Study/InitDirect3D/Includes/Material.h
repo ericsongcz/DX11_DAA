@@ -1,17 +1,19 @@
 #pragma once
+#include <string>
+#include <d3d11.h>
 
-struct Material
+using std::string;
+
+class Material
 {
+public:
 	Material() {}
-	Material(int id, string diffuse, string normalMap)
-		: materialId(id),
-		diffuseTextureFile(diffuse),
-		normalMapTextureFile(normalMap)
-	{}
+	Material(int id, string diffuse, string normalMap);
 
 	void setDiffuseTexture(string diffuse);
 	void setNormalTexture(string normalMap);
 
+private:
 	int materialId;
 	string diffuseTextureFile;
 	string normalMapTextureFile;
