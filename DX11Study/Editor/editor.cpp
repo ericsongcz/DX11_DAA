@@ -62,8 +62,6 @@ Editor::Editor(QWidget *parent)
 	// setCentralWidget可以使QWidget根据其他的QDockWidget来自适应缩放。
 	setCentralWidget(d3dWidget);
 
-	setWindowTitle(tr("Qt D3D Demo"));
-
 	//QDockWidget* dock = new QDockWidget(this);
 	//addDockWidget(Qt::LeftDockWidgetArea, dock);
 	//dock->setWidget(d3dWidget);
@@ -80,7 +78,11 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("sponza_split.fbx");
+	mFBXImporter->LoadScene("NormalMap2.fbx");
+
+	mFBXFileName = tr("NormalMap2.fbx");
+	setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
+
 	mFBXImporter->WalkHierarchy();
 
 	mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
@@ -294,15 +296,15 @@ void Editor::drawScene()
 
 void Editor::loadModel()
 {
-	QString fileName = QFileDialog::getOpenFileName(this, tr("Open 3D Model"), tr("."), tr("Model Files(*.fbx)"));
+	mFBXFileName = QFileDialog::getOpenFileName(this, tr("Open 3D Model"), tr("."), tr("Model Files(*.fbx)"));
 
-	if (fileName.length() == 0)
+	if (mFBXFileName.length() == 0)
 	{
 		QMessageBox::information(this, tr("Path"), tr("You didn's select any files!"));
 	}
 	else
 	{
-		mFBXImporter->LoadScene(fileName.toStdString().c_str());
+		mFBXImporter->LoadScene(mFBXFileName.toStdString().c_str());
 		mFBXImporter->WalkHierarchy();
 
 		mGeometry->FillMeshData(mFBXImporter->GetMeshInfo());
@@ -311,6 +313,11 @@ void Editor::loadModel()
 		{
 			return;
 		}
+
+		int index = mFBXFileName.lastIndexOf(tr("/"));
+		mFBXFileName = mFBXFileName.right(mFBXFileName.size() - index - 1);
+
+		setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
 
 		mRenderModel = true;
 	}

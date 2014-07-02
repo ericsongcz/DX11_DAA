@@ -57,36 +57,14 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	//Material* material = new Material();
 	//material->setDiffuseTexture("Fieldstone.tga");
-	//material->setNormalTexture("FieldstoneBumpDOT3.tga");
+	//material->setNormalMapTexture("FieldstoneBumpDOT3.tga");
 
 	//entity->setMaterial(material);
+	//entity->setPosition(0.0f, 4.0f, 0.0f);
 
 	//addRenderable(entity);
 
-	//mVerticesCount += md.Vertices.size();
-	//mVertices.resize(mVerticesCount);
-	//mIndicesCount += md.Indices.size();
-	//mIndices.resize(mIndicesCount);
-
-	//int verticesOffset = mVerticesCount - md.Vertices.size();
-	//int indicesOffset = mIndicesCount - md.Indices.size();
-
-	//memcpy_s(&mVertices[verticesOffset], sizeof(Vertex) * md.Vertices.size(), &(md.Vertices[0]), sizeof(Vertex) * md.Vertices.size());
-	//memcpy_s(&mIndices[indicesOffset], sizeof(UINT) * md.Indices.size(), &(md.Indices[0]), sizeof(UINT) * md.Indices.size());
-
 	//mMeshdata = new MeshData();
-
-	//mMeshdata->textureFiles.push_back("Fieldstone.tga");
-	//mMeshdata->textureFiles.push_back("FieldstoneBumpDOT3.tga");
-	//mMeshdata->textureFiles.push_back("blue.dds");
-
-	//RenderPackage renderPackage;
-	//renderPackage.diffuseTextureFile = "Fieldstone.tga";
-	//renderPackage.normalMapTextureFile = "FieldstoneBumpDOT3.tga";
-	//renderPackage.indicesCount = md.Indices.size();
-	//renderPackage.indicesOffset = indicesOffset;
-	//XMStoreFloat4x4(&renderPackage.globalTransform, XMMatrixTranslation(0.0f, 4.0f, 0.0f));
-	//mMeshdata->renderPackages.push_back(renderPackage);
 
 	//entity = geometryGenerator.CreateBox(16, 0.0f, 16, md);
 
@@ -94,57 +72,11 @@ void Geometry::FillMeshData(MeshData* meshData)
 	//material->setDiffuseTexture("blue.dds");
 
 	//entity->setMaterial(material);
+	//entity->setPosition(0.0f, 1.5f, 1.5f);
 
 	//addRenderable(entity);
 
-	//prepareRenderPackages();
-
-	//mVerticesCount += md.Vertices.size();
-	//mVertices.resize(mVerticesCount);
-	//mIndicesCount += md.Indices.size();
-	//mIndices.resize(mIndicesCount);
-
-	//verticesOffset = mVerticesCount - md.Vertices.size();
-	//indicesOffset = mIndicesCount - md.Indices.size();
-
-	//for (int i = 0; i < md.Indices.size(); i++)
-	//{
-	//	md.Indices[i] += verticesOffset;
-	//}
-
-	//memcpy_s(&mVertices[verticesOffset], sizeof(Vertex) * md.Vertices.size(), &(md.Vertices[0]), sizeof(Vertex) * md.Vertices.size());
-	//memcpy_s(&mIndices[indicesOffset], sizeof(UINT) * md.Indices.size(), &(md.Indices[0]), sizeof(UINT) * md.Indices.size());
-
-	//renderPackage.diffuseTextureFile = "blue.dds";
-	//renderPackage.normalMapTextureFile = "";
-	//renderPackage.indicesCount = md.Indices.size();
-	//renderPackage.indicesOffset = indicesOffset;
-	//XMStoreFloat4x4(&renderPackage.globalTransform, XMMatrixTranslation(0.0f, 1.5f, 0.0f));
-	//mMeshdata->renderPackages.push_back(renderPackage);
-
-	map<string, ID3D11ShaderResourceView*> shaderReresourceViews;
-
-	for (int i = 0; i < mMeshdata->textureFiles.size(); i++)
-	{
-		shaderReresourceViews[mMeshdata->textureFiles[i]] = CreateShaderResourceViewFromFile(mMeshdata->textureFiles[i], SharedD3DDevice::device);
-	}
-
-	for (int i = 0; i < mMeshdata->renderPackages.size(); i++)
-	{
-		//if (mMeshdata->renderPackages[i].diffuseTextureFile.size() > 0)
-		//{
-		//	mMeshdata->renderPackages[i].diffuseTexture = shaderReresourceViews[mMeshdata->renderPackages[i].diffuseTextureFile];
-		//}
-
-		//if (mMeshdata->renderPackages[i].normalMapTextureFile.size() > 0)
-		//{
-		//	mMeshdata->renderPackages[i].normalMapTexture = shaderReresourceViews[mMeshdata->renderPackages[i].normalMapTextureFile];
-		//}
-
-		mMeshdata->renderPackages[i].RefreshTextures();
-	}
-
-	SharedParameters::renderPackages = mMeshdata->renderPackages;
+	prepareRenderPackages();
 }
 
 bool Geometry::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
@@ -256,4 +188,11 @@ void Geometry::prepareRenderPackages()
 		renderPackage.material = mRenderables[i]->getMaterial();
 		mMeshdata->renderPackages.push_back(renderPackage);
 	}
+
+	for (int i = 0; i < mMeshdata->renderPackages.size(); i++)
+	{
+		mMeshdata->renderPackages[i].RefreshTextures();
+	}
+
+	SharedParameters::renderPackages = mMeshdata->renderPackages;
 }

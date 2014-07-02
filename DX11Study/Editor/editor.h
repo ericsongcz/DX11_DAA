@@ -151,6 +151,7 @@ private:
 	float mFogDensity;
 	EFogType mFogType;
 	bool mShowFog;
+	QString mFBXFileName;
 };
 
 #endif // EDITOR_H
