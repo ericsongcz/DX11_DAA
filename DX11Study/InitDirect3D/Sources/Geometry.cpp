@@ -52,7 +52,6 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	//GeometryGenerator geometryGenerator;
 	//GeometryGenerator::MeshData md;
-	////geometryGenerator.CreateSphere(2, 32, 32, md);
 	//Entity* entity = geometryGenerator.CreateBox(4, 4, 4, md);
 
 	//Material* material = new Material();

@@ -40,6 +40,8 @@ struct MatrixBuffer
 	XMFLOAT4X4 projectionMatrix;
 	XMFLOAT4X4 worldViewProjectionMatrix;
 	XMFLOAT4X4 textureTransformMatrix;
+	XMFLOAT4X4 viewMatrix2;
+	XMFLOAT4X4 projectionMatrix2;
 };
 
 struct LightBuffer

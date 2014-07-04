@@ -143,6 +143,9 @@
     <ClCompile Include="..\InitDirect3D\Includes\ViewPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Sources\ProjectiveTextureShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -235,6 +238,9 @@
     <ClInclude Include="..\InitDirect3D\Includes\ViewPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\ProjectiveTextureShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.h">
@@ -284,6 +290,12 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\ReflectionShaderVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ProjectiveTextureVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ProjectiveTexturePS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

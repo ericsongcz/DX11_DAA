@@ -9,6 +9,7 @@
 #include "LightShader.h"
 #include "ReflectionShader.h"
 #include "RenderToTexture.h"
+#include "ProjectiveTextureShader.h"
 
 using std::wstring;
 
@@ -35,6 +36,7 @@ public:
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight(RenderParameters& renderParameters);
 	void renderReflection(RenderParameters& renderParameters);
+	void renderProjectiveTexture(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void enableOnZTest(bool on);
@@ -76,4 +78,5 @@ public:
 	LightShader* mLightShader;
 	ReflectionShader* mReflectionShader;
 	RenderToTexture* mRenderToTexture;
+	ProjectiveTextureShader* mProjectiveTextureShader;
 };

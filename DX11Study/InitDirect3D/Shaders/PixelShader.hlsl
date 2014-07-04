@@ -6,6 +6,9 @@ cbuffer MatrixBuffer : register(b0)
 	float4x4 viewMatrix;
 	float4x4 projectionMatrix;
 	float4x4 worldViewProjectionMatrix;
+	float4x4 textureTransformMatrix;
+	float4x4 viewMatrix2;
+	float4x4 projectionMatrix2;
 };
 
 cbuffer LightBuffer : register(b1)

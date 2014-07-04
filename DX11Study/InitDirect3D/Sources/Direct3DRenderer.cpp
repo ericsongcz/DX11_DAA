@@ -25,7 +25,9 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 	mDepthStencilView(nullptr),
 	mSolidState(nullptr),
 	mWireframeState(nullptr),
-	mDeferredBuffers(nullptr)
+	mDeferredBuffers(nullptr),
+	mRenderToTexture(nullptr),
+	mProjectiveTextureShader(nullptr)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
 
@@ -205,6 +207,9 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mReflectionShader = new ReflectionShader();
 	mReflectionShader->initialize(mDevice, mDeviceContext, TEXT("ReflectionShaderVS.cso"), TEXT("ReflectionShaderPS.cso"));
 
+	mProjectiveTextureShader = new ProjectiveTextureShader();
+	mProjectiveTextureShader->initialize(mDevice, mDeviceContext, TEXT("ProjectiveTextureVS.cso"), TEXT("ProjectiveTexturePS.cso"));
+
 	setClearColor(100, 149, 237);
 
 	return true;
@@ -340,6 +345,8 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 		}
 
 		mShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
+
+		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 
@@ -483,19 +490,6 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
-		if (SharedParameters::showTexture)
-		{
-			if (renderPackages[i].hasDiffuseTexture())
-			{
-				renderParameters.hasDiffuseTexture = true;
-			}
-		}
-
-		if (renderPackages[i].hasNormalMapTexture())
-		{
-			renderParameters.hasNormalMapTexture = true;
-		}
-
 		renderPackages[i].addTexture(mRenderToTexture->getShaderResourceView());
 
 		if (renderPackages[i].textures.size() > 0)
@@ -506,9 +500,29 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 		mReflectionShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+	}
+}
 
-		renderParameters.hasDiffuseTexture = false;
-		renderParameters.hasNormalMapTexture = false;
+void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameters)
+{
+	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
+
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
+
+		renderPackages[i].addTexture(mRenderToTexture->getShaderResourceView());
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+		}
+
+		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
+
+		//renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
 }
 
@@ -537,5 +551,3 @@ void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
 	mShader->setSamplerState(samplerType);
 	mDeferredShader->setSamplerState(samplerType);
 }
-
-
