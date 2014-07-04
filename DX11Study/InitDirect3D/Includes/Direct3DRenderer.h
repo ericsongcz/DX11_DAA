@@ -27,7 +27,7 @@ public:
 	void switchFillMode();
 	void render(RenderParameters& renderParameters);
 	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
-	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
+	void setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews);
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
 	void setClearColor(int r, int g, int b);

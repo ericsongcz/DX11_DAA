@@ -341,7 +341,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
@@ -355,9 +355,10 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 	}
 }
 
-void Direct3DRenderer::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
+void Direct3DRenderer::setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews)
 {
-	mShader->setShaderResource(ppShaderResourceViews, numViews);
+	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
+	
 }
 
 void Direct3DRenderer::setViewport(float width, float height, float topLeftX, float topLeftY, float minDepth, float maxDepth)
@@ -409,7 +410,7 @@ void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameter
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mDeferredShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
@@ -473,7 +474,7 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), 
 														mDeferredBuffers->getShaderResourceView(1), 
 														mDeferredBuffers->getShaderResourceView(2)};
-	mLightShader->setShaderResource(shaderResourceViews, ARRAYSIZE(shaderResourceViews));
+	setShaderResource(ARRAYSIZE(shaderResourceViews), shaderResourceViews);
 
 	// 全屏的Quad世界坐标位置始终不变，也不需要根据摄像机的变换而变换，另外因为坐标已经是投影后的尺寸，也不需要经过投影变换。
 	// 所以绘制Quad时候三个矩阵只需要传入单位矩阵即可。
@@ -494,7 +495,7 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mReflectionShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
@@ -517,7 +518,7 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(&renderPackages[i].textures[0], renderPackages[i].textures.size());
+			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
@@ -531,7 +532,7 @@ void Direct3DRenderer::resetShaderResources()
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
 	// Resource being set to OM RenderTarget slot 0 is still bound on input.
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr, nullptr };
-	mLightShader->setShaderResource(srvs, ARRAYSIZE(srvs));
+	setShaderResource(ARRAYSIZE(srvs), srvs);
 }
 
 void Direct3DRenderer::enableAlphaBlend(bool enable)

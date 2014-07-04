@@ -265,8 +265,3 @@ void ReflectionShader::shutdown()
 	SafeRelease(mInputLayout);
 	SafeRelease(mMatrixBuffer);
 }
-
-void ReflectionShader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
-{
-	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
-}

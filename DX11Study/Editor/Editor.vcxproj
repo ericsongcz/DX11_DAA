@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\InitDirect3D\Includes\ViewPoint.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\BasicShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DApp.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DUtils.cpp" />
@@ -215,6 +216,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\InitDirect3D\Includes\BasicShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Camera.h" />
     <ClInclude Include="..\InitDirect3D\Includes\CommonStructures.h" />
     <ClInclude Include="..\InitDirect3D\Includes\D3DApp.h" />

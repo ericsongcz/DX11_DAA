@@ -286,8 +286,3 @@ void DeferredShader::shutdown()
 	SafeRelease(mInputLayout);
 	SafeRelease(mMatrixBuffer);
 }
-
-void DeferredShader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
-{
-	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
-}

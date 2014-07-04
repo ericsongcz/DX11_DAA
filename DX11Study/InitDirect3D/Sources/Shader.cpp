@@ -357,11 +357,6 @@ void Shader::setSamplerState(ESamplerType samplerType)
 	}
 }
 
-void Shader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
-{
-	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
-}
-
 void Shader::shutdown()
 {
 	SafeRelease(mSamplerStateLinear);
