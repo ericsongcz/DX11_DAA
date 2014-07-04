@@ -279,6 +279,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+	commonBufferData->showDepthComplexity = renderParameters.showDepthComplexity;
 	
 	// 是否有漫反射纹理。
 	if (renderParameters.hasDiffuseTexture)

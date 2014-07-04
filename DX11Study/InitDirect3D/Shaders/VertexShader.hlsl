@@ -31,6 +31,10 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	int showDepthComplexity;
+	int commonBufferPad1;
+	int commonBufferPad2;
+	int commonBufferPad3;
 }
 
 struct VertexInput
@@ -54,6 +58,7 @@ struct PixelInput
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
+	float4 depthPosition : TEXCOORD1;
 };
 
 PixelInput main(VertexInput input)
@@ -110,6 +115,7 @@ PixelInput main(VertexInput input)
 	output.color = input.color;
 	output.texcoord = mul(float4(input.texcoord, 0.0f, 1.0f), textureTransformMatrix).xy;
 	output.texcoord = input.texcoord;
+	output.depthPosition = output.position;
 
 	return output;
 }

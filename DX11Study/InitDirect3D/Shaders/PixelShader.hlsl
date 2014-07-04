@@ -28,6 +28,10 @@ cbuffer CommonBuffer : register(b2)
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	int showDepthComplexity;
+	int commonBufferPad1;
+	int commonBufferPad2;
+	int commonBufferPad3;
 }
 
 cbuffer FogBuffer : register(b3)
@@ -54,6 +58,7 @@ struct PixelInput
 	float3 lightDir : NORMAL1;
 	float3 viewDir : NORMAL2;
 	float2 texcoord : TEXCOORD0;
+	float4 depthPosition : TEXCOORD1;
 };
 
 Texture2D diffuseTexture : register(t0);
@@ -88,7 +93,7 @@ float4 main(PixelInput input) : SV_TARGET
 
 	float3x3 TBN = float3x3(input.tangent, input.binormal, input.normal);
 
-	// 这里如果左乘的话相当于乘以TBN的转置矩阵。
+	// 这里如果左乘的话相当于乘以TBN的转置矩阵, 也就是从世界空间转换到切线空间。
 	// 将切线空间的法线转换到世界空间。
 	normalTangentSpace = mul(normalTangentSpace, TBN);
 	normalTangentSpace = normalize(normalTangentSpace);
@@ -142,6 +147,26 @@ float4 main(PixelInput input) : SV_TARGET
 		}
 
 		outputColor = lerp(fogColor, outputColor, fogLerp);
+	}
+
+	if (showDepthComplexity)
+	{
+		float depth = input.depthPosition.z / input.depthPosition.w;
+
+		if (depth < 0.9f)
+		{
+			outputColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+
+		if (depth > 0.9f)
+		{
+			outputColor = float4(0.0f, 1.0f, 0.0f, 1.0f);
+		}
+		
+		if (depth > 0.925f)
+		{
+			outputColor = float4(0.0f, 0.0f, 1.0f, 1.0f);
+		}
 	}
 
 	return outputColor;

@@ -30,7 +30,8 @@ Editor::Editor(QWidget *parent)
 	mAmbientIntensity(0.5f),
 	mDiffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
 	mDiffuseIntensity(1.0f),
-	mShowFog(false)
+	mShowFog(false),
+	mShowDepthComplexity(false)
 {
 	AllocConsole();
 	FILE* file;
@@ -224,6 +225,7 @@ void Editor::drawScene()
 	renderParameters.fogRange = mFogRange;
 	renderParameters.fogType = mFogType;
 	renderParameters.showFog = mShowFog;
+	renderParameters.showDepthComplexity = mShowDepthComplexity;
 	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
 	XMStoreFloat4x4(&renderParameters.projectionMatrix, SharedParameters::camera->getProjectionMatrix());
 
@@ -359,12 +361,22 @@ void Editor::createPropertyBrowser()
 	group->addSubProperty(property);
 
 	// 雾显示属性。
-	mEnableFogPropertyManager = new QtBoolPropertyManager(this);
-	connect(mEnableFogPropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(enableFogChanged(QtProperty*, bool)));
-	variantEditor->setFactoryForManager(mEnableFogPropertyManager, checkBoxFactory);
-	property = mEnableFogPropertyManager->addProperty(SHOW_FOG);
-	mEnableFogPropertyManager->setValue(property, false);
+	mShowFogPropertyManager = new QtBoolPropertyManager(this);
+	connect(mShowFogPropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showFogChanged(QtProperty*, bool)));
+	variantEditor->setFactoryForManager(mShowFogPropertyManager, checkBoxFactory);
+	property = mShowFogPropertyManager->addProperty(SHOW_FOG);
+	mShowFogPropertyManager->setValue(property, false);
 	mPropertys[SHOW_FOG] = property;
+
+	group->addSubProperty(property);
+
+	// 显示深度复杂度属性。
+	mShowDepthComplexityPropertyManager = new QtBoolPropertyManager(this);
+	connect(mShowDepthComplexityPropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showDepthComplexityChanged(QtProperty*, bool)));
+	variantEditor->setFactoryForManager(mShowDepthComplexityPropertyManager, checkBoxFactory);
+	property = mShowDepthComplexityPropertyManager->addProperty(SHOW_DEPTH_COMPLEXITY);
+	mShowDepthComplexityPropertyManager->setValue(property, false);
+	mPropertys[SHOW_DEPTH_COMPLEXITY] = property;
 
 	group->addSubProperty(property);
 
@@ -790,8 +802,13 @@ void Editor::wheelEvent(QWheelEvent* event)
 	mCamera->walk(-step * 0.1f);
 }
 
-void Editor::enableFogChanged(QtProperty* property, bool value)
+void Editor::showFogChanged(QtProperty* property, bool value)
 {
 	mShowFog = value;
 	mPropertys[FOG]->setEnabled(value);
+}
+
+void Editor::showDepthComplexityChanged(QtProperty* property, bool value)
+{
+	mShowDepthComplexity = value;
 }

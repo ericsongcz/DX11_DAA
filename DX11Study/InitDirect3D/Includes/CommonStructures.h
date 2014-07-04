@@ -121,6 +121,7 @@ struct RenderParameters
 	float fogDensity;
 	int fogType;
 	int showFog;
+	int showDepthComplexity;
 	XMFLOAT4X4 worldMatrix;
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;

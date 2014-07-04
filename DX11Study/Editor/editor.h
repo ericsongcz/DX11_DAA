@@ -59,6 +59,7 @@ class Editor : public QMainWindow
 	const QString FOG_COLOR = tr("Fog Color");
 	const QString FOG_START = tr("Fog Start");
 	const QString FOG_RANGE = tr("Fog Range");
+	const QString SHOW_DEPTH_COMPLEXITY = tr("Show Depth Complexity");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -91,7 +92,8 @@ private slots:
 	void fogStartChanged(QtProperty* property, double value);
 	void fogRangeChanged(QtProperty* property, double value);
 	void fogDensityChanged(QtProperty* property, int value);
-	void enableFogChanged(QtProperty* property, bool value);
+	void showFogChanged(QtProperty* property, bool value);
+	void showDepthComplexityChanged(QtProperty* property, bool value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -134,7 +136,8 @@ private:
 	QtEnumPropertyManager* mFogTypePropertyManager;
 	QtIntPropertyManager* mFogDensitySpinBoxPropertyManager;
 	QtIntPropertyManager* mFogDensitySliderPropertyManager;
-	QtBoolPropertyManager* mEnableFogPropertyManager;
+	QtBoolPropertyManager* mShowFogPropertyManager;
+	QtBoolPropertyManager* mShowDepthComplexityPropertyManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;
@@ -151,6 +154,7 @@ private:
 	float mFogDensity;
 	EFogType mFogType;
 	bool mShowFog;
+	bool mShowDepthComplexity;
 	QString mFBXFileName;
 };
 

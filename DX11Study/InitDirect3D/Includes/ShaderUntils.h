@@ -62,6 +62,10 @@ struct CommonBuffer
 	int hasNormalMapTexture;
 	float factor;
 	int index;
+	int showDepthComplexity;
+	int commonBufferPad1;
+	int commonBufferPad2;
+	int commonBufferPad3;
 };
 
 struct ReflectionBuffer
