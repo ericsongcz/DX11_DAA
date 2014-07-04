@@ -152,6 +152,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\InitDirect3D\Includes\ViewPoint.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DApp.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\D3DUtils.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedParameters.h" />
     <ClInclude Include="..\InitDirect3D\Includes\stdafx.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\ViewPoint.h" />
     <ClInclude Include="GeneratedFiles\ui_d3drenderingwidget.h" />
     <CustomBuild Include="d3drenderingwidget.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
