@@ -19,7 +19,6 @@ public:
 	void renderShader();
 	void setSamplerState(ESamplerType samplerType);
 	bool initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName);
-	void setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews);
 	void shutdown();
 private:
 	ID3D11Buffer* mMatrixBuffer;

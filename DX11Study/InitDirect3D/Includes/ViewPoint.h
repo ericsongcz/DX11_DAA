@@ -11,9 +11,9 @@ public:
 
 	void setPosition(float x, float y, float z);
 	void lookAt(float x, float y, float z);
+	void setProjectionParameters(float fov, float aspectRatio, float nearPlane, float farPlane);
 	XMMATRIX getViewMatrix();
-	XMMATRIX getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane);
-
+	XMMATRIX getProjectionMatrix();
 private:
 	XMFLOAT3 mPosition;
 	XMFLOAT3 mLookAt;

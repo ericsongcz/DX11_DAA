@@ -23,6 +23,15 @@ void ViewPoint::lookAt(float x, float y, float z)
 	mLookAt.z = z;
 }
 
+void ViewPoint::setProjectionParameters(float fov, float aspectRatio, float nearPlane, float farPlane)
+{
+	mFOV = fov;
+	mAspectRatio = aspectRatio;
+	mNearPlane = nearPlane;
+	mFarPlane = farPlane;
+}
+
+
 XMMATRIX ViewPoint::getViewMatrix()
 {
 	XMVECTOR eye = XMLoadFloat3(&mPosition);
@@ -61,7 +70,7 @@ XMMATRIX ViewPoint::getViewMatrix()
 	return viewMatrix;
 }
 
-XMMATRIX ViewPoint::getProjectionMatrix(float fov, float aspectRatio, float nearPlane, float farPlane)
+XMMATRIX ViewPoint::getProjectionMatrix()
 {
-	return XMMatrixPerspectiveFovRH(fov, aspectRatio, nearPlane, farPlane);
+	return XMMatrixPerspectiveFovRH(mFOV, mAspectRatio, mNearPlane, mFarPlane);
 }

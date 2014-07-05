@@ -184,6 +184,8 @@ bool ProjectiveTextureShader::setShaderParameters(const RenderParameters& render
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 	XMStoreFloat4x4(&matrixData->worldViewProjectionMatrix, worldViewProjection);
 	XMStoreFloat4x4(&matrixData->textureTransformMatrix, textureTransformMatrixTemp);
+	XMStoreFloat4x4(&matrixData->viewMatrix2, viewMatrixTemp);
+	XMStoreFloat4x4(&matrixData->projectionMatrix2, projectionMatrixTemp);
 
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
@@ -224,11 +226,6 @@ void ProjectiveTextureShader::setSamplerState(ESamplerType samplerType)
 	default:
 		break;
 	}
-}
-
-void ProjectiveTextureShader::setShaderResource(ID3D11ShaderResourceView *const *ppShaderResourceViews, int numViews)
-{
-	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
 }
 
 void ProjectiveTextureShader::shutdown()

@@ -10,6 +10,7 @@
 #include "ReflectionShader.h"
 #include "RenderToTexture.h"
 #include "ProjectiveTextureShader.h"
+#include "ViewPoint.h"
 
 using std::wstring;
 
@@ -36,7 +37,6 @@ public:
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight(RenderParameters& renderParameters);
 	void renderReflection(RenderParameters& renderParameters);
-	void renderProjectiveTexture(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void enableOnZTest(bool on);
@@ -79,4 +79,6 @@ public:
 	ReflectionShader* mReflectionShader;
 	RenderToTexture* mRenderToTexture;
 	ProjectiveTextureShader* mProjectiveTextureShader;
+	ID3D11ShaderResourceView* mProjectiveTexture;
+	ViewPoint mViewPoint;
 };

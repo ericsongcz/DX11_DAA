@@ -140,6 +140,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	disabledDepthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
 	disabledDepthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
 	disabledDepthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
 	disabledDepthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
 	disabledDepthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
 	disabledDepthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
@@ -166,7 +167,6 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	D3D11_RASTERIZER_DESC rasterizerDesc;
 	ZeroMemory(&rasterizerDesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterizerDesc.FillMode = D3D11_FILL_SOLID;
-	rasterizerDesc.CullMode = D3D11_CULL_BACK;
 #if USE_RIGHT_HAND
 	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
 #else
@@ -181,7 +181,11 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mDeviceContext->RSSetState(mSolidState);
 
 	rasterizerDesc.FillMode = D3D11_FILL_WIREFRAME;
+#if USE_RIGHT_HAND
+	rasterizerDesc.CullMode = D3D11_CULL_FRONT;
+#else
 	rasterizerDesc.CullMode = D3D11_CULL_BACK;
+#endif // USE_RIGHT_HAND
 	rasterizerDesc.DepthClipEnable = true;
 	rasterizerDesc.FrontCounterClockwise = false;
 	HR(mDevice->CreateRasterizerState(&rasterizerDesc, &mWireframeState));
@@ -209,6 +213,12 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	mProjectiveTextureShader = new ProjectiveTextureShader();
 	mProjectiveTextureShader->initialize(mDevice, mDeviceContext, TEXT("ProjectiveTextureVS.cso"), TEXT("ProjectiveTexturePS.cso"));
+
+	mProjectiveTexture = CreateShaderResourceViewFromFile("dx11.dds", mDevice);
+
+	mViewPoint.setPosition(0.0f, 5.0f, 20.0f);
+	mViewPoint.lookAt(0.0f, 0.0f, 1.0f);
+	mViewPoint.setProjectionParameters(XM_PI / 4.0f, mScreenWidth / mScreenHeight, 1.0f, 1000.0f);
 
 	setClearColor(100, 149, 237);
 
@@ -345,8 +355,6 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 		}
 
 		mShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
-
-		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 
@@ -501,29 +509,6 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 		mReflectionShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
-	}
-}
-
-void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameters)
-{
-	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
-	int renderPackageSize = renderPackages.size();
-
-	for (int i = 0; i < renderPackageSize; i++)
-	{
-		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
-		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
-
-		renderPackages[i].addTexture(mRenderToTexture->getShaderResourceView());
-
-		if (renderPackages[i].textures.size() > 0)
-		{
-			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
-		}
-
-		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
-
-		//renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}
 }
 

@@ -45,6 +45,7 @@ PixelInput main(VertexInput input)
 	output.viewPosition = mul(input.position, worldMatrix);
 	output.viewPosition = mul(output.position, viewMatrix2);
 	output.viewPosition = mul(output.position, projectionMatrix2);
+	output.texcoord = input.texcoord;
 
 	return output;
 }
