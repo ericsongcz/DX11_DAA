@@ -37,6 +37,7 @@ public:
 	void renderQuad(RenderParameters& renderParameters);
 	void renderLight(RenderParameters& renderParameters);
 	void renderReflection(RenderParameters& renderParameters);
+	void renderProjectiveTexture(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void enableOnZTest(bool on);

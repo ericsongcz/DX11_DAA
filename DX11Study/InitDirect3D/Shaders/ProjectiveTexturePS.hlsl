@@ -13,8 +13,8 @@ SamplerState samplerState : register(s0);
 float4 main(PixelInput input) : SV_TARGET
 {
 	float2 projectTexCoord;
-	projectTexCoord.x = input.viewPosition.x / input.viewPosition.w / 2.0f + 0.5f;
-	projectTexCoord.y = -input.viewPosition.y / input.viewPosition.w / 2.0f + 0.5f;
+	projectTexCoord.x = 1.0f - (input.viewPosition.x / input.viewPosition.w / 2.0f + 0.5f);
+	projectTexCoord.y = 1.0f - (-input.viewPosition.y / input.viewPosition.w / 2.0f + 0.5f);
 
 	float4 outputColor = float4(1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -22,7 +22,7 @@ float4 main(PixelInput input) : SV_TARGET
 	// If it is the pixel is inside the projected view port.
 	if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
 	{
-		//outputColor = projectiveTexture.Sample(samplerState, projectTexCoord);
+		outputColor = projectiveTexture.Sample(samplerState, projectTexCoord);
 	}
 
 	return outputColor;

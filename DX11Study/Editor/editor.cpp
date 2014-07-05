@@ -98,6 +98,7 @@ Editor::Editor(QWidget *parent)
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 5.0f, 20.0f)));
+	mCamera->lookAt(0.0f, 0.0f, -1.0f);
 
 	mTimer.Reset();
 	QMenu* menu = menuBar()->actions().at(0)->menu();
@@ -284,6 +285,7 @@ void Editor::drawScene()
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
 			mRenderer->render(renderParameters);
+			//mRenderer->renderProjectiveTexture(renderParameters);
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
 			//XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));

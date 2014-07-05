@@ -28,6 +28,7 @@ public:
 	void setPosition(FXMVECTOR position);
 	XMFLOAT3 getPosition() const;
 	void lookAt(FXMVECTOR lookAt);
+	void lookAt(float x, float y, float z);
 	void strafe(float units); // 左右。
 	void fly(float units);	  // 上下。
 	void walk(float units);	  // 前后。

@@ -18,9 +18,9 @@ void ViewPoint::setPosition(float x, float y, float z)
 
 void ViewPoint::lookAt(float x, float y, float z)
 {
-	mLookAt.x = x;
-	mLookAt.y = y;
-	mLookAt.z = z;
+	mLookAt.x = -x;
+	mLookAt.y = -y;
+	mLookAt.z = -z;
 }
 
 void ViewPoint::setProjectionParameters(float fov, float aspectRatio, float nearPlane, float farPlane)

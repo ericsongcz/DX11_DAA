@@ -93,7 +93,7 @@ DirectX::XMMATRIX Camera::getReflectionViewMatrix(float height)
 	XMFLOAT3 position = mPosition;
 	position.y = -mPosition.y + (height * 2.0f);
 	XMVECTOR eye = XMLoadFloat3(&position);
-	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
+	XMVECTOR lookAt = -XMLoadFloat3(&mLookAt);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR right = XMLoadFloat3(&mRight);
 
@@ -131,6 +131,8 @@ DirectX::XMMATRIX Camera::getReflectionViewMatrix(float height)
 #else
 	//viewMatrix = XMMatrixLookAtLH(eye, lookAt, up);
 #endif
+
+	XMStoreFloat3(&mLookAt, lookAt);
 
 	return viewMatrix;
 }
@@ -181,7 +183,14 @@ XMFLOAT3 Camera::getPosition() const
 
 void Camera::lookAt(FXMVECTOR lookAt)
 {
-	XMStoreFloat3(&mLookAt, lookAt);
+	XMStoreFloat3(&mLookAt, -lookAt);
+}
+
+void Camera::lookAt(float x, float y, float z)
+{
+	mLookAt.x = -x;
+	mLookAt.y = -y;
+	mLookAt.z = -z;
 }
 
 void Camera::strafe(float units)
