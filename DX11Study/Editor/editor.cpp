@@ -79,9 +79,9 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("NormalMap2.fbx");
+	mFBXImporter->LoadScene("ProjectiveTexture.fbx");
 
-	mFBXFileName = tr("NormalMap2.fbx");
+	mFBXFileName = tr("ProjectiveTexture.fbx");
 	setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
 
 	mFBXImporter->WalkHierarchy();

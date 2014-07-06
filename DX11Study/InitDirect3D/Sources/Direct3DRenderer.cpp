@@ -217,7 +217,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mProjectiveTexture = CreateShaderResourceViewFromFile("dx11.dds", mDevice);
 
 	mViewPoint.setPosition(0.0f, 5.0f, 20.0f);
-	mViewPoint.lookAt(-0.1f, -0.1f, -1.0f);
+	mViewPoint.lookAt(-0.1f, -0.2f, -1.0f);
 	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, 1.0f, 1000.0f);
 
 	setClearColor(100, 149, 237);
@@ -524,7 +524,9 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 
 		setShaderResource(1, &mProjectiveTexture);
 
-		mProjectiveTextureShader->render(renderParameters, worldMatrix, mViewPoint.getViewMatrix(), mViewPoint.getProjectionMatrix());
+		XMStoreFloat4x4(&renderParameters.viewMatrix2, mViewPoint.getViewMatrix());
+		XMStoreFloat4x4(&renderParameters.projectionMatrix2, mViewPoint.getProjectionMatrix());
+		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
 	}

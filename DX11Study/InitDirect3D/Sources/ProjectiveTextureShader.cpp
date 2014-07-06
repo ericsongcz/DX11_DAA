@@ -166,6 +166,8 @@ bool ProjectiveTextureShader::setShaderParameters(const RenderParameters& render
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
+	XMMATRIX viewMatrixTemp2 = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.viewMatrix2));
+	XMMATRIX projectionMatrixTemp2 = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.projectionMatrix2));
 	XMMATRIX textureTransformMatrixTemp = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.textureTransformMatrix));
 
 	MatrixBuffer* matrixData;
@@ -184,8 +186,8 @@ bool ProjectiveTextureShader::setShaderParameters(const RenderParameters& render
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 	XMStoreFloat4x4(&matrixData->worldViewProjectionMatrix, worldViewProjection);
 	XMStoreFloat4x4(&matrixData->textureTransformMatrix, textureTransformMatrixTemp);
-	XMStoreFloat4x4(&matrixData->viewMatrix2, viewMatrixTemp);
-	XMStoreFloat4x4(&matrixData->projectionMatrix2, projectionMatrixTemp);
+	XMStoreFloat4x4(&matrixData->viewMatrix2, viewMatrixTemp2);
+	XMStoreFloat4x4(&matrixData->projectionMatrix2, projectionMatrixTemp2);
 
 	// ½âËø³£Á¿»º³å¡£
 	mDeviceContext->Unmap(mMatrixBuffer, 0);

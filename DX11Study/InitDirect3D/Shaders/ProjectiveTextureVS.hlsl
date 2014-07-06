@@ -43,8 +43,8 @@ PixelInput main(VertexInput input)
 	// Store the position of the vertices as viewd by the projection view point
 	// in a separate variable.
 	output.viewPosition = mul(input.position, worldMatrix);
-	output.viewPosition = mul(output.position, viewMatrix2);
-	output.viewPosition = mul(output.position, projectionMatrix2);
+	output.viewPosition = mul(output.viewPosition, viewMatrix2);
+	output.viewPosition = mul(output.viewPosition, projectionMatrix2);
 	output.texcoord = input.texcoord;
 
 	return output;
