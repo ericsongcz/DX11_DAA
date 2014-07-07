@@ -50,30 +50,30 @@ void Geometry::FillMeshData(MeshData* meshData)
 
 	memcpy_s(&mIndices[0], sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
-	//GeometryGenerator geometryGenerator;
-	//GeometryGenerator::MeshData md;
-	//Entity* entity = geometryGenerator.CreateBox(4, 4, 4, md);
+	/*GeometryGenerator geometryGenerator;
+	GeometryGenerator::MeshData md;
+	Entity* entity = geometryGenerator.CreateBox(4, 4, 4, md);
 
-	//Material* material = new Material();
-	//material->setDiffuseTexture("Fieldstone.tga");
-	//material->setNormalMapTexture("FieldstoneBumpDOT3.tga");
+	Material* material = new Material();
+	material->setDiffuseTexture("Fieldstone.tga");
+	material->setNormalMapTexture("FieldstoneBumpDOT3.tga");
 
-	//entity->setMaterial(material);
-	//entity->setPosition(0.0f, 4.0f, 0.0f);
+	entity->setMaterial(material);
+	entity->setPosition(0.0f, 4.0f, 0.0f);
 
-	//addRenderable(entity);
+	addRenderable(entity);
 
-	//mMeshdata = new MeshData();
+	mMeshdata = new MeshData();
 
-	//entity = geometryGenerator.CreateBox(16, 0.0f, 16, md);
+	entity = geometryGenerator.CreateBox(16, 0.0f, 16, md);
 
-	//material = new Material();
-	//material->setDiffuseTexture("blue.dds");
+	material = new Material();
+	material->setDiffuseTexture("blue.dds");
 
-	//entity->setMaterial(material);
-	//entity->setPosition(0.0f, 1.5f, 1.5f);
+	entity->setMaterial(material);
+	entity->setPosition(0.0f, 1.5f, 1.5f);
 
-	//addRenderable(entity);
+	addRenderable(entity);*/
 
 	prepareRenderPackages();
 }

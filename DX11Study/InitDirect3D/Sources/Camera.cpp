@@ -93,7 +93,7 @@ DirectX::XMMATRIX Camera::getReflectionViewMatrix(float height)
 	XMFLOAT3 position = mPosition;
 	position.y = -mPosition.y + (height * 2.0f);
 	XMVECTOR eye = XMLoadFloat3(&position);
-	XMVECTOR lookAt = -XMLoadFloat3(&mLookAt);
+	XMVECTOR lookAt = XMLoadFloat3(&mLookAt);
 	XMVECTOR up = XMLoadFloat3(&mUp);
 	XMVECTOR right = XMLoadFloat3(&mRight);
 

@@ -217,7 +217,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mProjectiveTexture = CreateShaderResourceViewFromFile("dx11.dds", mDevice);
 
 	mViewPoint.setPosition(0.0f, 5.0f, 20.0f);
-	mViewPoint.lookAt(-0.1f, -0.2f, -1.0f);
+	mViewPoint.lookAt(0.0f, 0.0f, -1.0f);
 	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, 1.0f, 1000.0f);
 
 	setClearColor(100, 149, 237);

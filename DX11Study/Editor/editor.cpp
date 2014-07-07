@@ -284,8 +284,8 @@ void Editor::drawScene()
 			//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-			mRenderer->render(renderParameters);
-			//mRenderer->renderProjectiveTexture(renderParameters);
+			//mRenderer->render(renderParameters);
+			mRenderer->renderProjectiveTexture(renderParameters);
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
 			//XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
