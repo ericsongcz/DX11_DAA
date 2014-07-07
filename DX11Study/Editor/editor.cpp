@@ -79,9 +79,9 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("ProjectiveTexture.fbx");
+	mFBXImporter->LoadScene("NormalMap2.fbx");
 
-	mFBXFileName = tr("ProjectiveTexture.fbx");
+	mFBXFileName = tr("NormalMap2.fbx");
 	setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
 
 	mFBXImporter->WalkHierarchy();
@@ -264,6 +264,8 @@ void Editor::drawScene()
 
 	mRenderer->beginScene();
 
+	mRenderer->setSamplerState(SharedParameters::samplerType);
+
 	if (mRenderModel)
 	{
 		if (mDeferredRendering)
@@ -284,8 +286,8 @@ void Editor::drawScene()
 			//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-			//mRenderer->render(renderParameters);
-			mRenderer->renderProjectiveTexture(renderParameters);
+			mRenderer->render(renderParameters);
+			//mRenderer->renderProjectiveTexture(renderParameters);
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
 			//XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
@@ -405,9 +407,11 @@ void Editor::createPropertyBrowser()
 
 	property = mSamplerFilterTypePropertyManager->addProperty(SAMPLER_FILTER);
 	enumNames.clear();
+	enumNames.push_back(SAMPLER_FILTER_POINT);
 	enumNames.push_back(SAMPLER_FILTER_LINEAR);
 	enumNames.push_back(SAMPLER_FILTER_ANISOTROPIC);
 	mSamplerFilterTypePropertyManager->setEnumNames(property, enumNames);
+	mSamplerFilterTypePropertyManager->setValue(property, ST_LINEAR);
 	mPropertys[SAMPLER_FILTER] = property;
 
 	group->addSubProperty(property);
@@ -639,6 +643,7 @@ void Editor::samplerFilterChanged(QtProperty* property, int value)
 {
 	ESamplerType samplerType = (ESamplerType)value;
 	SharedParameters::samplerType = samplerType;
+	mRenderer->setSamplerState(SharedParameters::samplerType);
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* event)

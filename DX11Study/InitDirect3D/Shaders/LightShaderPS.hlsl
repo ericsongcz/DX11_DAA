@@ -33,9 +33,7 @@ Texture2D normalTexture : register(t2);
 
 SamplerState samplerState : register(s0)
 {
-	//MipFilter = POINT;
-	//MinFilter = POINT;
-	//MagFilter = POINT;
+	//Filter = MIN_MAG_MIP_POINT;
 	//AddressU = Clamp;
 	//AddressV = Clamp;
 	//AddressW = Clamp;

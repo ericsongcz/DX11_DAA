@@ -69,9 +69,7 @@ Texture2D normalMapTexture : register(t1);
 
 SamplerState samplerState : register(s0)
 {
-	//MipFilter = LINEAR;
-	//MinFilter = LINEAR;
-	//MagFilter = LINEAR;
+	//Filter = MIN_MAG_MIP_LINEAR;
 	//AddressU = Wrap;
 	//AddressV = Wrap;
 	//AddressW = Wrap;
@@ -118,7 +116,7 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 spotLightDiffuseColor = result.diffuseColor;
 
 	// All color components are summed in the pixel shader.
-	float4 diffuseColor = (/*directionalLightDiffuseColor + */pointLightDiffuseColor /* + spotLightDiffuseColor*/) * diffuseIntensity;
+	float4 diffuseColor = (directionalLightDiffuseColor/* + pointLightDiffuseColor*/ /* + spotLightDiffuseColor*/) * diffuseIntensity;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = diffuseTexture.Sample(samplerState, input.texcoord);

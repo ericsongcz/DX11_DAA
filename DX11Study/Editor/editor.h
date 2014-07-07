@@ -33,7 +33,9 @@ class Editor : public QMainWindow
 		FT_EXP2
 	};
 
+
 	const QString SAMPLER_FILTER = tr("Sampler Filter");
+	const QString SAMPLER_FILTER_POINT = tr("Point");
 	const QString SAMPLER_FILTER_LINEAR = tr("Linear");
 	const QString SAMPLER_FILTER_ANISOTROPIC = tr("Anisotropic");
 	const QString RENDERING_PATH = tr("Rendering Path");

@@ -8,7 +8,6 @@ LightShader::LightShader()
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
-	mSamplerState(nullptr),
 	mDeviceContext(nullptr),
 	mShaderResourceView(nullptr)
 {
@@ -94,26 +93,6 @@ bool LightShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 	fogBufferDesc.StructureByteStride = 0;
 
 	HR(mDevice->CreateBuffer(&fogBufferDesc, nullptr, &mFogBuffer));
-
-	D3D11_SAMPLER_DESC samplerDesc;
-	ZeroMemory(&samplerDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
-	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerDesc.BorderColor[0] = 0;
-	samplerDesc.BorderColor[1] = 0;
-	samplerDesc.BorderColor[2] = 0;
-	samplerDesc.BorderColor[3] = 0;
-	samplerDesc.MinLOD = 0;
-	samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerDesc, &mSamplerState));
 
 	return true;
 }
@@ -235,12 +214,10 @@ void LightShader::renderShader()
 	// 设置渲染使用VS和PS。
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
-	mDeviceContext->PSSetSamplers(0, 1, &mSamplerState);
 }
 
 void LightShader::shutdown()
 {
-	SafeDelete(mSamplerState);
 	SafeDelete(mPixelShader);
 	SafeDelete(mVertexShader);
 	SafeDelete(mInputLayout);

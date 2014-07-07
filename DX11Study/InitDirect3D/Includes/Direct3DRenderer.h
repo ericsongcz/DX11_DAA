@@ -43,7 +43,7 @@ public:
 	void enableOnZTest(bool on);
 	void enableAlphaBlend(bool enable);
 	void setSamplerState(ESamplerType samplerType);
-//private:
+	//private:
 	// D3D11 stuffs.
 	float mScreenWidth;
 	float mScreenHeight;
@@ -71,6 +71,9 @@ public:
 	ID3D11RasterizerState* mWireframeState;
 	ID3D11DepthStencilState* mDepthStencilState;
 	ID3D11DepthStencilState* mDisableDepthStencilState;
+	ID3D11SamplerState* mSamplerStatePoint;
+	ID3D11SamplerState* mSamplerStateLinear;
+	ID3D11SamplerState* mSamplerStateAnisotropic;
 	ID3D11BlendState* mAlphaBlendState;
 	float mClearColor[3];
 	DeferredBuffers* mDeferredBuffers;

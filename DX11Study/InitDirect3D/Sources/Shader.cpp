@@ -1,19 +1,17 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Shader.h"
 #include "SharedParameters.h"
 
 Shader::Shader()
-: mMatrixBuffer(nullptr),
-  mLightBuffer(nullptr),
-  mCommonBuffer(nullptr),
-  mFogBuffer(nullptr),
-  mInputLayout(nullptr),
-  mVertexShader(nullptr),
-  mPixelShader(nullptr),
-  mSamplerStateLinear(nullptr),
-  mSamplerStateAnisotropic(nullptr),
-  mDeviceContext(nullptr),
-  mShaderResourceView(nullptr)
+	: mMatrixBuffer(nullptr),
+	mLightBuffer(nullptr),
+	mCommonBuffer(nullptr),
+	mFogBuffer(nullptr),
+	mInputLayout(nullptr),
+	mVertexShader(nullptr),
+	mPixelShader(nullptr),
+	mDeviceContext(nullptr),
+	mShaderResourceView(nullptr)
 {
 	SharedParameters::shader = this;
 }
@@ -33,8 +31,8 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	mVertexShader = shaderData->vertexShader;
 	mPixelShader = shaderData->pixelShader;
 
-	// ÉèÖÃÊý¾Ý²¼¾Ö£¬ÒÔ±ãÔÚShaderÖÐÊ¹ÓÃ¡£
-	// ¶¨ÒåÒªºÍ¶¥µã½á¹¹Ò»ÖÂ¡£
+	// è®¾ç½®æ•°æ®å¸ƒå±€ï¼Œä»¥ä¾¿åœ¨Shaderä¸­ä½¿ç”¨ã€‚
+	// å®šä¹‰è¦å’Œé¡¶ç‚¹ç»“æž„ä¸€è‡´ã€‚
 	D3D11_INPUT_ELEMENT_DESC poloygonLayout[6];
 	ZeroMemory(&poloygonLayout[0], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[1], sizeof(D3D11_INPUT_ELEMENT_DESC));
@@ -43,7 +41,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	ZeroMemory(&poloygonLayout[4], sizeof(D3D11_INPUT_ELEMENT_DESC));
 	ZeroMemory(&poloygonLayout[5], sizeof(D3D11_INPUT_ELEMENT_DESC));
 
-	poloygonLayout[0].SemanticName = "POSITION";	// VSÖÐµÄÊäÈë²ÎÊý¡£
+	poloygonLayout[0].SemanticName = "POSITION";	// VSä¸­çš„è¾“å…¥å‚æ•°ã€‚
 	poloygonLayout[0].SemanticIndex = 0;
 	poloygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
 	poloygonLayout[0].InputSlot = 0;
@@ -93,7 +91,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
 	UINT numElements = sizeof(poloygonLayout) / sizeof(poloygonLayout[0]);
 
-	// ´´½¨¶¥µãÊäÈë²¼¾Ö¡£
+	// åˆ›å»ºé¡¶ç‚¹è¾“å…¥å¸ƒå±€ã€‚
 	HR(mDevice->CreateInputLayout(poloygonLayout, numElements, shaderData->vertexShaderData, shaderData->vertexShaderSize, &mInputLayout));
 
 	delete shaderData;
@@ -107,7 +105,7 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 	matrixBufferDesc.MiscFlags = 0;
 	matrixBufferDesc.StructureByteStride = 0;
 
-	// ´´½¨constant bufferÖ¸Õë£¬ÒÔ±ã·ÃÎÊshader³£Á¿¡£
+	// åˆ›å»ºconstant bufferæŒ‡é’ˆï¼Œä»¥ä¾¿è®¿é—®shaderå¸¸é‡ã€‚
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
 	D3D11_BUFFER_DESC lightBufferDesc;
@@ -144,46 +142,6 @@ bool Shader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
 	HR(mDevice->CreateBuffer(&fogBufferDesc, nullptr, &mFogBuffer));
 
-	D3D11_SAMPLER_DESC samplerLinearDesc;
-	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerLinearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerLinearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.MipLODBias = 0.0f;
-	samplerLinearDesc.MaxAnisotropy = 1;
-	samplerLinearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerLinearDesc.BorderColor[0] = 0;
-	samplerLinearDesc.BorderColor[1] = 0;
-	samplerLinearDesc.BorderColor[2] = 0;
-	samplerLinearDesc.BorderColor[3] = 0;
-	samplerLinearDesc.MinLOD = 0;
-	samplerLinearDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// ´´½¨ÎÆÀí²ÉÑù×´Ì¬¡£
-	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
-
-	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
-	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerAnisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerAnisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.MipLODBias = 0.0f;
-	samplerAnisotropicDesc.MaxAnisotropy = 16;
-	samplerAnisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerAnisotropicDesc.BorderColor[0] = 0;
-	samplerAnisotropicDesc.BorderColor[1] = 0;
-	samplerAnisotropicDesc.BorderColor[2] = 0;
-	samplerAnisotropicDesc.BorderColor[3] = 0;
-	samplerAnisotropicDesc.MinLOD = 0;
-	samplerAnisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// ´´½¨ÎÆÀí²ÉÑù×´Ì¬¡£
-	HR(mDevice->CreateSamplerState(&samplerAnisotropicDesc, &mSamplerStateAnisotropic));
-
 	return true;
 }
 
@@ -197,7 +155,7 @@ bool Shader::render(const RenderParameters& renderParameters, FXMMATRIX& worldMa
 
 bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
-	// ´«ÈëShaderÇ°£¬È·±£¾ØÕó×ªÖÃ£¬ÕâÊÇD3D11µÄÒªÇó¡£
+	// ä¼ å…¥Shaderå‰ï¼Œç¡®ä¿çŸ©é˜µè½¬ç½®ï¼Œè¿™æ˜¯D3D11çš„è¦æ±‚ã€‚
 	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);
 	worldViewProjection = XMMatrixMultiply(worldViewProjection, projectionMatrix);
 
@@ -206,25 +164,25 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
 	XMMATRIX textureTransformMatrixTemp = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.textureTransformMatrix));
-	
+
 	MatrixBuffer* matrixData;
 
 	D3D11_MAPPED_SUBRESOURCE matrixBufferResource;
 
-	// Ëø¶¨³£Á¿»º³å£¬ÒÔ±ãÄÜ¹»Ð´Èë¡£
+	// é”å®šå¸¸é‡ç¼“å†²ï¼Œä»¥ä¾¿èƒ½å¤Ÿå†™å…¥ã€‚
 	HR(mDeviceContext->Map(mMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &matrixBufferResource));
 
-	// µÃµ½const bufferÖ¸Õë¡£
+	// å¾—åˆ°const bufferæŒ‡é’ˆã€‚
 	matrixData = (MatrixBuffer*)matrixBufferResource.pData;
 
-	// ÉèÖÃworld£¬viewºÍprojection¾ØÕó¡£
+	// è®¾ç½®worldï¼Œviewå’ŒprojectionçŸ©é˜µã€‚
 	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
 	XMStoreFloat4x4(&matrixData->worldViewProjectionMatrix, worldViewProjection);
 	XMStoreFloat4x4(&matrixData->textureTransformMatrix, textureTransformMatrixTemp);
 
-	// ½âËø³£Á¿»º³å¡£
+	// è§£é”å¸¸é‡ç¼“å†²ã€‚
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
 	D3D11_MAPPED_SUBRESOURCE lightBufferResource;
@@ -280,8 +238,8 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
 	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
 	commonBufferData->showDepthComplexity = renderParameters.showDepthComplexity;
-	
-	// ÊÇ·ñÓÐÂþ·´ÉäÎÆÀí¡£
+
+	// æ˜¯å¦æœ‰æ¼«åå°„çº¹ç†ã€‚
 	if (renderParameters.hasDiffuseTexture)
 	{
 		commonBufferData->factor = 1.0f;
@@ -291,7 +249,7 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 		commonBufferData->factor = 0.0f;
 	}
 
-	// ÊÇ·ñÓÐ·¨ÏßÌùÍ¼¡£
+	// æ˜¯å¦æœ‰æ³•çº¿è´´å›¾ã€‚
 	if (renderParameters.hasNormalMapTexture)
 	{
 		commonBufferData->index = 1;
@@ -318,11 +276,11 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 	mDeviceContext->Unmap(mFogBuffer, 0);
 
-	// ÉèÖÃ³£Á¿»º³åÎ»ÖÃ¡£
+	// è®¾ç½®å¸¸é‡ç¼“å†²ä½ç½®ã€‚
 	UINT startSlot = 0;
 
-	// ÓÃ¸üÐÂºóµÄÖµÉèÖÃ³£Á¿»º³å¡£
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer, mFogBuffer};
+	// ç”¨æ›´æ–°åŽçš„å€¼è®¾ç½®å¸¸é‡ç¼“å†²ã€‚
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer, mFogBuffer };
 	mDeviceContext->VSSetConstantBuffers(0, 3, buffers);
 	mDeviceContext->PSSetConstantBuffers(0, 4, buffers);
 
@@ -331,36 +289,16 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 
 void Shader::renderShader()
 {
-	// °ó¶¨¶¥µã²¼¾Ö¡£
+	// ç»‘å®šé¡¶ç‚¹å¸ƒå±€ã€‚
 	mDeviceContext->IASetInputLayout(mInputLayout);
 
-	// ÉèÖÃäÖÈ¾Ê¹ÓÃVSºÍPS¡£
+	// è®¾ç½®æ¸²æŸ“ä½¿ç”¨VSå’ŒPSã€‚
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
-	setSamplerState(SharedParameters::samplerType);
-}
-
-void Shader::setSamplerState(ESamplerType samplerType)
-{
-	switch (samplerType)
-	{
-	case ST_LINEAR:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateLinear);
-		break;
-
-	case ST_ANISOTROPIC:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateAnisotropic);
-		break;
-
-	default:
-		break;
-	}
 }
 
 void Shader::shutdown()
 {
-	SafeRelease(mSamplerStateLinear);
-	SafeRelease(mSamplerStateAnisotropic);
 	SafeRelease(mPixelShader);
 	SafeRelease(mVertexShader);
 	SafeRelease(mInputLayout);

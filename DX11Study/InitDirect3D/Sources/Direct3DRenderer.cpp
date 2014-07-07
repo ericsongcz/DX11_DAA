@@ -1,11 +1,11 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Direct3DRenderer.h"
 #include "D3DUtils.h"
 #include "SharedParameters.h"
 #include "SharedD3DDevice.h"
 
 Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, bool fullScreen)
-  : mScreenWidth(width),
+	: mScreenWidth(width),
 	mScreenHeight(height),
 	mMainWinCaption(title),
 	mFullScreen(fullScreen),
@@ -39,6 +39,12 @@ Direct3DRenderer::~Direct3DRenderer()
 	SafeDelete(mFullScreenQuad);
 	SafeDelete(mDeferredShader);
 	SafeDelete(mDeferredBuffers);
+	SafeRelease(mWireframeState);
+	SafeRelease(mSolidState);
+	SafeRelease(mAlphaBlendState);
+	SafeRelease(mSamplerStateAnisotropic);
+	SafeRelease(mSamplerStateLinear);
+	SafeRelease(mSamplerStatePoint);
 	SafeRelease(mDepthStencilView);
 	SafeRelease(mDepthStencilBuffer);
 	SafeRelease(mRenderTargetView);
@@ -148,6 +154,66 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	HR(mDevice->CreateDepthStencilState(&disabledDepthStencilDesc, &mDisableDepthStencilState));
 
+	D3D11_SAMPLER_DESC samplerPointDesc;
+	ZeroMemory(&samplerPointDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplerPointDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	samplerPointDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerPointDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerPointDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerPointDesc.MipLODBias = 0.0f;
+	samplerPointDesc.MaxAnisotropy = 1;
+	samplerPointDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerPointDesc.BorderColor[0] = 0;
+	samplerPointDesc.BorderColor[1] = 0;
+	samplerPointDesc.BorderColor[2] = 0;
+	samplerPointDesc.BorderColor[3] = 0;
+	samplerPointDesc.MinLOD = 0;
+	samplerPointDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// åˆ›å»ºçº¹ç†é‡‡æ ·çŠ¶æ€ã€‚
+	HR(mDevice->CreateSamplerState(&samplerPointDesc, &mSamplerStatePoint));
+
+	D3D11_SAMPLER_DESC samplerLinearDesc;
+	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplerLinearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerLinearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearDesc.MipLODBias = 0.0f;
+	samplerLinearDesc.MaxAnisotropy = 1;
+	samplerLinearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerLinearDesc.BorderColor[0] = 0;
+	samplerLinearDesc.BorderColor[1] = 0;
+	samplerLinearDesc.BorderColor[2] = 0;
+	samplerLinearDesc.BorderColor[3] = 0;
+	samplerLinearDesc.MinLOD = 0;
+	samplerLinearDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// åˆ›å»ºçº¹ç†é‡‡æ ·çŠ¶æ€ã€‚
+	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
+
+	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
+	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplerAnisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	samplerAnisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerAnisotropicDesc.MipLODBias = 0.0f;
+	samplerAnisotropicDesc.MaxAnisotropy = 16;
+	samplerAnisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerAnisotropicDesc.BorderColor[0] = 0;
+	samplerAnisotropicDesc.BorderColor[1] = 0;
+	samplerAnisotropicDesc.BorderColor[2] = 0;
+	samplerAnisotropicDesc.BorderColor[3] = 0;
+	samplerAnisotropicDesc.MinLOD = 0;
+	samplerAnisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// åˆ›å»ºçº¹ç†é‡‡æ ·çŠ¶æ€ã€‚
+	HR(mDevice->CreateSamplerState(&samplerAnisotropicDesc, &mSamplerStateAnisotropic));
+
 	D3D11_BLEND_DESC alphaBlendStateDesc;
 	ZeroMemory(&alphaBlendStateDesc, sizeof(D3D11_BLEND_DESC));
 
@@ -199,7 +265,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mDeferredBuffers = new DeferredBuffers();
 
 	mDeferredShader = new DeferredShader();
-	mDeferredShader->initialize(mDevice, mDeviceContext, TEXT("DeferredBufferVS.cso"), TEXT("DeferredBufferPS.cso"));
+	mDeferredShader->initialize(mDevice, mDeviceContext, TEXT("DeferredShaderVS.cso"), TEXT("DeferredShaderPS.cso"));
 
 	mFullScreenQuad = new FullScreenQuad();
 
@@ -366,7 +432,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 void Direct3DRenderer::setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews)
 {
 	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
-	
+
 }
 
 void Direct3DRenderer::setViewport(float width, float height, float topLeftX, float topLeftY, float minDepth, float maxDepth)
@@ -479,13 +545,13 @@ void Direct3DRenderer::enableOnZTest(bool on)
 
 void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 {
-	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0), 
-														mDeferredBuffers->getShaderResourceView(1), 
-														mDeferredBuffers->getShaderResourceView(2)};
+	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0),
+		mDeferredBuffers->getShaderResourceView(1),
+		mDeferredBuffers->getShaderResourceView(2) };
 	setShaderResource(ARRAYSIZE(shaderResourceViews), shaderResourceViews);
 
-	// È«ÆÁµÄQuadÊÀ½ç×ø±êÎ»ÖÃÊ¼ÖÕ²»±ä£¬Ò²²»ÐèÒª¸ù¾ÝÉãÏñ»úµÄ±ä»»¶ø±ä»»£¬ÁíÍâÒòÎª×ø±êÒÑ¾­ÊÇÍ¶Ó°ºóµÄ³ß´ç£¬Ò²²»ÐèÒª¾­¹ýÍ¶Ó°±ä»»¡£
-	// ËùÒÔ»æÖÆQuadÊ±ºòÈý¸ö¾ØÕóÖ»ÐèÒª´«Èëµ¥Î»¾ØÕó¼´¿É¡£
+	// å…¨å±çš„Quadä¸–ç•Œåæ ‡ä½ç½®å§‹ç»ˆä¸å˜ï¼Œä¹Ÿä¸éœ€è¦æ ¹æ®æ‘„åƒæœºçš„å˜æ¢è€Œå˜æ¢ï¼Œå¦å¤–å› ä¸ºåæ ‡å·²ç»æ˜¯æŠ•å½±åŽçš„å°ºå¯¸ï¼Œä¹Ÿä¸éœ€è¦ç»è¿‡æŠ•å½±å˜æ¢ã€‚
+	// æ‰€ä»¥ç»˜åˆ¶Quadæ—¶å€™ä¸‰ä¸ªçŸ©é˜µåªéœ€è¦ä¼ å…¥å•ä½çŸ©é˜µå³å¯ã€‚
 	mLightShader->render(renderParameters, XMMatrixIdentity(), XMMatrixIdentity(), XMMatrixIdentity());
 }
 
@@ -534,7 +600,7 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 
 void Direct3DRenderer::resetShaderResources()
 {
-	// ¼ÇµÃÒªÔÚÏÂ´ÎäÖÈ¾Ç°½â³ýÇ°ÃæSRVµÄ°ó¶¨£¬·ñÔò»á±¨´í¡£
+	// è®°å¾—è¦åœ¨ä¸‹æ¬¡æ¸²æŸ“å‰è§£é™¤å‰é¢SRVçš„ç»‘å®šï¼Œå¦åˆ™ä¼šæŠ¥é”™ã€‚
 	// Resource being set to OM RenderTarget slot 0 is still bound on input.
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr, nullptr };
 	setShaderResource(ARRAYSIZE(srvs), srvs);
@@ -554,6 +620,21 @@ void Direct3DRenderer::enableAlphaBlend(bool enable)
 
 void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
 {
-	mShader->setSamplerState(samplerType);
-	mDeferredShader->setSamplerState(samplerType);
+	switch (samplerType)
+	{
+	case ST_POINT:
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStatePoint);
+		break;
+
+	case ST_LINEAR:
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateLinear);
+		break;
+
+	case ST_ANISOTROPIC:
+		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateAnisotropic);
+		break;
+
+	default:
+		break;
+	}
 }

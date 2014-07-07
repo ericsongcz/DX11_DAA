@@ -4,6 +4,7 @@
 
 enum ESamplerType
 {
+	ST_POINT,
 	ST_LINEAR,
 	ST_ANISOTROPIC
 };

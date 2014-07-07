@@ -25,8 +25,6 @@ private:
 	ID3D11InputLayout* mInputLayout;
 	ID3D11VertexShader* mVertexShader;
 	ID3D11PixelShader* mPixelShader;
-	ID3D11SamplerState* mSamplerState;
-
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
 	ID3D11ShaderResourceView* mShaderResourceView;

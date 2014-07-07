@@ -149,6 +149,9 @@
     <ClCompile Include="..\InitDirect3D\Sources\BasicShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\InitDirect3D\Includes\DepthShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -247,6 +250,9 @@
     <ClInclude Include="..\InitDirect3D\Includes\BasicShader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\InitDirect3D\Includes\DepthShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="editor.h">
@@ -280,12 +286,6 @@
     <FxCompile Include="..\InitDirect3D\Shaders\VertexShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferPS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\LightShaderVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
@@ -302,6 +302,18 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\ProjectiveTexturePS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shader\DepthShaderVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shader\DepthShaderPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredShaderPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredShaderVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

@@ -152,6 +152,7 @@
     </FxCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\InitDirect3D\Includes\DepthShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Includes\ViewPoint.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\BasicShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />
@@ -223,6 +224,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\D3DUtils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\DeferredBuffers.h" />
     <ClInclude Include="..\InitDirect3D\Includes\DeferredShader.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\DepthShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Direct3DRenderer.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Entity.h" />
     <ClInclude Include="..\InitDirect3D\Includes\FBXImporter.h" />
@@ -350,7 +352,7 @@
     <None Include="..\InitDirect3D\Shaders\LightHelper.hlsli" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferPS.hlsl">
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredShaderPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
@@ -360,7 +362,7 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
     </FxCompile>
-    <FxCompile Include="..\InitDirect3D\Shaders\DeferredBufferVS.hlsl">
+    <FxCompile Include="..\InitDirect3D\Shaders\DeferredShaderVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
@@ -434,6 +436,18 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
       <DisableOptimizations Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DisableOptimizations>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shader\DepthShaderPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shader\DepthShaderVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
