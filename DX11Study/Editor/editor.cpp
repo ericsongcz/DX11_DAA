@@ -31,7 +31,9 @@ Editor::Editor(QWidget *parent)
 	mDiffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f)),
 	mDiffuseIntensity(1.0f),
 	mShowFog(false),
-	mShowDepthComplexity(false)
+	mShowDepthComplexity(false),
+	mShowShadow(false),
+	mShowShadowPropertyManager(nullptr)
 {
 	AllocConsole();
 	FILE* file;
@@ -228,6 +230,7 @@ void Editor::drawScene()
 	renderParameters.fogType = mFogType;
 	renderParameters.showFog = mShowFog;
 	renderParameters.showDepthComplexity = mShowDepthComplexity;
+	renderParameters.showShadow = mShowShadow;
 	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
 	XMStoreFloat4x4(&renderParameters.projectionMatrix, SharedParameters::camera->getProjectionMatrix());
 
@@ -384,6 +387,16 @@ void Editor::createPropertyBrowser()
 	property = mShowDepthComplexityPropertyManager->addProperty(SHOW_DEPTH_COMPLEXITY);
 	mShowDepthComplexityPropertyManager->setValue(property, false);
 	mPropertys[SHOW_DEPTH_COMPLEXITY] = property;
+
+	group->addSubProperty(property);
+
+	// ÒõÓ°ÏÔÊ¾ÊôÐÔ¡£
+	mShowShadowPropertyManager = new QtBoolPropertyManager(this);
+	connect(mShowShadowPropertyManager, SIGNAL(valueChanged(QtProperty*, bool)), this, SLOT(showShadowChanged(QtProperty*, bool)));
+	variantEditor->setFactoryForManager(mShowShadowPropertyManager, checkBoxFactory);
+	property = mShowShadowPropertyManager->addProperty(SHOW_SHADOW);
+	mShowShadowPropertyManager->setValue(property, false);
+	mPropertys[SHOW_SHADOW] = property;
 
 	group->addSubProperty(property);
 
@@ -821,4 +834,9 @@ void Editor::showFogChanged(QtProperty* property, bool value)
 void Editor::showDepthComplexityChanged(QtProperty* property, bool value)
 {
 	mShowDepthComplexity = value;
+}
+
+void Editor::showShadowChanged(QtProperty* property, bool value)
+{
+	mShowShadow = value;
 }

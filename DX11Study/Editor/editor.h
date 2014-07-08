@@ -62,6 +62,7 @@ class Editor : public QMainWindow
 	const QString FOG_START = tr("Fog Start");
 	const QString FOG_RANGE = tr("Fog Range");
 	const QString SHOW_DEPTH_COMPLEXITY = tr("Show Depth Complexity");
+	const QString SHOW_SHADOW = tr("Show Shadow");
 public:
 	Editor(QWidget *parent = 0);
 	~Editor();
@@ -96,6 +97,7 @@ private slots:
 	void fogDensityChanged(QtProperty* property, int value);
 	void showFogChanged(QtProperty* property, bool value);
 	void showDepthComplexityChanged(QtProperty* property, bool value);
+	void showShadowChanged(QtProperty* property, bool value);
 private:
 	Ui::EditorClass ui;
 	D3DRenderingWidget* d3dWidget;
@@ -140,6 +142,7 @@ private:
 	QtIntPropertyManager* mFogDensitySliderPropertyManager;
 	QtBoolPropertyManager* mShowFogPropertyManager;
 	QtBoolPropertyManager* mShowDepthComplexityPropertyManager;
+	QtBoolPropertyManager* mShowShadowPropertyManager;
 	QLabel* mLocationLabel;
 	int mLastMousePositionX;
 	int mLastMousePositionY;
@@ -158,6 +161,7 @@ private:
 	bool mShowFog;
 	bool mShowDepthComplexity;
 	QString mFBXFileName;
+	bool mShowShadow;
 };
 
 #endif // EDITOR_H

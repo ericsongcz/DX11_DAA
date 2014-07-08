@@ -17,8 +17,8 @@
 
 using std::wstring;
 
-const int SHADOWMAP_WIDTH = 1024;
-const int SHADOWMAP_HEIGHT = 1024;
+const int SHADOWMAP_WIDTH = 2048;
+const int SHADOWMAP_HEIGHT = 2048;
 const float SCREEN_NEAR = 1.0f;
 const float SCREEN_DEPTH = 1000.0f;
 
@@ -36,7 +36,7 @@ public:
 	void switchFillMode();
 	void render(RenderParameters& renderParameters);
 	void renderBuffer(UINT IndexCount, UINT StartIndexLocation, INT BaseVertexLocation);
-	void setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews);
+	void setShaderResource(UINT startSlot, UINT numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews);
 	ID3D11Device* getDevice() const;
 	void setViewport(float width, float height, float topLeftX = 0.0f, float topLeftY = 0.0f, float minDepth = 0.0f, float maxDepth = 1.0f);
 	void setClearColor(int r, int g, int b);

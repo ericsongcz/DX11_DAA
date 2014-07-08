@@ -20,8 +20,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_Editor_t {
-    QByteArrayData data[22];
-    char stringdata[351];
+    QByteArrayData data[23];
+    char stringdata[369];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -51,7 +51,8 @@ QT_MOC_LITERAL(17, 259, 15),
 QT_MOC_LITERAL(18, 275, 15),
 QT_MOC_LITERAL(19, 291, 17),
 QT_MOC_LITERAL(20, 309, 14),
-QT_MOC_LITERAL(21, 324, 26)
+QT_MOC_LITERAL(21, 324, 26),
+QT_MOC_LITERAL(22, 351, 17)
     },
     "Editor\0loadModel\0\0fillModeChanged\0"
     "QtProperty*\0property\0value\0"
@@ -62,7 +63,7 @@ QT_MOC_LITERAL(21, 324, 26)
     "fogColorChanged\0fogTypeChanged\0"
     "fogStartChanged\0fogRangeChanged\0"
     "fogDensityChanged\0showFogChanged\0"
-    "showDepthComplexityChanged"
+    "showDepthComplexityChanged\0showShadowChanged"
 };
 #undef QT_MOC_LITERAL
 
@@ -72,7 +73,7 @@ static const uint qt_meta_data_Editor[] = {
        7,       // revision
        0,       // classname
        0,    0, // classinfo
-      17,   14, // methods
+      18,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -80,23 +81,24 @@ static const uint qt_meta_data_Editor[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   99,    2, 0x08 /* Private */,
-       3,    2,  100,    2, 0x08 /* Private */,
-       7,    2,  105,    2, 0x08 /* Private */,
-       8,    2,  110,    2, 0x08 /* Private */,
-       9,    2,  115,    2, 0x08 /* Private */,
-      10,    2,  120,    2, 0x08 /* Private */,
-      11,    2,  125,    2, 0x08 /* Private */,
-      12,    2,  130,    2, 0x08 /* Private */,
-      13,    2,  135,    2, 0x08 /* Private */,
-      14,    2,  140,    2, 0x08 /* Private */,
-      15,    2,  145,    2, 0x08 /* Private */,
-      16,    2,  150,    2, 0x08 /* Private */,
-      17,    2,  155,    2, 0x08 /* Private */,
-      18,    2,  160,    2, 0x08 /* Private */,
-      19,    2,  165,    2, 0x08 /* Private */,
-      20,    2,  170,    2, 0x08 /* Private */,
-      21,    2,  175,    2, 0x08 /* Private */,
+       1,    0,  104,    2, 0x08 /* Private */,
+       3,    2,  105,    2, 0x08 /* Private */,
+       7,    2,  110,    2, 0x08 /* Private */,
+       8,    2,  115,    2, 0x08 /* Private */,
+       9,    2,  120,    2, 0x08 /* Private */,
+      10,    2,  125,    2, 0x08 /* Private */,
+      11,    2,  130,    2, 0x08 /* Private */,
+      12,    2,  135,    2, 0x08 /* Private */,
+      13,    2,  140,    2, 0x08 /* Private */,
+      14,    2,  145,    2, 0x08 /* Private */,
+      15,    2,  150,    2, 0x08 /* Private */,
+      16,    2,  155,    2, 0x08 /* Private */,
+      17,    2,  160,    2, 0x08 /* Private */,
+      18,    2,  165,    2, 0x08 /* Private */,
+      19,    2,  170,    2, 0x08 /* Private */,
+      20,    2,  175,    2, 0x08 /* Private */,
+      21,    2,  180,    2, 0x08 /* Private */,
+      22,    2,  185,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -114,6 +116,7 @@ static const uint qt_meta_data_Editor[] = {
     QMetaType::Void, 0x80000000 | 4, QMetaType::Double,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Double,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Int,    5,    6,
+    QMetaType::Void, 0x80000000 | 4, QMetaType::Bool,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Bool,    5,    6,
     QMetaType::Void, 0x80000000 | 4, QMetaType::Bool,    5,    6,
 
@@ -142,6 +145,7 @@ void Editor::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void
         case 14: _t->fogDensityChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 15: _t->showFogChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         case 16: _t->showDepthComplexityChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
+        case 17: _t->showShadowChanged((*reinterpret_cast< QtProperty*(*)>(_a[1])),(*reinterpret_cast< bool(*)>(_a[2]))); break;
         default: ;
         }
     }
@@ -172,13 +176,13 @@ int Editor::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 17)
+        if (_id < 18)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 18;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 17)
+        if (_id < 18)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 17;
+        _id -= 18;
     }
     return _id;
 }

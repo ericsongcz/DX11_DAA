@@ -321,9 +321,9 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mViewPoint.lookAt(0.0f, 0.0f, -1.0f);
 	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
-	mLight.setPosition(0.0f, 10.0f, 30.0f);
-	mLight.lookAt(0.0f, 0.0f, -1.0f);
-	mLight.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
+	mLight.setPosition(10.0f, 20.0f, 30.0f);
+	mLight.lookAt(-0.3f, -0.5f, -0.8f);
+	mLight.setProjectionParameters(XM_PI / 2.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
 	setClearColor(100, 149, 237);
 
@@ -457,7 +457,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
+			setShaderResource(0, renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		XMStoreFloat4(&renderParameters.pointLightPosition, mLight.getPosition());
@@ -470,9 +470,9 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 	}
 }
 
-void Direct3DRenderer::setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews)
+void Direct3DRenderer::setShaderResource(UINT startSlot, UINT numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews)
 {
-	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
+	mDeviceContext->PSSetShaderResources(startSlot, numViews, ppShaderResourceViews);
 }
 
 void Direct3DRenderer::setViewport(float width, float height, float topLeftX, float topLeftY, float minDepth, float maxDepth)
@@ -524,7 +524,7 @@ void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameter
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
+			setShaderResource(0, renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mDeferredShader->render(renderParameters, worldMatrix, SharedParameters::camera->getViewMatrix(), SharedParameters::camera->getProjectionMatrix());
@@ -588,7 +588,7 @@ void Direct3DRenderer::renderLight(RenderParameters& renderParameters)
 	ID3D11ShaderResourceView* shaderResourceViews[] = { mDeferredBuffers->getShaderResourceView(0),
 		mDeferredBuffers->getShaderResourceView(1),
 		mDeferredBuffers->getShaderResourceView(2) };
-	setShaderResource(ARRAYSIZE(shaderResourceViews), shaderResourceViews);
+	setShaderResource(0, ARRAYSIZE(shaderResourceViews), shaderResourceViews);
 
 	// 全屏的Quad世界坐标位置始终不变，也不需要根据摄像机的变换而变换，另外因为坐标已经是投影后的尺寸，也不需要经过投影变换。
 	// 所以绘制Quad时候三个矩阵只需要传入单位矩阵即可。
@@ -609,7 +609,7 @@ void Direct3DRenderer::renderReflection(RenderParameters& renderParameters)
 
 		if (renderPackages[i].textures.size() > 0)
 		{
-			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
+			setShaderResource(0, renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
 		mReflectionShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
@@ -628,7 +628,7 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
-		setShaderResource(1, &mProjectiveTexture);
+		setShaderResource(0, 1, &mProjectiveTexture);
 
 		XMStoreFloat4x4(&renderParameters.viewMatrix2, mViewPoint.getViewMatrix());
 		XMStoreFloat4x4(&renderParameters.projectionMatrix2, mViewPoint.getProjectionMatrix());
@@ -671,8 +671,26 @@ void Direct3DRenderer::renderShadowMap(RenderParameters& renderParameters)
 		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
 		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
 
+		if (SharedParameters::showTexture)
+		{
+			if (renderPackages[i].hasDiffuseTexture())
+			{
+				renderParameters.hasDiffuseTexture = true;
+			}
+		}
+
+		if (renderPackages[i].hasNormalMapTexture())
+		{
+			renderParameters.hasNormalMapTexture = true;
+		}
+
+		if (renderPackages[i].textures.size() > 0)
+		{
+			setShaderResource(0, renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
+		}
+
 		ID3D11ShaderResourceView* srv = mDepthTexture->getShaderResourceView();
-		setShaderResource(1, &srv);
+		setShaderResource(2, 1, &srv);
 		
 		ID3D11SamplerState* samplers[] = { mSamplerStateLinear, mSamplerStateLinearClamp };
 		setSamplerStates(0, 2, samplers);
@@ -691,7 +709,7 @@ void Direct3DRenderer::resetShaderResources()
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
 	// Resource being set to OM RenderTarget slot 0 is still bound on input.
 	ID3D11ShaderResourceView* srvs[] = { nullptr, nullptr, nullptr };
-	setShaderResource(ARRAYSIZE(srvs), srvs);
+	setShaderResource(0, ARRAYSIZE(srvs), srvs);
 }
 
 void Direct3DRenderer::enableAlphaBlend(bool enable)

@@ -53,7 +53,6 @@ struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 worldPosition : POSITION;
-	float4 color : COLOR;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 binormal : BINORMAL;
@@ -114,7 +113,6 @@ PixelInput main(VertexInput input)
 	//output.lightDir = mul(TBN, lightDirection.xyz);
 
 	// 直接输出顶点的颜色（顶点之间的颜色，会在光栅化阶段采用插值的方式计算）。
-	output.color = input.color;
 	output.texcoord = mul(float4(input.texcoord, 0.0f, 1.0f), textureTransformMatrix).xy;
 	output.texcoord = input.texcoord;
 	output.depthPosition = output.position;

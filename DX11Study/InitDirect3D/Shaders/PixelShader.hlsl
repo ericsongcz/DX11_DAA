@@ -1,17 +1,6 @@
 #include "LightHelper.hlsli"
 
-cbuffer MatrixBuffer : register(b0)
-{
-	float4x4 worldMatrix;
-	float4x4 viewMatrix;
-	float4x4 projectionMatrix;
-	float4x4 worldViewProjectionMatrix;
-	float4x4 textureTransformMatrix;
-	float4x4 viewMatrix2;
-	float4x4 projectionMatrix2;
-};
-
-cbuffer LightBuffer : register(b1)
+cbuffer LightBuffer : register(b0)
 {
 	float4 ambientColor;
 	float ambientIntensity;
@@ -25,7 +14,7 @@ cbuffer LightBuffer : register(b1)
 	SpotLight spotLight;
 };
 
-cbuffer CommonBuffer : register(b2)
+cbuffer CommonBuffer : register(b1)
 {
 	int hasDiffuseTexture;
 	int hasNormalMapTexture;
@@ -37,7 +26,7 @@ cbuffer CommonBuffer : register(b2)
 	int commonBufferPad3;
 }
 
-cbuffer FogBuffer : register(b3)
+cbuffer FogBuffer : register(b2)
 {
 	float4 fogColor;
 	float fogStart;
@@ -54,7 +43,6 @@ struct PixelInput
 {
 	float4 position : SV_POSITION;	// SV代表系统自定义的格式。
 	float4 worldPosition : POSITION;
-	float4 color : COLOR;
 	float3 normal : NORMAL;
 	float3 tangent : TANGENT;
 	float3 binormal : BINORMAL;

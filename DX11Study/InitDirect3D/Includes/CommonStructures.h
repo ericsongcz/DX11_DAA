@@ -103,7 +103,10 @@ struct RenderParameters
 		ambientIntensity(0.5f),
 		diffuseColor(XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0)),
 		diffuseIntensity(0.5f),
-		showTexture(false)
+		showTexture(false),
+		showFog(0),
+		showDepthComplexity(0),
+		showShadow(0)
 	{}
 
 	bool hasDiffuseTexture;
@@ -122,6 +125,7 @@ struct RenderParameters
 	int fogType;
 	int showFog;
 	int showDepthComplexity;
+	int showShadow;
 	XMFLOAT4X4 worldMatrix;
 	XMFLOAT4X4 viewMatrix;
 	XMFLOAT4X4 projectionMatrix;

@@ -279,9 +279,10 @@ bool Shader::setShaderParameters(const RenderParameters& renderParameters, FXMMA
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer, mFogBuffer };
-	mDeviceContext->VSSetConstantBuffers(0, 3, buffers);
-	mDeviceContext->PSSetConstantBuffers(0, 4, buffers);
+	ID3D11Buffer* vertexBuffers[] = { mMatrixBuffer, mLightBuffer, mCommonBuffer };
+	ID3D11Buffer* pixelBuffers[] = { mLightBuffer, mCommonBuffer, mFogBuffer };
+	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(vertexBuffers), vertexBuffers);
+	mDeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(pixelBuffers), pixelBuffers);
 
 	return true;
 }

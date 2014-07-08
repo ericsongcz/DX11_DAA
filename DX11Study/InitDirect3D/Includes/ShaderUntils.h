@@ -70,7 +70,7 @@ struct CommonBuffer
 	float factor;
 	int index;
 	int showDepthComplexity;
-	int commonBufferPad1;
+	int showShadow;
 	int commonBufferPad2;
 	int commonBufferPad3;
 };

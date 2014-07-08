@@ -5,6 +5,9 @@
 
 ShadowMapShader::ShadowMapShader()
 	: mMatrixBuffer(nullptr),
+	mLightBuffer(nullptr),
+	mCommonBuffer(nullptr),
+	mFogBuffer(nullptr),
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
@@ -116,6 +119,28 @@ bool ShadowMapShader::initialize(ID3D11Device* device, ID3D11DeviceContext* devi
 
 	HR(mDevice->CreateBuffer(&lightBufferDesc, nullptr, &mLightBuffer));
 
+	D3D11_BUFFER_DESC commonBufferDesc;
+	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	commonBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	commonBufferDesc.ByteWidth = sizeof(CommonBuffer);
+	commonBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	commonBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	commonBufferDesc.MiscFlags = 0;
+	commonBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&commonBufferDesc, nullptr, &mCommonBuffer));
+
+	D3D11_BUFFER_DESC fogBufferDesc;
+	ZeroMemory(&commonBufferDesc, sizeof(D3D11_BUFFER_DESC));
+	fogBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	fogBufferDesc.ByteWidth = sizeof(FogBuffer);
+	fogBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	fogBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	fogBufferDesc.MiscFlags = 0;
+	fogBufferDesc.StructureByteStride = 0;
+
+	HR(mDevice->CreateBuffer(&fogBufferDesc, nullptr, &mFogBuffer));
+
 	return true;
 }
 
@@ -205,13 +230,65 @@ bool ShadowMapShader::setShaderParameters(const RenderParameters& renderParamete
 
 	mDeviceContext->Unmap(mLightBuffer, 0);
 
+	D3D11_MAPPED_SUBRESOURCE commonBufferResource;
+
+	CommonBuffer* commonBufferData;
+
+	HR(mDeviceContext->Map(mCommonBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &commonBufferResource));
+
+	commonBufferData = (CommonBuffer*)commonBufferResource.pData;
+
+	commonBufferData->hasDiffuseTexture = renderParameters.hasDiffuseTexture;
+	commonBufferData->hasNormalMapTexture = renderParameters.hasNormalMapTexture;
+	commonBufferData->showDepthComplexity = renderParameters.showDepthComplexity;
+
+	// 是否有漫反射纹理。
+	if (renderParameters.hasDiffuseTexture)
+	{
+		commonBufferData->factor = 1.0f;
+	}
+	else
+	{
+		commonBufferData->factor = 0.0f;
+	}
+
+	// 是否有法线贴图。
+	if (renderParameters.hasNormalMapTexture)
+	{
+		commonBufferData->index = 1;
+	}
+	else
+	{
+		commonBufferData->index = 0;
+	}
+
+	commonBufferData->showShadow = renderParameters.showShadow;
+
+	mDeviceContext->Unmap(mCommonBuffer, 0);
+
+	D3D11_MAPPED_SUBRESOURCE fogBufferResource;
+	FogBuffer* fogBufferData;
+
+	HR(mDeviceContext->Map(mFogBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &fogBufferResource));
+
+	fogBufferData = (FogBuffer*)fogBufferResource.pData;
+	fogBufferData->fogColor = renderParameters.fogColor;
+	fogBufferData->fogDensity = renderParameters.fogDensity;
+	fogBufferData->fogStart = renderParameters.fogStart;
+	fogBufferData->fogRange = renderParameters.fogRange;
+	fogBufferData->fogType = renderParameters.fogType;
+	fogBufferData->showFog = renderParameters.showFog;
+
+	mDeviceContext->Unmap(mFogBuffer, 0);
+
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer };
-	mDeviceContext->VSSetConstantBuffers(0, 1, &mMatrixBuffer);
-	mDeviceContext->PSSetConstantBuffers(0, 1, &mLightBuffer);
+	ID3D11Buffer* vertexBuffers[] = { mMatrixBuffer, mLightBuffer , mCommonBuffer };
+	ID3D11Buffer* pixelBuffers[] = { mLightBuffer, mCommonBuffer, mFogBuffer };
+	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(vertexBuffers), vertexBuffers);
+	mDeviceContext->PSSetConstantBuffers(0, ARRAYSIZE(pixelBuffers), pixelBuffers);
 
 	return true;
 }
@@ -232,5 +309,8 @@ void ShadowMapShader::shutdown()
 	SafeRelease(mPixelShader);
 	SafeRelease(mVertexShader);
 	SafeRelease(mInputLayout);
+	SafeRelease(mFogBuffer);
+	SafeRelease(mCommonBuffer);
+	SafeRelease(mLightBuffer);
 	SafeRelease(mMatrixBuffer);
 }
