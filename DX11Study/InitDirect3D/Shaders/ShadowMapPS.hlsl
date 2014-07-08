@@ -35,7 +35,7 @@ float4 main(PixelInput input) : SV_TARGET
 	projectTexCoord.x = input.lightViewPosition.x / input.lightViewPosition.w / 2.0f + 0.5f;
 	projectTexCoord.y = -input.lightViewPosition.y / input.lightViewPosition.w / 2.0f + 0.5f;
 
-	float4 outputColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
+	float4 outputColor = ambientColor * ambientIntensity;
 
 	// Determine if the projected coordinates are in the 0 to 1 range. If so then this pixel is in the light view.
 	if ((saturate(projectTexCoord.x) == projectTexCoord.x) && (saturate(projectTexCoord.y) == projectTexCoord.y))
@@ -69,7 +69,7 @@ float4 main(PixelInput input) : SV_TARGET
 			// All color components are summed in the pixel shader.
 			float4 diffuseColor = (/*directionalLightDiffuseColor + */pointLightDiffuseColor/* + spotLightDiffuseColor*/)* diffuseIntensity;
 
-			outputColor = (ambientColor * ambientIntensity + diffuseColor);
+			outputColor += diffuseColor;
 		}
 	}
 

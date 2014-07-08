@@ -130,6 +130,7 @@ struct RenderParameters
 	XMFLOAT4X4 projectionMatrix2;
 	XMFLOAT4X4 lightViewMatrix;
 	XMFLOAT4X4 lightProjectionMatrix;
+	XMFLOAT4 pointLightPosition;
 };
 
 struct MeshData

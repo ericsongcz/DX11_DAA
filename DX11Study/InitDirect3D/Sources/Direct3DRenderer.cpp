@@ -321,7 +321,7 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mViewPoint.lookAt(0.0f, 0.0f, -1.0f);
 	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
-	mLight.setPosition(0.0f, 10.0f, 5.0f);
+	mLight.setPosition(0.0f, 10.0f, 30.0f);
 	mLight.lookAt(0.0f, 0.0f, -1.0f);
 	mLight.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
@@ -460,6 +460,7 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 			setShaderResource(renderPackages[i].textures.size(), &renderPackages[i].textures[0]);
 		}
 
+		XMStoreFloat4(&renderParameters.pointLightPosition, mLight.getPosition());
 		mShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
@@ -676,6 +677,7 @@ void Direct3DRenderer::renderShadowMap(RenderParameters& renderParameters)
 		ID3D11SamplerState* samplers[] = { mSamplerStateLinear, mSamplerStateLinearClamp };
 		setSamplerStates(0, 2, samplers);
 
+		XMStoreFloat4(&renderParameters.pointLightPosition, mLight.getPosition());
 		XMStoreFloat4x4(&renderParameters.lightViewMatrix, mLight.getViewMatrix());
 		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getProjectionMatrix());
 		mShadowMapShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));

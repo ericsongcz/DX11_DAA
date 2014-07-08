@@ -37,6 +37,9 @@ PixelInput main(VertexInput input)
 
 	output.worldPosition = mul(input.position, worldMatrix);
 	output.position = mul(input.position, worldViewProjectionMatrix);
+	//output.position = mul(input.position, worldMatrix);
+	//output.position = mul(output.position, lightViewMatrix);
+	//output.position = mul(output.position, lightProjectionMatrix);
 
 	// Calculate the position of the vertices as viewed by the light source.
 	output.lightViewPosition = mul(input.position, worldMatrix);
