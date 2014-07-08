@@ -7,8 +7,6 @@ ProjectiveTextureShader::ProjectiveTextureShader()
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
-	mSamplerStateLinear(nullptr),
-	mSamplerStateAnisotropic(nullptr),
 	mDeviceContext(nullptr),
 	mShaderResourceView(nullptr)
 {
@@ -210,30 +208,10 @@ void ProjectiveTextureShader::renderShader()
 	// 设置渲染使用VS和PS。
 	mDeviceContext->VSSetShader(mVertexShader, nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
-	setSamplerState(SharedParameters::samplerType);
-}
-
-void ProjectiveTextureShader::setSamplerState(ESamplerType samplerType)
-{
-	switch (samplerType)
-	{
-	case ST_LINEAR:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateLinear);
-		break;
-
-	case ST_ANISOTROPIC:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateAnisotropic);
-		break;
-
-	default:
-		break;
-	}
 }
 
 void ProjectiveTextureShader::shutdown()
 {
-	SafeRelease(mSamplerStateLinear);
-	SafeRelease(mSamplerStateAnisotropic);
 	SafeRelease(mPixelShader);
 	SafeRelease(mVertexShader);
 	SafeRelease(mInputLayout);

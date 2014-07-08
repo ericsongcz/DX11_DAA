@@ -16,11 +16,21 @@ void ViewPoint::setPosition(float x, float y, float z)
 	mPosition.z = z;
 }
 
+void ViewPoint::setPosition(const FXMVECTOR& position)
+{
+	XMStoreFloat3(&mPosition, position);
+}
+
 void ViewPoint::lookAt(float x, float y, float z)
 {
 	mLookAt.x = -x;
 	mLookAt.y = -y;
 	mLookAt.z = -z;
+}
+
+void ViewPoint::lookAt(const FXMVECTOR& lookAt)
+{
+	XMStoreFloat3(&mLookAt, lookAt);
 }
 
 void ViewPoint::setProjectionParameters(float fov, float aspectRatio, float nearPlane, float farPlane)

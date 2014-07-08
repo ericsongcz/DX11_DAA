@@ -29,5 +29,4 @@ private:
 	ID3D11PixelShader* mPixelShader;
 	ID3D11Device* mDevice;
 	ID3D11DeviceContext* mDeviceContext;
-	ID3D11ShaderResourceView* mShaderResourceView;
 };

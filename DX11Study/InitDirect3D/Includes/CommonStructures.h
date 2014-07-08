@@ -128,6 +128,8 @@ struct RenderParameters
 	XMFLOAT4X4 reflectionMatrix;
 	XMFLOAT4X4 viewMatrix2;
 	XMFLOAT4X4 projectionMatrix2;
+	XMFLOAT4X4 lightViewMatrix;
+	XMFLOAT4X4 lightProjectionMatrix;
 };
 
 struct MeshData

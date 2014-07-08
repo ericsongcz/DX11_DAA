@@ -10,8 +10,7 @@ Shader::Shader()
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
-	mDeviceContext(nullptr),
-	mShaderResourceView(nullptr)
+	mDeviceContext(nullptr)
 {
 	SharedParameters::shader = this;
 }

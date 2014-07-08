@@ -43,6 +43,8 @@ struct MatrixBuffer
 	XMFLOAT4X4 textureTransformMatrix;
 	XMFLOAT4X4 viewMatrix2;
 	XMFLOAT4X4 projectionMatrix2;
+	XMFLOAT4X4 lightViewMatrix;
+	XMFLOAT4X4 lightProjectionMatrix;
 };
 
 struct LightBuffer
@@ -57,6 +59,8 @@ struct LightBuffer
 	DirectionalLight directionalLight;
 	PointLight pointLight;
 	Spotlight spotLight;
+	XMMATRIX lightViewMatrix;
+	XMMATRIX lightProjectionMatrix;
 };
 
 struct CommonBuffer

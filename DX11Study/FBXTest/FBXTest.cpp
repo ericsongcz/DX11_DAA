@@ -13,11 +13,12 @@ using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	int i;
+	string str = "256,256";
+	char* token = ",";
 
-	int a[5];
+	size_t pos = str.find(token, 0);
 
-	int j = a[i];
+	system("pause");
 
 	return 0;
 }

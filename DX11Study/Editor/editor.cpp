@@ -79,9 +79,9 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("NormalMap2.fbx");
+	mFBXImporter->LoadScene("TestLab.fbx");
 
-	mFBXFileName = tr("NormalMap2.fbx");
+	mFBXFileName = tr("TestLab.fbx");
 	setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
 
 	mFBXImporter->WalkHierarchy();
@@ -99,6 +99,7 @@ Editor::Editor(QWidget *parent)
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
 	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 5.0f, 20.0f)));
 	mCamera->lookAt(0.0f, 0.0f, -1.0f);
+	mCamera->setProjectionParameters(XM_PI / 4.0f, mScreenWidth / mScreenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 
 	mTimer.Reset();
 	QMenu* menu = menuBar()->actions().at(0)->menu();
@@ -261,10 +262,12 @@ void Editor::drawScene()
 	//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
 	//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
 	//mRenderer->renderToTexture(renderParameters);
+	mRenderer->resetShaderResources();
+	mRenderer->renderDepth(renderParameters);
 
 	mRenderer->beginScene();
 
-	mRenderer->setSamplerState(SharedParameters::samplerType);
+	//mRenderer->setSamplerState(SharedParameters::samplerType);
 
 	if (mRenderModel)
 	{
@@ -286,7 +289,8 @@ void Editor::drawScene()
 			//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-			mRenderer->render(renderParameters);
+			//mRenderer->render(renderParameters);
+			mRenderer->renderShadowMap(renderParameters);
 			//mRenderer->renderProjectiveTexture(renderParameters);
 			//SharedParameters::renderPackages.clear();
 			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
@@ -643,7 +647,7 @@ void Editor::samplerFilterChanged(QtProperty* property, int value)
 {
 	ESamplerType samplerType = (ESamplerType)value;
 	SharedParameters::samplerType = samplerType;
-	mRenderer->setSamplerState(SharedParameters::samplerType);
+	mRenderer->setSamplerState(0, 1, SharedParameters::samplerType);
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* event)

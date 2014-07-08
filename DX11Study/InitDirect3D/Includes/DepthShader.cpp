@@ -1,16 +1,14 @@
 #include "stdafx.h"
 #include "DepthShader.h"
 #include "SharedParameters.h"
+#include "ShaderUntils.h"
 
 DepthShader::DepthShader()
 	: mMatrixBuffer(nullptr),
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
-	mSamplerStateLinear(nullptr),
-	mSamplerStateAnisotropic(nullptr),
-	mDeviceContext(nullptr),
-	mShaderResourceView(nullptr)
+	mDeviceContext(nullptr)
 {
 }
 
@@ -105,46 +103,6 @@ bool DepthShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCo
 
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
-
-	D3D11_SAMPLER_DESC samplerLinearDesc;
-	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerLinearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerLinearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.MipLODBias = 0.0f;
-	samplerLinearDesc.MaxAnisotropy = 1;
-	samplerLinearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerLinearDesc.BorderColor[0] = 0;
-	samplerLinearDesc.BorderColor[1] = 0;
-	samplerLinearDesc.BorderColor[2] = 0;
-	samplerLinearDesc.BorderColor[3] = 0;
-	samplerLinearDesc.MinLOD = 0;
-	samplerLinearDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
-
-	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
-	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerAnisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerAnisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.MipLODBias = 0.0f;
-	samplerAnisotropicDesc.MaxAnisotropy = 16;
-	samplerAnisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerAnisotropicDesc.BorderColor[0] = 0;
-	samplerAnisotropicDesc.BorderColor[1] = 0;
-	samplerAnisotropicDesc.BorderColor[2] = 0;
-	samplerAnisotropicDesc.BorderColor[3] = 0;
-	samplerAnisotropicDesc.MinLOD = 0;
-	samplerAnisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerAnisotropicDesc, &mSamplerStateAnisotropic));
 
 	return true;
 }

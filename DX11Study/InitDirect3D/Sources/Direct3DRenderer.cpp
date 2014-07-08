@@ -25,8 +25,15 @@ Direct3DRenderer::Direct3DRenderer(float width, float height, wstring title, boo
 	mDepthStencilView(nullptr),
 	mSolidState(nullptr),
 	mWireframeState(nullptr),
+	mSamplerStatePoint(nullptr),
+	mSamplerStateLinear(nullptr),
+	mSamplerStateLinearClamp(nullptr),
+	mSamplerStateAnisotropic(nullptr),
+	mAlphaBlendState(nullptr),
 	mDeferredBuffers(nullptr),
 	mRenderToTexture(nullptr),
+	mDepthShader(nullptr),
+	mShadowMapShader(nullptr),
 	mProjectiveTextureShader(nullptr)
 {
 	ZeroMemory(&mScreenViewport, sizeof(D3D11_VIEWPORT));
@@ -158,9 +165,9 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	ZeroMemory(&samplerPointDesc, sizeof(D3D11_SAMPLER_DESC));
 
 	samplerPointDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-	samplerPointDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerPointDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	samplerPointDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	samplerPointDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerPointDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerPointDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerPointDesc.MipLODBias = 0.0f;
 	samplerPointDesc.MaxAnisotropy = 1;
 	samplerPointDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -193,6 +200,26 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	// 创建纹理采样状态。
 	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
+
+	D3D11_SAMPLER_DESC samplerLinearClampDesc;
+	ZeroMemory(&samplerLinearClampDesc, sizeof(D3D11_SAMPLER_DESC));
+
+	samplerLinearClampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	samplerLinearClampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearClampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearClampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	samplerLinearClampDesc.MipLODBias = 0.0f;
+	samplerLinearClampDesc.MaxAnisotropy = 1;
+	samplerLinearClampDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	samplerLinearClampDesc.BorderColor[0] = 0;
+	samplerLinearClampDesc.BorderColor[1] = 0;
+	samplerLinearClampDesc.BorderColor[2] = 0;
+	samplerLinearClampDesc.BorderColor[3] = 0;
+	samplerLinearClampDesc.MinLOD = 0;
+	samplerLinearClampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	// 创建纹理采样状态。
+	HR(mDevice->CreateSamplerState(&samplerLinearClampDesc, &mSamplerStateLinearClamp));
 
 	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
 	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
@@ -282,9 +309,21 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 
 	mProjectiveTexture = CreateShaderResourceViewFromFile("dx11.dds", mDevice);
 
+	mDepthTexture = new RenderToTexture();
+
+	mDepthShader = new DepthShader();
+	mDepthShader->initialize(mDevice, mDeviceContext, TEXT("DepthShaderVS.cso"), TEXT("DepthShaderPS.cso"));
+
+	mShadowMapShader = new ShadowMapShader();
+	mShadowMapShader->initialize(mDevice, mDeviceContext, TEXT("ShadowMapVS.cso"), TEXT("ShadowMapPS.cso"));
+
 	mViewPoint.setPosition(0.0f, 5.0f, 20.0f);
 	mViewPoint.lookAt(0.0f, 0.0f, -1.0f);
-	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, 1.0f, 1000.0f);
+	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
+
+	mLight.setPosition(0.0f, 10.0f, 5.0f);
+	mLight.lookAt(0.0f, 0.0f, -1.0f);
+	mLight.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
 	setClearColor(100, 149, 237);
 
@@ -348,6 +387,7 @@ void Direct3DRenderer::resizeBackBuffer(UINT width, UINT height)
 	mDeferredBuffers->initialize(mDevice, mScreenWidth, mScreenHeight, 1.0f, 0.0f);
 	mFullScreenQuad->initialize(mDevice, mScreenWidth, mScreenHeight);
 	mRenderToTexture->initialize(mDevice, mScreenWidth, mScreenHeight);
+	mDepthTexture->initialize(mDevice, SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT);
 }
 
 ID3D11Device* Direct3DRenderer::getDevice() const
@@ -432,7 +472,6 @@ void Direct3DRenderer::render(RenderParameters& renderParameters)
 void Direct3DRenderer::setShaderResource(int numViews, ID3D11ShaderResourceView *const *ppShaderResourceViews)
 {
 	mDeviceContext->PSSetShaderResources(0, numViews, ppShaderResourceViews);
-
 }
 
 void Direct3DRenderer::setViewport(float width, float height, float topLeftX, float topLeftY, float minDepth, float maxDepth)
@@ -501,8 +540,8 @@ void Direct3DRenderer::renderToDeferredBuffers(RenderParameters& renderParameter
 
 void Direct3DRenderer::renderToTexture(RenderParameters& renderParameters)
 {
-	mRenderToTexture->setRenderTarget(mDeviceContext, mDepthStencilView);
-	mRenderToTexture->clearRenderTarget(mDeviceContext, mDepthStencilView, mClearColor);
+	mRenderToTexture->setRenderTarget(mDeviceContext);
+	mRenderToTexture->clearRenderTarget(mDeviceContext, mClearColor);
 
 	render(renderParameters);
 
@@ -598,6 +637,53 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 	}
 }
 
+void Direct3DRenderer::renderDepth(RenderParameters& renderParameters)
+{
+	mDepthTexture->setRenderTarget(mDeviceContext);
+	mDepthTexture->clearRenderTarget(mDeviceContext, mClearColor);
+
+	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
+
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
+
+		XMStoreFloat4x4(&renderParameters.lightViewMatrix, mLight.getViewMatrix());
+		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getProjectionMatrix());
+		mDepthShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.lightViewMatrix), XMLoadFloat4x4(&renderParameters.lightProjectionMatrix));
+
+		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+	}
+
+	resetRenderTarget();
+}
+
+void Direct3DRenderer::renderShadowMap(RenderParameters& renderParameters)
+{
+	vector<RenderPackage>& renderPackages = SharedParameters::renderPackages;
+	int renderPackageSize = renderPackages.size();
+
+	for (int i = 0; i < renderPackageSize; i++)
+	{
+		XMMATRIX worldMatrix = XMLoadFloat4x4(&renderPackages[i].globalTransform);
+		worldMatrix = XMMatrixMultiply(worldMatrix, SharedParameters::rotate);
+
+		ID3D11ShaderResourceView* srv = mDepthTexture->getShaderResourceView();
+		setShaderResource(1, &srv);
+		
+		ID3D11SamplerState* samplers[] = { mSamplerStateLinear, mSamplerStateLinearClamp };
+		setSamplerStates(0, 2, samplers);
+
+		XMStoreFloat4x4(&renderParameters.lightViewMatrix, mLight.getViewMatrix());
+		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getProjectionMatrix());
+		mShadowMapShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
+
+		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+	}
+}
+
 void Direct3DRenderer::resetShaderResources()
 {
 	// 记得要在下次渲染前解除前面SRV的绑定，否则会报错。
@@ -618,23 +704,28 @@ void Direct3DRenderer::enableAlphaBlend(bool enable)
 	}
 }
 
-void Direct3DRenderer::setSamplerState(ESamplerType samplerType)
+void Direct3DRenderer::setSamplerState(UINT startSlot, UINT numSamplers, ESamplerType samplerType)
 {
 	switch (samplerType)
 	{
 	case ST_POINT:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStatePoint);
+		mDeviceContext->PSSetSamplers(startSlot, numSamplers, &mSamplerStatePoint);
 		break;
 
 	case ST_LINEAR:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateLinear);
+		mDeviceContext->PSSetSamplers(startSlot, numSamplers, &mSamplerStateLinear);
 		break;
 
 	case ST_ANISOTROPIC:
-		mDeviceContext->PSSetSamplers(0, 1, &mSamplerStateAnisotropic);
+		mDeviceContext->PSSetSamplers(startSlot, numSamplers, &mSamplerStateAnisotropic);
 		break;
 
 	default:
 		break;
 	}
+}
+
+void Direct3DRenderer::setSamplerStates(UINT startSlot, UINT numSamplers, ID3D11SamplerState* const* samplers)
+{
+	mDeviceContext->PSSetSamplers(startSlot, numSamplers, samplers);
 }

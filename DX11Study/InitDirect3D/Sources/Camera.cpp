@@ -139,11 +139,9 @@ DirectX::XMMATRIX Camera::getReflectionViewMatrix(float height)
 
 XMMATRIX Camera::getProjectionMatrix() const
 {
-	float fov = XM_PI / 4;
-
 	// 创建透视投影矩阵。
 #if USE_RIGHT_HAND
-	return XMMatrixPerspectiveFovRH(fov, mAspectRatio, 1.0f, 1000.0f);
+	return XMMatrixPerspectiveFovRH(mFOV, mAspectRatio, mNearZ, mFarZ);
 #else
 	return XMMatrixPerspectiveFovLH(fov, mAspectRatio, 1.0f, 1000.0f);
 #endif
@@ -166,6 +164,14 @@ XMMATRIX Camera::getOrthogonalMatrix() const
 void Camera::setAspectRatio(float aspectRatio)
 {
 	mAspectRatio = aspectRatio;
+}
+
+void Camera::setProjectionParameters(float fov, float aspectRatio, float nearZ, float farZ)
+{
+	mFOV = fov;
+	mAspectRatio = aspectRatio;
+	mNearZ = nearZ;
+	mFarZ = farZ;
 }
 
 void Camera::setPosition(FXMVECTOR position)

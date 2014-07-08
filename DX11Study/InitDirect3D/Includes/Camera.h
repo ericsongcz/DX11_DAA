@@ -26,6 +26,7 @@ public:
 	void setAspectRatio(float aspectRatio);
 	void setOrthogonalMatrix(float width, float height, float nearZ = 1.0f, float farZ = 1000.0f);
 	void setPosition(FXMVECTOR position);
+	void setProjectionParameters(float fov, float aspectRatio, float nearZ, float farZ);
 	XMFLOAT3 getPosition() const;
 	void lookAt(FXMVECTOR lookAt);
 	void lookAt(float x, float y, float z);
@@ -37,7 +38,10 @@ public:
 	void roll(float angle);	  // Ðý×ªlookÏòÁ¿¡£
 
 private:
+	float mFOV;
 	float mAspectRatio;
+	float mNearZ;
+	float mFarZ;
 
 	XMFLOAT4X4 mWorldMatrix;
 	XMFLOAT4X4 mBaseViewMatrix;

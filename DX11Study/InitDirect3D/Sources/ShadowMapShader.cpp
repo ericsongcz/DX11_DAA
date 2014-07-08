@@ -1,28 +1,23 @@
 #include "stdafx.h"
-#include "ReflectionShader.h"
-#include "D3DUtils.h"
+#include "ShadowMapShader.h"
 #include "SharedParameters.h"
+#include "ShaderUntils.h"
 
-ReflectionShader::ReflectionShader()
+ShadowMapShader::ShadowMapShader()
 	: mMatrixBuffer(nullptr),
-	mReflectionBuffer(nullptr),
 	mInputLayout(nullptr),
 	mVertexShader(nullptr),
 	mPixelShader(nullptr),
-	mSamplerStateLinear(nullptr),
-	mSamplerStateAnisotropic(nullptr),
-	mDeviceContext(nullptr),
-	mShaderResourceView(nullptr)
+	mDeviceContext(nullptr)
 {
-
 }
 
-ReflectionShader::~ReflectionShader()
+ShadowMapShader::~ShadowMapShader()
 {
 	shutdown();
 }
 
-bool ReflectionShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName)
+bool ShadowMapShader::initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* vsFileName, const wchar_t* psFileName)
 {
 	mDevice = device;
 	mDeviceContext = deviceContext;
@@ -109,61 +104,22 @@ bool ReflectionShader::initialize(ID3D11Device* device, ID3D11DeviceContext* dev
 	// 创建constant buffer指针，以便访问shader常量。
 	HR(mDevice->CreateBuffer(&matrixBufferDesc, nullptr, &mMatrixBuffer));
 
-	D3D11_BUFFER_DESC reflectionBufferDesc;
-	ZeroMemory(&reflectionBufferDesc, sizeof(D3D11_BUFFER_DESC));
-	reflectionBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
-	reflectionBufferDesc.ByteWidth = sizeof(ReflectionBuffer);
-	reflectionBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	reflectionBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-	reflectionBufferDesc.MiscFlags = 0;
-	reflectionBufferDesc.StructureByteStride = 0;
+	D3D11_BUFFER_DESC lightBufferDesc;
+	ZeroMemory(&lightBufferDesc, sizeof(D3D11_BUFFER_DESC));
 
-	HR(mDevice->CreateBuffer(&reflectionBufferDesc, nullptr, &mReflectionBuffer));
+	lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc.ByteWidth = sizeof(LightBuffer);
+	lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc.MiscFlags = 0;
+	lightBufferDesc.StructureByteStride = 0;
 
-	D3D11_SAMPLER_DESC samplerLinearDesc;
-	ZeroMemory(&samplerLinearDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerLinearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	samplerLinearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerLinearDesc.MipLODBias = 0.0f;
-	samplerLinearDesc.MaxAnisotropy = 1;
-	samplerLinearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerLinearDesc.BorderColor[0] = 0;
-	samplerLinearDesc.BorderColor[1] = 0;
-	samplerLinearDesc.BorderColor[2] = 0;
-	samplerLinearDesc.BorderColor[3] = 0;
-	samplerLinearDesc.MinLOD = 0;
-	samplerLinearDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerLinearDesc, &mSamplerStateLinear));
-
-	D3D11_SAMPLER_DESC samplerAnisotropicDesc;
-	ZeroMemory(&samplerAnisotropicDesc, sizeof(D3D11_SAMPLER_DESC));
-
-	samplerAnisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-	samplerAnisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	samplerAnisotropicDesc.MipLODBias = 0.0f;
-	samplerAnisotropicDesc.MaxAnisotropy = 16;
-	samplerAnisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
-	samplerAnisotropicDesc.BorderColor[0] = 0;
-	samplerAnisotropicDesc.BorderColor[1] = 0;
-	samplerAnisotropicDesc.BorderColor[2] = 0;
-	samplerAnisotropicDesc.BorderColor[3] = 0;
-	samplerAnisotropicDesc.MinLOD = 0;
-	samplerAnisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	// 创建纹理采样状态。
-	HR(mDevice->CreateSamplerState(&samplerAnisotropicDesc, &mSamplerStateAnisotropic));
+	HR(mDevice->CreateBuffer(&lightBufferDesc, nullptr, &mLightBuffer));
 
 	return true;
 }
 
-bool ReflectionShader::render(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool ShadowMapShader::render(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	renderShader();
 	setShaderParameters(renderParameters, worldMatrix, viewMatrix, projectionMatrix);
@@ -171,7 +127,7 @@ bool ReflectionShader::render(RenderParameters& renderParameters, FXMMATRIX& wor
 	return true;
 }
 
-bool ReflectionShader::setShaderParameters(RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
+bool ShadowMapShader::setShaderParameters(const RenderParameters& renderParameters, FXMMATRIX& worldMatrix, FXMMATRIX& viewMatrix, FXMMATRIX& projectionMatrix)
 {
 	// 传入Shader前，确保矩阵转置，这是D3D11的要求。
 	XMMATRIX worldViewProjection = XMMatrixMultiply(worldMatrix, viewMatrix);
@@ -181,9 +137,9 @@ bool ReflectionShader::setShaderParameters(RenderParameters& renderParameters, F
 	XMMATRIX worldMatrixTemp = XMMatrixTranspose(worldMatrix);
 	XMMATRIX viewMatrixTemp = XMMatrixTranspose(viewMatrix);
 	XMMATRIX projectionMatrixTemp = XMMatrixTranspose(projectionMatrix);
-	XMMATRIX reflectionMatrixTemp = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.reflectionMatrix));
-
-	SharedParameters::worldMatrix = worldMatrixTemp;
+	XMMATRIX textureTransformMatrixTemp = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.textureTransformMatrix));
+	XMMATRIX lightViewMatrix = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.lightViewMatrix));
+	XMMATRIX lightProjectionMatrix = XMMatrixTranspose(XMLoadFloat4x4(&renderParameters.lightProjectionMatrix));
 
 	MatrixBuffer* matrixData;
 
@@ -199,35 +155,68 @@ bool ReflectionShader::setShaderParameters(RenderParameters& renderParameters, F
 	XMStoreFloat4x4(&matrixData->worldMatrix, worldMatrixTemp);
 	XMStoreFloat4x4(&matrixData->viewMatrix, viewMatrixTemp);
 	XMStoreFloat4x4(&matrixData->projectionMatrix, projectionMatrixTemp);
-
 	XMStoreFloat4x4(&matrixData->worldViewProjectionMatrix, worldViewProjection);
+	XMStoreFloat4x4(&matrixData->textureTransformMatrix, textureTransformMatrixTemp);
+	XMStoreFloat4x4(&matrixData->lightViewMatrix, lightViewMatrix);
+	XMStoreFloat4x4(&matrixData->lightProjectionMatrix, lightProjectionMatrix);
 
 	// 解锁常量缓冲。
 	mDeviceContext->Unmap(mMatrixBuffer, 0);
 
-	D3D11_MAPPED_SUBRESOURCE reflectionBufferResource;
+	D3D11_MAPPED_SUBRESOURCE lightBufferResource;
+	LightBuffer* lightBufferData;
 
-	ReflectionBuffer* reflectionBufferData;
+	HR(mDeviceContext->Map(mLightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &lightBufferResource));
 
-	HR(mDeviceContext->Map(mReflectionBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &reflectionBufferResource));
+	lightBufferData = (LightBuffer*)lightBufferResource.pData;
 
-	reflectionBufferData = (ReflectionBuffer*)reflectionBufferResource.pData;
+	lightBufferData->ambientColor = renderParameters.ambientColor;
+	lightBufferData->ambientIntensity = renderParameters.ambientIntensity;
+	lightBufferData->diffuseIntensity = renderParameters.diffuseIntensity;
+	lightBufferData->pad1 = 0.0f;
+	lightBufferData->pad2 = 0.0f;
 
-	XMStoreFloat4x4(&reflectionBufferData->reflectionMatrix, reflectionMatrixTemp);
+	XMFLOAT3 cameraPosition = SharedParameters::camera->getPosition();
+	lightBufferData->cameraPositon = XMFLOAT4(cameraPosition.x, cameraPosition.y, cameraPosition.z, 1.0f);
 
-	mDeviceContext->Unmap(mReflectionBuffer, 0);
+	lightBufferData->specularColor = XMFLOAT4(Colors::White);
+
+	DirectionalLight directionalLight;
+	directionalLight.diffuseColor = renderParameters.diffuseColor;
+	directionalLight.direction = XMFLOAT4(-1.0f, -1.0f, 0.0f, 0.0f);
+	lightBufferData->directionalLight = directionalLight;
+
+	PointLight pointLight;
+	pointLight.diffuseColor = renderParameters.diffuseColor;
+	pointLight.position = XMFLOAT4(0.0, 10.0f, 5.0f, 1.0f);
+	pointLight.radius = 10.0f;
+	pointLight.attenuation0 = 0.0f;
+	pointLight.attenuation1 = 1.0f;
+	pointLight.attenuation2 = 0.0f;
+	lightBufferData->pointLight = pointLight;
+
+	Spotlight spotLight;
+	spotLight.diffuseColor = renderParameters.diffuseColor;;
+	spotLight.position = XMFLOAT3(0.0f, 5.0f, 0.0f);
+	spotLight.radius = 10.0f;
+	spotLight.direction = XMFLOAT3(0.0f, -1.0f, 0.0f);
+	spotLight.spot = 8.0f;
+	lightBufferData->spotLight = spotLight;
+
+	mDeviceContext->Unmap(mLightBuffer, 0);
 
 	// 设置常量缓冲位置。
 	UINT startSlot = 0;
 
 	// 用更新后的值设置常量缓冲。
-	ID3D11Buffer* buffers[] = { mMatrixBuffer, mReflectionBuffer };
-	mDeviceContext->VSSetConstantBuffers(0, ARRAYSIZE(buffers), buffers);
+	ID3D11Buffer* buffers[] = { mMatrixBuffer, mLightBuffer };
+	mDeviceContext->VSSetConstantBuffers(0, 1, &mMatrixBuffer);
+	mDeviceContext->PSSetConstantBuffers(0, 1, &mLightBuffer);
 
 	return true;
 }
 
-void ReflectionShader::renderShader()
+void ShadowMapShader::renderShader()
 {
 	// 绑定顶点布局。
 	mDeviceContext->IASetInputLayout(mInputLayout);
@@ -237,7 +226,8 @@ void ReflectionShader::renderShader()
 	mDeviceContext->PSSetShader(mPixelShader, nullptr, 0);
 }
 
-void ReflectionShader::shutdown()
+
+void ShadowMapShader::shutdown()
 {
 	SafeRelease(mPixelShader);
 	SafeRelease(mVertexShader);

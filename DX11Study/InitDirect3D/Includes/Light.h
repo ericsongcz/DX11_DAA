@@ -1,16 +1,29 @@
 #pragma once
+
 #include <DirectXMath.h>
+#include "ViewPoint.h"
 
 using namespace DirectX;
 
-class ViewPoint
+class Light
 {
 public:
-	ViewPoint();
-	~ViewPoint();
+	enum ELightType
+	{
+		LT_Point,
+		LT_Dirctional,
+		LT_Spot
+	};
+
+	Light();
+	~Light();
 
 	void setPosition(float x, float y, float z);
 	void setPosition(const FXMVECTOR& position);
+	XMVECTOR getPosition() const;
+	void setDirection(float x, float y, float z);
+	void setDirection(const FXMVECTOR& direction);
+	XMVECTOR getDirection() const;
 	void lookAt(float x, float y, float z);
 	void lookAt(const FXMVECTOR& lookAt);
 	void setProjectionParameters(float fov, float aspectRatio, float nearPlane, float farPlane);
@@ -18,11 +31,6 @@ public:
 	XMMATRIX getProjectionMatrix();
 private:
 	XMFLOAT3 mPosition;
-	XMFLOAT3 mLookAt;
-	XMFLOAT4X4 mViewMatrx;
-	XMFLOAT4X4 mProjectionMatrix;
-	float mFOV;
-	float mAspectRatio;
-	float mNearPlane;
-	float mFarPlane;
+	XMFLOAT3 mDirection;
+	ViewPoint mViewPoint;
 };

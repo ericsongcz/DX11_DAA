@@ -11,8 +11,16 @@
 #include "RenderToTexture.h"
 #include "ProjectiveTextureShader.h"
 #include "ViewPoint.h"
+#include "DepthShader.h"
+#include "ShadowMapShader.h"
+#include "Light.h"
 
 using std::wstring;
+
+const int SHADOWMAP_WIDTH = 1024;
+const int SHADOWMAP_HEIGHT = 1024;
+const float SCREEN_NEAR = 1.0f;
+const float SCREEN_DEPTH = 1000.0f;
 
 class Direct3DRenderer
 {
@@ -38,11 +46,14 @@ public:
 	void renderLight(RenderParameters& renderParameters);
 	void renderReflection(RenderParameters& renderParameters);
 	void renderProjectiveTexture(RenderParameters& renderParameters);
+	void renderDepth(RenderParameters& renderParameters);
+	void renderShadowMap(RenderParameters& renderParameters);
 	void resetRenderTarget();
 	void resetShaderResources();
 	void enableOnZTest(bool on);
 	void enableAlphaBlend(bool enable);
-	void setSamplerState(ESamplerType samplerType);
+	void setSamplerState(UINT startSlot, UINT numSamplers, ESamplerType samplerType);
+	void setSamplerStates(UINT startSlot, UINT numSamplers, ID3D11SamplerState* const* samplers);
 	//private:
 	// D3D11 stuffs.
 	float mScreenWidth;
@@ -73,6 +84,7 @@ public:
 	ID3D11DepthStencilState* mDisableDepthStencilState;
 	ID3D11SamplerState* mSamplerStatePoint;
 	ID3D11SamplerState* mSamplerStateLinear;
+	ID3D11SamplerState* mSamplerStateLinearClamp;
 	ID3D11SamplerState* mSamplerStateAnisotropic;
 	ID3D11BlendState* mAlphaBlendState;
 	float mClearColor[3];
@@ -82,7 +94,11 @@ public:
 	LightShader* mLightShader;
 	ReflectionShader* mReflectionShader;
 	RenderToTexture* mRenderToTexture;
+	RenderToTexture* mDepthTexture;
+	DepthShader* mDepthShader;
+	ShadowMapShader* mShadowMapShader;
 	ProjectiveTextureShader* mProjectiveTextureShader;
 	ID3D11ShaderResourceView* mProjectiveTexture;
 	ViewPoint mViewPoint;
+	Light mLight;
 };

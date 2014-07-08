@@ -153,6 +153,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\InitDirect3D\Includes\DepthShader.cpp" />
+    <ClCompile Include="..\InitDirect3D\Includes\Light.cpp" />
     <ClCompile Include="..\InitDirect3D\Includes\ViewPoint.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\BasicShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Camera.cpp" />
@@ -177,6 +178,7 @@
     <ClCompile Include="..\InitDirect3D\Sources\RenderToTexture.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\Shader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\ShaderUtils.cpp" />
+    <ClCompile Include="..\InitDirect3D\Sources\ShadowMapShader.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedD3DDevice.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedInputLayouts.cpp" />
     <ClCompile Include="..\InitDirect3D\Sources\SharedParameters.cpp" />
@@ -233,6 +235,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\Geometry.h" />
     <ClInclude Include="..\InitDirect3D\Includes\GeometryGenerator.h" />
     <ClInclude Include="..\InitDirect3D\Includes\IRenderable.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\Light.h" />
     <ClInclude Include="..\InitDirect3D\Includes\LightShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Log.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Material.h" />
@@ -241,6 +244,7 @@
     <ClInclude Include="..\InitDirect3D\Includes\ReflectionShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\RenderToTexture.h" />
     <ClInclude Include="..\InitDirect3D\Includes\Shader.h" />
+    <ClInclude Include="..\InitDirect3D\Includes\ShadowMapShader.h" />
     <ClInclude Include="..\InitDirect3D\Includes\ShaderUntils.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedD3DDevice.h" />
     <ClInclude Include="..\InitDirect3D\Includes\SharedInputLayouts.h" />
@@ -428,6 +432,21 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ShadowMapPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+    </FxCompile>
+    <FxCompile Include="..\InitDirect3D\Shaders\ShadowMapVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EnableDebuggingInformation Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</EnableDebuggingInformation>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
     </FxCompile>
     <FxCompile Include="..\InitDirect3D\Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

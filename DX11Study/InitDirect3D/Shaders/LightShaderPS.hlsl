@@ -58,14 +58,15 @@ float4 main(PixelInput input) : SV_TARGET
 	LightResult result = ComputeDirectionalLight(directionalLight, normal.xyz, viewDir);
 	float4 directionalLightDiffuseColor = result.diffuseColor;
 
-	result = ComputePointLight(pointLight, normal.xyz, worldPosition.xyz, viewDir);
-	float4 pointLightDiffuseColor = result.diffuseColor;
+	//result = ComputePointLight(pointLight, normal, input.worldPosition.xyz, viewDir);
+	//float4 pointLightDiffuseColor = result.diffuseColor;
+	float4 pointLightDiffuseColor = DirectIllumination(pointLight, worldPosition.xyz, normal.xyz, 0.001f);
 
 	result = ComputeSpotLight(spotLight, normal.xyz, worldPosition.xyz, viewDir);
 	float4 spotLightDiffuseColor = result.diffuseColor;
 
 	// All color components are summed in the pixel shader.
-	float4 diffuseColor = diffuseColor = (directionalLightDiffuseColor/* + pointLightDiffuseColor*//* + spotLightDiffuseColor*/)* diffuseIntensity;
+	float4 diffuseColor = diffuseColor = (/*directionalLightDiffuseColor +*/ pointLightDiffuseColor/* + spotLightDiffuseColor*/)* diffuseIntensity;
 	float4 baseColor = float4(1.0f, 1.0f, 1.0f, 1.0f);
 
 	float4 textureColor = colorTexture.Sample(samplerState, input.texcoord);
