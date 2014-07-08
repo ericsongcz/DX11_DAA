@@ -99,7 +99,7 @@ Editor::Editor(QWidget *parent)
 
 	mCamera = new Camera();
 	mCamera->setAspectRatio(mScreenWidth / mScreenHeight);
-	mCamera->setPosition(XMLoadFloat3(&XMFLOAT3(0.0f, 15.0f, 20.0f)));
+	mCamera->setPosition(10.0f, 20.0f, 30.0f);
 	mCamera->lookAt(0.0f, -0.5f, -1.0f);
 	mCamera->setProjectionParameters(XM_PI / 4.0f, mScreenWidth / mScreenHeight, SCREEN_NEAR, SCREEN_DEPTH);
 

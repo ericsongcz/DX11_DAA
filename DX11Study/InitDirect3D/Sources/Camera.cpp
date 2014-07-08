@@ -174,6 +174,13 @@ void Camera::setProjectionParameters(float fov, float aspectRatio, float nearZ, 
 	mFarZ = farZ;
 }
 
+void Camera::setPosition(float x, float y, float z)
+{
+	mPosition.x = x;
+	mPosition.y = y;
+	mPosition.z = z;
+}
+
 void Camera::setPosition(FXMVECTOR position)
 {
 	XMStoreFloat3(&mPosition, position);

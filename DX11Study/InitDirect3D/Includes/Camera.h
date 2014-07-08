@@ -25,6 +25,7 @@ public:
 	XMMATRIX getOrthogonalMatrix() const;
 	void setAspectRatio(float aspectRatio);
 	void setOrthogonalMatrix(float width, float height, float nearZ = 1.0f, float farZ = 1000.0f);
+	void setPosition(float x, float y, float z);
 	void setPosition(FXMVECTOR position);
 	void setProjectionParameters(float fov, float aspectRatio, float nearZ, float farZ);
 	XMFLOAT3 getPosition() const;
