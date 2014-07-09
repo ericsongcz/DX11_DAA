@@ -81,9 +81,9 @@ Editor::Editor(QWidget *parent)
 	mFBXImporter->Init();
 	mGeometry = new Geometry();
 
-	mFBXImporter->LoadScene("TestLab.fbx");
+	mFBXImporter->LoadScene("ProjectiveTexture.fbx");
 
-	mFBXFileName = tr("TestLab.fbx");
+	mFBXFileName = tr("ProjectiveTexture.fbx");
 	setWindowTitle(tr("Qt D3D Demo") + tr("-") + mFBXFileName);
 
 	mFBXImporter->WalkHierarchy();
@@ -261,12 +261,12 @@ void Editor::drawScene()
 		mRenderer->renderToDeferredBuffers(renderParameters);
 	}
 
-	//SharedParameters::renderPackages.clear();
-	//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-	//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
-	//mRenderer->renderToTexture(renderParameters);
-	mRenderer->resetShaderResources();
-	mRenderer->renderDepth(renderParameters);
+	SharedParameters::renderPackages.clear();
+	SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
+	XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+	mRenderer->renderToTexture(renderParameters);
+	//mRenderer->resetShaderResources();
+	//mRenderer->renderDepth(renderParameters);
 
 	mRenderer->beginScene();
 
@@ -289,16 +289,16 @@ void Editor::drawScene()
 		else
 		{
 			//mRenderer->enableAlphaBlend(true);
-			//XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
-			//SharedParameters::renderPackages.clear();
-			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
-			//mRenderer->render(renderParameters);
-			mRenderer->renderShadowMap(renderParameters);
+			XMStoreFloat4x4(&renderParameters.viewMatrix, SharedParameters::camera->getViewMatrix());
+			SharedParameters::renderPackages.clear();
+			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[0]);
+			mRenderer->render(renderParameters);
+			//mRenderer->renderShadowMap(renderParameters);
 			//mRenderer->renderProjectiveTexture(renderParameters);
-			//SharedParameters::renderPackages.clear();
-			//SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
-			//XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
-			//mRenderer->renderReflection(renderParameters);
+			SharedParameters::renderPackages.clear();
+			SharedParameters::renderPackages.push_back(mGeometry->GetMeshData()->renderPackages[1]);
+			XMStoreFloat4x4(&renderParameters.reflectionMatrix, SharedParameters::camera->getReflectionViewMatrix(1.5f));
+			mRenderer->renderReflection(renderParameters);
 			//mRenderer->enableAlphaBlend(false);
 		}
 	}

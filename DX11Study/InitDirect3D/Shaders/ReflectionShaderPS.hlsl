@@ -24,7 +24,7 @@ float4 main(PixelInput input) : SV_TARGET
 	float4 reflectionColor = reflectionTexture.Sample(samplerState, reflectionTexcoord);
 
 	// Do a linear interpolation between the two textures for a blend effect.
-	float4 outputColor = lerp(textureColor, reflectionColor, 0.25f);
+	float4 outputColor = lerp(textureColor, reflectionColor, 0.5f);
 
 	return outputColor;
 }

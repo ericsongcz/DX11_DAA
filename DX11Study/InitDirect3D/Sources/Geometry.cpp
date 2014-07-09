@@ -32,25 +32,25 @@ void Geometry::FillMeshData(MeshData* meshData)
 {
 	clear();
 
-	mMeshdata = meshData;
-	mVertices.resize(mMeshdata->verticesCount);
-	mIndices.resize(mMeshdata->indicesCount);
-	mVerticesCount = mMeshdata->verticesCount;
-	mIndicesCount = mMeshdata->indicesCount;
+	//mMeshdata = meshData;
+	//mVertices.resize(mMeshdata->verticesCount);
+	//mIndices.resize(mMeshdata->indicesCount);
+	//mVerticesCount = mMeshdata->verticesCount;
+	//mIndicesCount = mMeshdata->indicesCount;
 
-	for (int i = 0; i < mVerticesCount; i++)
-	{
-		mVertices[i].position = mMeshdata->vertices[i];
-		mVertices[i].color = XMFLOAT4(Colors::White);
-		mVertices[i].normal = mMeshdata->normals[i];
-		mVertices[i].texcoord = mMeshdata->uvs[i];
-		mVertices[i].tangent = mMeshdata->tangents[i];
-		mVertices[i].binormal = mMeshdata->binormals[i];
-	}
+	//for (int i = 0; i < mVerticesCount; i++)
+	//{
+	//	mVertices[i].position = mMeshdata->vertices[i];
+	//	mVertices[i].color = XMFLOAT4(Colors::White);
+	//	mVertices[i].normal = mMeshdata->normals[i];
+	//	mVertices[i].texcoord = mMeshdata->uvs[i];
+	//	mVertices[i].tangent = mMeshdata->tangents[i];
+	//	mVertices[i].binormal = mMeshdata->binormals[i];
+	//}
 
-	memcpy_s(&mIndices[0], sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
+	//memcpy_s(&mIndices[0], sizeof(UINT) * mIndicesCount, &(mMeshdata->indices[0]), sizeof(UINT) * mIndicesCount);
 
-	/*GeometryGenerator geometryGenerator;
+	GeometryGenerator geometryGenerator;
 	GeometryGenerator::MeshData md;
 	Entity* entity = geometryGenerator.CreateBox(4, 4, 4, md);
 
@@ -73,7 +73,7 @@ void Geometry::FillMeshData(MeshData* meshData)
 	entity->setMaterial(material);
 	entity->setPosition(0.0f, 1.5f, 1.5f);
 
-	addRenderable(entity);*/
+	addRenderable(entity);
 
 	prepareRenderPackages();
 }
