@@ -41,6 +41,12 @@ void ViewPoint::setProjectionParameters(float fov, float aspectRatio, float near
 	mFarPlane = farPlane;
 }
 
+void ViewPoint::setOrthogonalParameters(float width, float nearPlane, float farPlane)
+{
+	mWidth = width;
+	mNearPlane = nearPlane;
+	mFarPlane = farPlane;
+}
 
 XMMATRIX ViewPoint::getViewMatrix()
 {
@@ -83,4 +89,9 @@ XMMATRIX ViewPoint::getViewMatrix()
 XMMATRIX ViewPoint::getProjectionMatrix()
 {
 	return XMMatrixPerspectiveFovRH(mFOV, mAspectRatio, mNearPlane, mFarPlane);
+}
+
+DirectX::XMMATRIX ViewPoint::getOrthogonalMatrix()
+{
+	return XMMatrixOrthographicRH(mWidth, mWidth, mNearPlane, mFarPlane);
 }

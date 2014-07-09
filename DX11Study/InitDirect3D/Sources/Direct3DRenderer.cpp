@@ -321,9 +321,10 @@ bool Direct3DRenderer::initD3D(HWND hWnd)
 	mViewPoint.lookAt(0.0f, 0.0f, -1.0f);
 	mViewPoint.setProjectionParameters(XM_PI / 4.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
-	mLight.setPosition(10.0f, 20.0f, 30.0f);
-	mLight.lookAt(-0.3f, -0.5f, -0.8f);
+	mLight.setPosition(500.0f, 500.0f, 0.0f);
+	mLight.lookAt(-1.0f, -1.0f, 0.0f);
 	mLight.setProjectionParameters(XM_PI / 2.0f, 1.0f, SCREEN_NEAR, SCREEN_DEPTH);
+	mLight.setOrthogonalParameters(100.0f, SCREEN_NEAR, SCREEN_DEPTH);
 
 	setClearColor(100, 149, 237);
 
@@ -632,6 +633,7 @@ void Direct3DRenderer::renderProjectiveTexture(RenderParameters& renderParameter
 
 		XMStoreFloat4x4(&renderParameters.viewMatrix2, mViewPoint.getViewMatrix());
 		XMStoreFloat4x4(&renderParameters.projectionMatrix2, mViewPoint.getProjectionMatrix());
+		XMStoreFloat4x4(&renderParameters.projectionMatrix2, mViewPoint.getOrthogonalMatrix());
 		mProjectiveTextureShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
@@ -653,6 +655,7 @@ void Direct3DRenderer::renderDepth(RenderParameters& renderParameters)
 
 		XMStoreFloat4x4(&renderParameters.lightViewMatrix, mLight.getViewMatrix());
 		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getProjectionMatrix());
+		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getOrthogonalMatrix());
 		mDepthShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.lightViewMatrix), XMLoadFloat4x4(&renderParameters.lightProjectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
@@ -698,6 +701,7 @@ void Direct3DRenderer::renderShadowMap(RenderParameters& renderParameters)
 		XMStoreFloat4(&renderParameters.pointLightPosition, mLight.getPosition());
 		XMStoreFloat4x4(&renderParameters.lightViewMatrix, mLight.getViewMatrix());
 		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getProjectionMatrix());
+		XMStoreFloat4x4(&renderParameters.lightProjectionMatrix, mLight.getOrthogonalMatrix());
 		mShadowMapShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);

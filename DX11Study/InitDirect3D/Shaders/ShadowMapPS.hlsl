@@ -123,7 +123,7 @@ float4 main(PixelInput input) : SV_TARGET
 			float4 pointLightDiffuseColor = DirectIllumination(pointLight, input.worldPosition.xyz, normal, 0.001f);
 
 			// All color components are summed in the pixel shader.
-			float4 diffuseColor = (/*directionalLightDiffuseColor + */ pointLightDiffuseColor /* + spotLightDiffuseColor*/)* diffuseIntensity;
+			float4 diffuseColor = (directionalLightDiffuseColor/* + pointLightDiffuseColor *//* + spotLightDiffuseColor*/) * diffuseIntensity;
 
 			outputColor += diffuseColor;
 		}

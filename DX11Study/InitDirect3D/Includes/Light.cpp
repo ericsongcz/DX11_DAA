@@ -63,6 +63,11 @@ void Light::setProjectionParameters(float fov, float aspectRatio, float nearPlan
 	mViewPoint.setProjectionParameters(fov, aspectRatio, nearPlane, farPlane);
 }
 
+void Light::setOrthogonalParameters(float width, float nearPlane, float farPlane)
+{
+	mViewPoint.setOrthogonalParameters(width, nearPlane, farPlane);
+}
+
 XMMATRIX Light::getViewMatrix()
 {
 	return mViewPoint.getViewMatrix();
@@ -71,4 +76,9 @@ XMMATRIX Light::getViewMatrix()
 XMMATRIX Light::getProjectionMatrix()
 {
 	return mViewPoint.getProjectionMatrix();
+}
+
+XMMATRIX Light::getOrthogonalMatrix()
+{
+	return mViewPoint.getOrthogonalMatrix();
 }
