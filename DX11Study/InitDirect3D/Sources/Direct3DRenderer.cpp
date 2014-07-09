@@ -705,6 +705,9 @@ void Direct3DRenderer::renderShadowMap(RenderParameters& renderParameters)
 		mShadowMapShader->render(renderParameters, worldMatrix, XMLoadFloat4x4(&renderParameters.viewMatrix), XMLoadFloat4x4(&renderParameters.projectionMatrix));
 
 		renderBuffer(renderPackages[i].indicesCount, renderPackages[i].indicesOffset, 0);
+
+		renderParameters.hasDiffuseTexture = false;
+		renderParameters.hasNormalMapTexture = false;
 	}
 }
 

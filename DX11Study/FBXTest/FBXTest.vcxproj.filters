@@ -32,8 +32,5 @@
     <ClCompile Include="FBXTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\InitDirect3D\Sources\GameTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

@@ -111,7 +111,7 @@ float4 main(PixelInput input) : SV_TARGET
 	{
 		float fogEnd = fogStart + fogRange;
 		float distanceToEye = length(viewDir);
-		float fogLerp;
+		float fogLerp = 0;
 		
 		if (fogType == 0)
 		{

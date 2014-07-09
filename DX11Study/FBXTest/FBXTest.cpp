@@ -2,23 +2,18 @@
 //
 
 #include "stdafx.h"
+#include <limits>
 #include <iostream>
 #include <vector>
 #include <windows.h>
-#include <DirectXMath.h>
-#include "../InitDirect3D/Includes/GameTimer.h"
 
-using namespace DirectX;
 using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	string str = "256,256";
-	char* token = ",";
+	int value = 0;
 
-	size_t pos = str.find(token, 0);
-
-	system("pause");
+	cout << value << endl;
 
 	return 0;
 }
